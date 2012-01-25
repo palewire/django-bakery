@@ -1,0 +1,1 @@
+Models, views and management commands to help you create flatpages from your Django app.
