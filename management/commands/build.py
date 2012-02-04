@@ -8,7 +8,6 @@ from django.test.client import RequestFactory
 from django.core.management.base import BaseCommand, CommandError
 from django.core.urlresolvers import reverse
 
-
 class Command(BaseCommand):
     help = 'Bake out the entire site as flat files in the build directory'
     
@@ -43,11 +42,25 @@ class Command(BaseCommand):
         except AttributeError:
             raise AttributeError("No views in settings.BAKERY_VIEWS")
 
-        for view in settings.BAKERY_VIEWS:
-            view.build_objects()
+        for view_str in settings.BAKERY_VIEWS:
+            view = self._view_from_string(view_str)()
+            view.build_queryset()
         
         # Build 404 page
         self.stdout.write("Building 404 page\n")
         rf = RequestFactory()
         response = render(rf.get("/404.html"), '404.html', {})
         self.write('404.html', response.content)
+
+    def _view_from_string(self, name):
+        """
+        Takes a full string representing a dot-path to 
+        a class (eg "blog.views.DetailView") and returns that
+        class as a Python object.
+        """
+        mod = __import__(name.split('.')[0])
+        bits = name.split('.')[1:]
+        c = mod
+        for bit in bits:
+            c = getattr(c, bit)
+        return c
