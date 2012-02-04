@@ -1,1 +1,7 @@
-Models, views and management commands to help you create flatpages from your Django app.
+Models, views and management commands to help you create flat pages from your Django app.
+
+Simply install bakery, create models using the BuildableModel class, and write your views using the BuildableDetailView class. Edit your settings.py, and add those views to your BAKERY_VIEWS setting as a list of strings, eg ['example.views.AlbumDetailView',].
+
+Now on the command line, run python manage.py build. Your views should bake into a build folder as flat pages. Optionally, you can publish these files to S3 for cheap hosting.
+
+For an example app written using bakery, check out the example branch: https://github.com/datadesk/django-bakery/tree/example
