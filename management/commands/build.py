@@ -43,8 +43,8 @@ class Command(BaseCommand):
             raise AttributeError("No views in settings.BAKERY_VIEWS")
 
         for view_str in settings.BAKERY_VIEWS:
-            view = self._view_from_string(view_str)()
-            view.build_queryset()
+            view = self._view_from_string(view_str)
+            view().build_queryset()
         
         # Build 404 page
         self.stdout.write("Building 404 page\n")
