@@ -13,11 +13,12 @@ class BuildableModel(models.Model):
     An abstract base model for an object that builds out
     its own detail pages. 
 
-    Set the detail_view to the string representing your class-based
-    view (which should inherit from BuildableDetailView), then fill
-    out _build_related and _build_extra if need be.
+    Set `detail_views` to an iterable containing
+    strings which represent your class-based
+    view (which should inherit from BuildableDetailView), 
+    then fill out _build_related and _build_extra if need be.
     """
-    detail_view = None
+    detail_views = []
 
     def _view_from_string(name):
         """
@@ -47,12 +48,14 @@ class BuildableModel(models.Model):
 
     def build(self):
         """
-        Takes the view pointed to by self.detail_view,
-        runs build_object with `self`, and calls 
-        _build_extra() and _build_related()
+        Iterates through the views pointed to by 
+        self.detail_views, runs build_object 
+        with `self`, and calls_build_extra() and 
+        _build_related()
         """
-        view = self._view_from_string(self.detail_view)
-        view().build_object(self)
+        for detail_view in self.detail_views:
+            view = self._view_from_string(detail_view)
+            view().build_object(self)
         self._build_extra()
         self._build_related()
 

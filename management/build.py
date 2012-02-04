@@ -38,11 +38,13 @@ class Command(BaseCommand):
         )
         shutil.copytree(settings.STATIC_ROOT, static_path)
 
-        # CURRENT IDEA:
-        # Here we should parse through a list of views passed in 
-        # from the command line, and then run .build_objects()
-        # over them. That way we can use the built-in queryset.
-        #
+        try:
+            settings.BAKERY_VIEWS
+        except AttributeError:
+            raise AttributeError("No views in settings.BAKERY_VIEWS")
+
+        for view in settings.BAKERY_VIEWS:
+            view.build_objects()
         
         # Build 404 page
         self.stdout.write("Building 404 page\n")
