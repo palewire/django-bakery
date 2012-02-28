@@ -1,7 +1,29 @@
-Models, views and management commands to help you create flat pages from your Django app.
+<pre><code>               *  *  *
+              *|_*|_*|*_
+          .-'`|* |* |*| `'-.
+          |`-............-'|
+          |                |
+          \   _  .-.   _   /
+        ,-|'-' '-'  '-' '-'|-,
+      /`  \._            _./  `\
+      '._    `""""""""""`    _.'
+         `''--..........--''`</code></pre>
+
+A set of helpers for creating a flat-file representation of your Django site.
+
+h2. Features
+
+* Models, views and management commands to will build your site as flat files.
+* Management commands to sync your flat files with a bucket on Amazon S3.
+
+h2. Getting started
 
 Simply install bakery, create models using the BuildableModel class, and write your views using the BuildableDetailView class. Edit your settings.py, and add those views to your BAKERY_VIEWS setting as a list of strings, eg ['example.views.AlbumDetailView',].
 
 Now on the command line, run python manage.py build. Your views should bake into a build folder as flat pages. Optionally, you can publish these files to S3 for cheap hosting.
 
 For an example app written using bakery, check out the example branch: https://github.com/datadesk/django-bakery/tree/example
+
+h2. Credits
+
+ASCII art by Joan Stark
