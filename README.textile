@@ -10,7 +10,7 @@
     (   `"""""""""""""""""""""""`   )
      `~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`</code></pre>
 
-A set of helpers for creating a flat-file representation of your Django site.
+A set of helpers for baking your Django site out as flat files
 
 h2. Features
 
