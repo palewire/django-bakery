@@ -7,7 +7,7 @@ import os
 import logging
 from django.conf import settings
 from django.test.client import RequestFactory
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, ListView
 
 logger = logging.getLogger(__name__)
 
