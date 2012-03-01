@@ -41,16 +41,14 @@ class BuildableListView(ListView):
     build_path = 'index.html'
     
     def build_queryset(self):
-        """
-        Build the view as a flat HTML file.
-        
-        Example usage:
-            
-            TableListView().build_queryset()
-        
-        """
+        logger.debug("Building %s" % self.build_path)
         # Make a fake request
         self.request = RequestFactory().get(self.build_path)
+        # Make sure the directory exists
+        dirname = os.path.dirname(self.build_path)
+        if dirname:
+            dirname = os.path.join(settings.BUILD_DIR, dirname)
+            os.path.exists(dirname) or os.mkdir(dirname)
         # Render the list page as HTML
         html = self.get(self.request).render().content
         # Write it out to the appointed flat file
