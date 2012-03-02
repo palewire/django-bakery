@@ -116,7 +116,7 @@ class BuildableDetailView(DetailView):
         """
         Used to determine where to build the detail page. Override this if you
         would like your detail page at a different location. By default it
-        will be built at get_absolute_url() + "index.html"
+        will be built at get_url() + "index.html"
         """
         return obj.get_absolute_url()
     
@@ -124,7 +124,7 @@ class BuildableDetailView(DetailView):
         """
         Used to determine where to build the detail page. Override this if you
         would like your detail page at a different location. By default it
-        will be built at get_absolute_url() + "index.html"
+        will be built at get_url() + "index.html"
         """
         path = os.path.join(settings.BUILD_DIR, self.get_url(obj)[1:])
         os.path.exists(path) or os.makedirs(path)
