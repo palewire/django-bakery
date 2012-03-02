@@ -93,10 +93,16 @@ class BuildableDetailView(DetailView):
     """
     Render and build a "detail" view of an object.
     
-    By default this is a model instance looked up from `self.queryset`, but the
-    view will support display of *any* object by overriding `self.get_object()`.
+    Required attributes:
+     
+        queryset:
+            By default this is a model instance looked up from `self.queryset`, but the
+            view will support display of *any* object by overriding `self.get_object()`.
+        
+        template_name:
+            The name of the template you would like Django to render. You need
+            to override this if you don't want to rely on the Django defaults.
     """
-    
     @property
     def build_method(self):
         return self.build_queryset
