@@ -59,29 +59,37 @@ class BuildableListView(ListView):
 
 
 class BuildableDetailView(DetailView):
-
-    def build_object(self, obj):
-        """
-        Bake a detail page as a flat HTML file.
-        Accepts a BuildableModel, but anything
-        with a slug, get_absolute_url and a build
-        method will work.
-        """
-        logger.debug("Building %s" % obj)
-        # Make a fake request
-        self.request = RequestFactory().get(obj.get_absolute_url())
-        # Set the kwargs to fetch this particular object
-        self.kwargs = dict(slug=obj.slug)
-        # Render the detail page HTML
-        html = self.get(self.request).render().content
-        # Create the path to save the flat file
+    
+    def write(self, path, data):
+        outfile = open(path, 'w')
+        outfile.write(data)
+        outfile.close()
+    
+    def get_url(self, obj):
+        return obj.get_absolute_url()
+    
+    def get_build_path(self, obj):
         path = os.path.join(settings.BUILD_DIR, obj.get_absolute_url()[1:])
         os.path.exists(path) or os.makedirs(path)
-        path = os.path.join(path, 'index.html')
-        # Write out the data
-        outfile = open(path, 'w')
-        outfile.write(html)
-        outfile.close()
-
+        return os.path.join(path, 'index.html')
+    
+    def set_kwargs(self, obj):
+        self.kwargs = {
+            'pk': getattr(obj, 'pk', None),
+            'slug': getattr(obj, self.get_slug_field(), None),
+        }
+    
+    def get_html(self):
+        return self.get(self.request).render().content
+    
+    def build_object(self, obj):
+        logger.debug("Building %s" % obj)
+        self.request = RequestFactory().get(self.get_url(obj))
+        self.set_kwargs(obj)
+        self.write(
+            self.get_build_path(obj),
+            self.get_html()
+        )
+    
     def build_queryset(self):
         [self.build_object(o) for o in self.queryset.all()]
