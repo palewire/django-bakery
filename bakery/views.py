@@ -114,9 +114,7 @@ class BuildableDetailView(DetailView):
     
     def get_url(self, obj):
         """
-        Used to determine where to build the detail page. Override this if you
-        would like your detail page at a different location. By default it
-        will be built at get_url() + "index.html"
+        The URL at which the detail page should appear.
         """
         return obj.get_absolute_url()
     
