@@ -35,11 +35,13 @@ class Command(BaseCommand):
         self.stdout.write("Building static media\n")
         media_path = os.path.join(settings.BUILD_DIR, 'media')
         static_path = os.path.join(settings.BUILD_DIR, 'static')
-        os.path.exists(media_path) or shutil.copytree(
-            settings.MEDIA_ROOT,
-            media_path
-        )
-        shutil.copytree(settings.STATIC_ROOT, static_path)
+        if os.path.exists(settings.MEDIA_ROOT):
+            shutil.copytree(
+                settings.MEDIA_ROOT,
+                media_path
+            )
+        if os.path.exists(settings.STATIC_ROOT):
+            shutil.copytree(settings.STATIC_ROOT, static_path)
         
         # Build views
         try:
