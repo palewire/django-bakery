@@ -9,7 +9,7 @@ class Command(runserver.Command):
     
     def handle(self, *args, **kwds):
         urls.urlpatterns = patterns("bakery.static_views",
-        url(r"^(.*)$", "static.serve", {
+        url(r"^(.*)$", "serve", {
             "document_root": settings.BUILD_DIR,
             'show_indexes': True,
             'default': 'index.html'
