@@ -23,8 +23,6 @@ Simply install bakery, create models using the BuildableModel class, and write y
 
 Now on the command line, run python manage.py build. Your views should bake into a build folder as flat pages. Optionally, you can publish these files to S3 for cheap hosting.
 
-For an example app written using bakery, check out the example branch: https://github.com/datadesk/django-bakery/tree/example
-
 h2. Documentation
 
 * "The dream, in Powerpoint form":https://docs.google.com/presentation/d/1IybYcc0eVL-Rchm7lEQNwrM-AHRfr_M8ewfGYYNjeu8/edit?pli=1
