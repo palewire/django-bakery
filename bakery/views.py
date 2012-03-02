@@ -126,7 +126,7 @@ class BuildableDetailView(DetailView):
         would like your detail page at a different location. By default it
         will be built at get_absolute_url() + "index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, obj.get_absolute_url()[1:])
+        path = os.path.join(settings.BUILD_DIR, self.get_url(obj)[1:])
         os.path.exists(path) or os.makedirs(path)
         return os.path.join(path, 'index.html')
     
