@@ -1,7 +1,6 @@
 """
-Views that inherit from Django's class-based generic views
-and add methods that make it convenient for building out 
-flat files.
+Views that inherit from Django's class-based generic views and add methods 
+for building flat files.
 """
 import os
 import logging
@@ -13,6 +12,19 @@ logger = logging.getLogger(__name__)
 
 
 class BuildableTemplateView(TemplateView):
+    """
+    Renders and builds a simple template.
+    
+    When inherited, the child class should include the following attribuntes:
+    
+        build_path: 
+            The target location of the built file in the BUILD_DIR. `index.html`
+            would place it at the built site's root. `foo/index.html` would
+            place it inside a subdirectory.
+        
+        template_name:
+            The name of the template you would like Django to render.
+    """
 
     @property
     def build_method(self):
@@ -35,6 +47,24 @@ class BuildableTemplateView(TemplateView):
 
 
 class BuildableListView(ListView):
+    """
+    Render and builds a page about a list of objects.
+    
+    Required attributes:
+     
+        model or queryset:
+            Where the list of objects should come from. `self.queryset` can 
+            be any iterable of items, not just a queryset.
+        
+        build_path: 
+            The target location of the built file in the BUILD_DIR. `index.html`
+            would place it at the built site's root. `foo/index.html` would
+            place it inside a subdirectory. `index.html is the default.
+        
+        template_name:
+            The name of the template you would like Django to render. You need
+            to override this if you don't want to rely on the Django defaults.
+    """
     build_path = 'index.html'
     
     @property
@@ -60,6 +90,12 @@ class BuildableListView(ListView):
 
 
 class BuildableDetailView(DetailView):
+    """
+    Render and build a "detail" view of an object.
+    
+    By default this is a model instance looked up from `self.queryset`, but the
+    view will support display of *any* object by overriding `self.get_object()`.
+    """
     
     @property
     def build_method(self):
@@ -71,9 +107,19 @@ class BuildableDetailView(DetailView):
         outfile.close()
     
     def get_url(self, obj):
+        """
+        Used to determine where to build the detail page. Override this if you
+        would like your detail page at a different location. By default it
+        will be built at get_absolute_url() + "index.html"
+        """
         return obj.get_absolute_url()
     
     def get_build_path(self, obj):
+        """
+        Used to determine where to build the detail page. Override this if you
+        would like your detail page at a different location. By default it
+        will be built at get_absolute_url() + "index.html"
+        """
         path = os.path.join(settings.BUILD_DIR, obj.get_absolute_url()[1:])
         os.path.exists(path) or os.makedirs(path)
         return os.path.join(path, 'index.html')
@@ -85,6 +131,11 @@ class BuildableDetailView(DetailView):
         }
     
     def get_html(self):
+        """
+        How to render the HTML for the detail page. If you choose to render
+        using something other than a Django template, like HttpResponse for
+        instance, you will want to override this.
+        """
         return self.get(self.request).render().content
     
     def build_object(self, obj):
@@ -102,7 +153,7 @@ class BuildableDetailView(DetailView):
 
 class Buildable404View(BuildableTemplateView):
     """
-    The default Django 404 page.
+    The default Django 404 page, but built out.
     """
     build_path = '404.html'
     template_name = '404.html'
