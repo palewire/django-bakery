@@ -50,7 +50,7 @@ class Command(BaseCommand):
         for view_str in settings.BAKERY_VIEWS:
             self.stdout.write("Building %s\n" % view_str)
             view = get_callable(view_str)
-            view().build_queryset()
+            view().build_method()
         
         # Build 404 page
         self.stdout.write("Building 404 page\n")

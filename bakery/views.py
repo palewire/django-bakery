@@ -14,20 +14,20 @@ logger = logging.getLogger(__name__)
 
 class BuildableTemplateView(TemplateView):
 
-    def build_object(self, url):
-        """
-        Bake a template page as a flat HTML file.
-        You need to pass it the relative URL in.
-        """
-        logger.debug("Building %s" % url)
-        # Make a fake request
-        self.request = RequestFactory().get(url)
-        # Render the detail page HTML
+    @property
+    def build_method(self):
+        return self.build
+    
+    def build(self):
+        logger.debug("Building %s" % self.template_name)
+        self.request = RequestFactory().get(self.build_path)
         html = self.get(self.request).render().content
-        # Create the path to save the flat file
-        path = os.path.join(settings.BUILD_DIR, url[1:])
-        os.path.exists(path) or os.makedirs(path)
-        path = os.path.join(path, 'index.html')
+        path = os.path.join(settings.BUILD_DIR, self.build_path)
+        # Make sure the directory exists
+        dirname = os.path.dirname(self.build_path)
+        if dirname:
+            dirname = os.path.join(settings.BUILD_DIR, dirname)
+            os.path.exists(dirname) or os.mkdir(dirname)
         # Write out the data
         outfile = open(path, 'w')
         outfile.write(html)
@@ -35,10 +35,11 @@ class BuildableTemplateView(TemplateView):
 
 
 class BuildableListView(ListView):
-    """
-    A list of all tables.
-    """
     build_path = 'index.html'
+    
+    @property
+    def build_method(self):
+        return self.build_queryset
     
     def build_queryset(self):
         logger.debug("Building %s" % self.build_path)
@@ -59,6 +60,10 @@ class BuildableListView(ListView):
 
 
 class BuildableDetailView(DetailView):
+    
+    @property
+    def build_method(self):
+        return self.build_queryset
     
     def write(self, path, data):
         outfile = open(path, 'w')
@@ -93,3 +98,11 @@ class BuildableDetailView(DetailView):
     
     def build_queryset(self):
         [self.build_object(o) for o in self.queryset.all()]
+
+
+class Buildable404View(BuildableTemplateView):
+    """
+    The default Django 404 page.
+    """
+    build_path = '404.html'
+    template_name = '404.html'
