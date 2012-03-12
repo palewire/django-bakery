@@ -5,7 +5,6 @@ magic here really relies on your view being class-based
 and having a build_object method, like the BuildableDetailView 
 included in this app.
 """
-
 from django.db import models
 
 class BuildableModel(models.Model):
@@ -19,33 +18,24 @@ class BuildableModel(models.Model):
     then fill out _build_related and _build_extra if need be.
     """
     detail_views = []
-
-    def _view_from_string(name):
-        """
-        Takes a full string representing a dot-path to 
-        a class (eg "blog.views.DetailView") and returns that
-        class as a Python object.
-        """
-        mod = __import__(name.split('.')[0])
-        bits = name.split('.')[1:]
-        c = mod
-        for bit in bits:
-            c = getattr(c, bit)
-        return c
-
+    
+    def _get_view(self, name):
+        from django.core.urlresolvers import get_callable
+        return get_callable(name)
+    
     def _build_related(self):
         """
         Builds related content, such as an RSS feed.
         """
         pass
-
+    
     def _build_extra(self):
         """
         Build extra content, like copying an image to
         a thumbnails folder under the media folder.
         """
         pass
-
+    
     def build(self):
         """
         Iterates through the views pointed to by 
@@ -54,13 +44,13 @@ class BuildableModel(models.Model):
         _build_related()
         """
         for detail_view in self.detail_views:
-            view = self._view_from_string(detail_view)
+            view = self._get_view(detail_view)
             view().build_object(self)
         self._build_extra()
         self._build_related()
-
+    
     def get_absolute_url(self):
         pass
-
+    
     class Meta:
         abstract=True
