@@ -25,6 +25,7 @@ Now on the command line, run python manage.py build. Your views should bake into
 
 h2. Documentation
 
+* "Tutorial":http://datadesk.latimes.com/posts/2012/03/introducing-django-bakery/
 * "The dream, in Powerpoint form":https://docs.google.com/presentation/d/1IybYcc0eVL-Rchm7lEQNwrM-AHRfr_M8ewfGYYNjeu8/edit?pli=1
 
 h2. Credits
