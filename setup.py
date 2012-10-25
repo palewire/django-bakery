@@ -71,7 +71,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
         file_info[0] = '\\PURELIB\\%s' % file_info[0]
 
 setup(name='django-bakery',
-      version='0.2',
+      version='0.2.1',
       description='A set of helpers for baking your Django site out as flat files',
       author='The Los Angeles Times Data Desk',
       author_email='datadesk@latimes.com',
