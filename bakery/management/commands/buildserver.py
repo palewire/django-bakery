@@ -1,5 +1,4 @@
-import urls
-from django.conf import settings
+from django.conf import settings, urls
 from django.conf.urls.defaults import *
 from django.core.management.commands import runserver
 
