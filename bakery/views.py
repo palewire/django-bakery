@@ -39,7 +39,7 @@ class BuildableTemplateView(TemplateView):
         dirname = os.path.dirname(self.build_path)
         if dirname:
             dirname = os.path.join(settings.BUILD_DIR, dirname)
-            os.path.exists(dirname) or os.mkdir(dirname)
+            os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
         outfile = open(path, 'w')
         outfile.write(html)
@@ -79,7 +79,7 @@ class BuildableListView(ListView):
         dirname = os.path.dirname(self.build_path)
         if dirname:
             dirname = os.path.join(settings.BUILD_DIR, dirname)
-            os.path.exists(dirname) or os.mkdir(dirname)
+            os.path.exists(dirname) or os.makedirs(dirname)
         # Render the list page as HTML
         html = self.get(self.request).render().content
         # Write it out to the appointed flat file
