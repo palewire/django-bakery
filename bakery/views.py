@@ -3,6 +3,7 @@ Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
 import os
+import shutil
 import logging
 from django.conf import settings
 from django.test.client import RequestFactory
@@ -110,6 +111,14 @@ class BuildableDetailView(DetailView):
         outfile = open(path, 'w')
         outfile.write(data)
         outfile.close()
+
+    def unbuild_object(self, obj):
+        """
+        Deletes the directory at self.get_build_path.
+        """
+        path = self.get_build_path(obj)
+        if os.path.exists(path): 
+            shutil.rmtree(path)
     
     def get_url(self, obj):
         """

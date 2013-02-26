@@ -40,14 +40,25 @@ class BuildableModel(models.Model):
     def build(self):
         """
         Iterates through the views pointed to by self.detail_views, runs
-        build_object with `self`, and calls_build_extra() and _build_related().
+        build_object with `self`, and calls _build_extra() and _build_related().
         """
         for detail_view in self.detail_views:
             view = self._get_view(detail_view)
             view().build_object(self)
         self._build_extra()
         self._build_related()
-    
+
+    def unbuild(self):
+        """
+        Iterates through the views pointed to by self.detail_views, runs
+        unbuild_object with `self`, and calls _build_extra() and _build_related().
+        """
+        for detail_view in self.detail_views:
+            view = self._get_view(detail_view)
+            view().unbuild_object(self)
+        self._build_extra()
+        self._build_related()
+
     def get_absolute_url(self):
         pass
     
