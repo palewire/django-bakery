@@ -111,14 +111,6 @@ class BuildableDetailView(DetailView):
         outfile = open(path, 'w')
         outfile.write(data)
         outfile.close()
-
-    def unbuild_object(self, obj):
-        """
-        Deletes the directory at self.get_build_path.
-        """
-        path = self.get_build_path(obj)
-        if os.path.exists(path): 
-            shutil.rmtree(path)
     
     def get_url(self, obj):
         """
@@ -161,6 +153,16 @@ class BuildableDetailView(DetailView):
     
     def build_queryset(self):
         [self.build_object(o) for o in self.queryset.all()]
+
+
+    def unbuild_object(self, obj):
+        """
+        Deletes the directory at self.get_build_path.
+        """
+        logger.debug("Unbuilding %s" % obj)
+        path = self.get_build_path(obj)
+        if os.path.exists(path): 
+            shutil.rmtree(path)
 
 
 class Buildable404View(BuildableTemplateView):
