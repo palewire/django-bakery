@@ -160,7 +160,7 @@ class BuildableDetailView(DetailView):
         Deletes the directory at self.get_build_path.
         """
         logger.debug("Unbuilding %s" % obj)
-        path = self.get_build_path(obj)
+        path = os.path.split(self.get_build_path(obj))[0]
         if os.path.exists(path): 
             shutil.rmtree(path)
 
