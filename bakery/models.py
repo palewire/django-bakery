@@ -37,6 +37,13 @@ class BuildableModel(models.Model):
         """
         pass
     
+    def _unbuild_extra(self):
+        """
+        Remove extra content, like deleting an image from a thumbnails folder under
+        the media folder.
+        """
+        pass
+    
     def build(self):
         """
         Iterates through the views pointed to by self.detail_views, runs
@@ -56,7 +63,8 @@ class BuildableModel(models.Model):
         for detail_view in self.detail_views:
             view = self._get_view(detail_view)
             view().unbuild_object(self)
-        self._build_extra()
+        self._unbuild_extra()
+        # _build_related again to kill the object from RSS etc.
         self._build_related()
 
     def get_absolute_url(self):
