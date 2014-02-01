@@ -15,15 +15,14 @@ class BakeryTest(TestCase):
 
     def test_list_view(self):
         v = views.BuildableListView(
-            queryset=[1,2,3],
+            queryset=[1, 2, 3],
             template_name='foo.html',
             build_path='./foo.html',
         )
 
     def test_detail_view(self):
         v = views.BuildableDetailView(
-            queryset=[1,2,3],
+            queryset=[1, 2, 3],
             template_name='foo.html',
             build_path='./foo.html',
         )
-

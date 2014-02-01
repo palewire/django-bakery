@@ -2,7 +2,6 @@
 Views and functions for serving static files. These are only to be used
 during development, and SHOULD NOT be used in a production setting.
 """
-
 import mimetypes
 import os
 import posixpath
@@ -10,11 +9,12 @@ import re
 import stat
 import urllib
 from email.Utils import parsedate_tz, mktime_tz
-
 from django.template import loader
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseNotModified
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseNotModified
 from django.template import Template, Context, TemplateDoesNotExist
 from django.utils.http import http_date
+
 
 def serve(request, path, document_root=None, show_indexes=False, default=''):
     """
@@ -22,7 +22,8 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
 
     To use, put a URL pattern such as::
 
-        (r'^(?P<path>.*)$', 'django.views.static.serve', {'document_root' : '/path/to/my/files/'})
+        (r'^(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root' : '/path/to/my/files/'})
 
     in your URLconf. You must provide the ``document_root`` param. You may
     also set ``show_indexes`` to ``True`` if you'd like to serve a basic index
@@ -32,7 +33,7 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
 
      Modified by ticket #1013 to serve index.html files in the same manner
      as Apache and other web servers.
-    
+
      https://code.djangoproject.com/ticket/1013
     """
 
@@ -60,9 +61,9 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
     if os.path.isdir(fullpath):
         if show_indexes:
             return directory_index(newpath, fullpath)
-        raise Http404, "Directory indexes are not allowed here."
+        raise Http404(Directory indexes are not allowed here.)
     if not os.path.exists(fullpath):
-        raise Http404, '"%s" does not exist' % fullpath
+        raise Http404('"%s" does not exist' % fullpath)
     # Respect the If-Modified-Since header.
     statobj = os.stat(fullpath)
     mimetype = mimetypes.guess_type(fullpath)[0] or 'application/octet-stream'
@@ -76,7 +77,8 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
     return response
 
 DEFAULT_DIRECTORY_INDEX_TEMPLATE = """
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" \
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -98,12 +100,18 @@ DEFAULT_DIRECTORY_INDEX_TEMPLATE = """
 </html>
 """
 
+
 def directory_index(path, fullpath):
     try:
-        t = loader.select_template(['static/directory_index.html',
-                'static/directory_index'])
+        t = loader.select_template([
+            'static/directory_index.html',
+            'static/directory_index'
+        ])
     except TemplateDoesNotExist:
-        t = Template(DEFAULT_DIRECTORY_INDEX_TEMPLATE, name='Default directory index template')
+        t = Template(
+            DEFAULT_DIRECTORY_INDEX_TEMPLATE,
+            name='Default directory index template'
+        )
     files = []
     for f in os.listdir(fullpath):
         if not f.startswith('.'):
@@ -111,10 +119,11 @@ def directory_index(path, fullpath):
                 f += '/'
             files.append(f)
     c = Context({
-        'directory' : path + '/',
-        'file_list' : files,
+        'directory': path + '/',
+        'file_list': files,
     })
     return HttpResponse(t.render(c))
+
 
 def was_modified_since(header=None, mtime=0, size=0):
     """
