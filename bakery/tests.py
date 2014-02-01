@@ -8,20 +8,20 @@ class BakeryTest(TestCase):
         pass
 
     def test_template_view(self):
-        v = views.BuildableTemplateView(
+        views.BuildableTemplateView(
             template_name='foo.html',
             build_path='./foo.html',
         )
 
     def test_list_view(self):
-        v = views.BuildableListView(
+        views.BuildableListView(
             queryset=[1, 2, 3],
             template_name='foo.html',
             build_path='./foo.html',
         )
 
     def test_detail_view(self):
-        v = views.BuildableDetailView(
+        views.BuildableDetailView(
             queryset=[1, 2, 3],
             template_name='foo.html',
             build_path='./foo.html',
