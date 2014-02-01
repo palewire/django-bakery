@@ -26,7 +26,6 @@ class BuildableTemplateView(TemplateView):
         template_name:
             The name of the template you would like Django to render.
     """
-
     @property
     def build_method(self):
         return self.build
