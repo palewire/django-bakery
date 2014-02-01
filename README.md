@@ -21,7 +21,7 @@ A set of helpers for baking your Django site out as flat files
 * Testing: [https://travis-ci.org/datadesk/django-bakery](https://travis-ci.org/datadesk/django-bakery)
 * Coverage: [https://coveralls.io/r/datadesk/django-bakery](https://coveralls.io/r/datadesk/django-bakery)
 * Tutorial: [http://datadesk.latimes.com/posts/2012/03/introducing-django-bakery/](http://datadesk.latimes.com/posts/2012/03/introducing-django-bakery/)
-* The dream, in Powerpoint form: [https://docs.google.com/presentation/d/1IybYcc0eVL-Rchm7lEQNwrM-AHRfr_M8ewfGYYNjeu8/edit?pli=1](https://docs.google.com/presentation/d/1IybYcc0eVL-Rchm7lEQNwrM-AHRfr_M8ewfGYYNjeu8/edit?pli=1)
+* The dream, in Powerpoint form: [http://lat.ms/bakery-talk](http://lat.ms/bakery-talk)
 
 Features
 --------
