@@ -26,7 +26,7 @@ A set of helpers for baking your Django site out as flat files
 Features
 --------
 
-* Models, views and management commands to will build your site as flat files.
+* Models, views and management commands that will build your site as flat files.
 * Management commands to sync your flat files with a bucket on Amazon S3.
 
 
