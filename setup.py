@@ -77,6 +77,7 @@ setup(name='django-bakery',
       author_email='datadesk@latimes.com',
       url='http://www.github.com/datadesk/django-bakery/',
       packages=packages,
+      install_requires=['six==1.5.2'],
       cmdclass = cmdclasses,
       data_files=data_files,
      )

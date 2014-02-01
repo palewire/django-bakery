@@ -16,7 +16,7 @@ class Command(BaseCommand):
         """
         return ''.join(
             random.choice(string.letters + string.digits)
-            for i in xrange(length)
+            for i in range(length)
         )
 
     def handle(self, *args, **kwds):

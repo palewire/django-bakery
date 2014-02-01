@@ -1,4 +1,5 @@
 import os
+import six
 import subprocess
 from django.conf import settings
 from optparse import make_option
@@ -89,7 +90,7 @@ in settings.py or provide it with --aws-bucket-name"
 
         # Print out the command unless verbosity is above the default
         if int(options.get('verbosity')) > 1:
-            print 'Executing %s' % cmd
+            six.print_('Executing %s' % cmd)
 
         # Execute the command
         subprocess.call(cmd, shell=True)

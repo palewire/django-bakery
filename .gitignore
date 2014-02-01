@@ -1,3 +1,4 @@
+.tox/
 MANIFEST
 .coverage
 build/*

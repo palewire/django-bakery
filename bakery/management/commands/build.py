@@ -1,4 +1,5 @@
 import os
+import six
 import shutil
 from django.conf import settings
 from optparse import make_option
@@ -59,7 +60,7 @@ settings.py or provide a list as arguments."
 
         # Destroy the build directory, if it exists
         if self.verbosity > 1:
-            print "Creating build directory"
+            six.print_("Creating build directory")
         if os.path.exists(self.build_dir):
             shutil.rmtree(self.build_dir)
 
@@ -69,7 +70,7 @@ settings.py or provide a list as arguments."
         # Build up static files
         if not options.get("skip_static"):
             if self.verbosity > 1:
-                print "Creating static directory"
+                six.print_("Creating static directory")
             management.call_command(
                 "collectstatic",
                 interactive=False,
@@ -84,7 +85,7 @@ settings.py or provide a list as arguments."
         # Build the media directory
         if not options.get("skip_media"):
             if self.verbosity > 1:
-                print "Building media directory"
+                six.print_("Building media directory")
             if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
                 shutil.copytree(
                     settings.MEDIA_ROOT,
@@ -102,7 +103,7 @@ settings.py or provide a list as arguments."
         # Then loop through and run them all
         for view_str in view_list:
             if self.verbosity > 1:
-                print "Building %s" % view_str
+                six.print_("Building %s" % view_str)
             try:
                 view = get_callable(view_str)
                 view().build_method()

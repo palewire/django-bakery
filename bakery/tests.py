@@ -1,4 +1,5 @@
-import views
+from __future__ import absolute_import
+from . import views
 from django.test import TestCase
 
 
