@@ -23,7 +23,6 @@ A set of helpers for baking your Django site out as flat files
 * "Tutorial":http://datadesk.latimes.com/posts/2012/03/introducing-django-bakery/
 * "The dream, in Powerpoint form":https://docs.google.com/presentation/d/1IybYcc0eVL-Rchm7lEQNwrM-AHRfr_M8ewfGYYNjeu8/edit?pli=1
 
-
 Features
 --------
 
