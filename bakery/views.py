@@ -3,6 +3,7 @@ Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
 import os
+import six
 import shutil
 import logging
 from django.conf import settings
@@ -41,7 +42,7 @@ class BuildableTemplateView(TemplateView):
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
         outfile = open(path, 'w')
-        outfile.write(html)
+        outfile.write(six.text_type(html))
         outfile.close()
 
 
@@ -85,7 +86,7 @@ class BuildableListView(ListView):
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         outfile = open(path, 'w')
-        outfile.write(html)
+        outfile.write(six.text_type(html))
         outfile.close()
 
 
@@ -108,7 +109,7 @@ class BuildableDetailView(DetailView):
 
     def write(self, path, data):
         outfile = open(path, 'w')
-        outfile.write(data)
+        outfile.write(six.text_type(data))
         outfile.close()
 
     def get_url(self, obj):
