@@ -1,5 +1,6 @@
 import os
 import sys
+import tempfile
 import argparse
 from django.conf import settings
 
@@ -22,7 +23,18 @@ class QuickDjangoTest(object):
         'django.contrib.sessions',
         'django.contrib.admin',
     )
-    
+    TEMPLATE_DIRS = (
+        os.path.abspath(
+             os.path.join(
+                 os.path.dirname(__file__),
+                 'bakery',
+                 'tests',
+                 'templates',
+             ),
+        ),
+    )
+    BUILD_DIR = tempfile.mkdtemp()
+
     def __init__(self, *args, **kwargs):
         self.apps = args
         # Get the version of the test suite
@@ -32,7 +44,7 @@ class QuickDjangoTest(object):
             self._new_tests()
         else:
             self._old_tests()
-    
+
     def get_test_version(self):
         """
         Figure out which version of Django's test suite we have to play with.
@@ -42,7 +54,7 @@ class QuickDjangoTest(object):
             return 'new'
         else:
             return 'old'
-    
+
     def _old_tests(self):
         """
         Fire up the Django test suite from before version 1.2
@@ -50,13 +62,15 @@ class QuickDjangoTest(object):
         settings.configure(DEBUG = True,
            DATABASE_ENGINE = 'sqlite3',
            DATABASE_NAME = os.path.join(self.DIRNAME, 'database.db'),
-           INSTALLED_APPS = self.INSTALLED_APPS + self.apps
+           INSTALLED_APPS = self.INSTALLED_APPS + self.apps,
+           TEMPLATE_DIRS = self.TEMPLATE_DIRS,
+           BUILD_DIR = self.BUILD_DIR,
         )
         from django.test.simple import run_tests
         failures = run_tests(self.apps, verbosity=1)
         if failures:
             sys.exit(failures)
-    
+
     def _new_tests(self):
         """
         Fire up the Django test suite developed for version 1.2
@@ -73,7 +87,9 @@ class QuickDjangoTest(object):
                     'PORT': '',
                 }
             },
-            INSTALLED_APPS = self.INSTALLED_APPS + self.apps
+            INSTALLED_APPS = self.INSTALLED_APPS + self.apps,
+            TEMPLATE_DIRS = self.TEMPLATE_DIRS,
+            BUILD_DIR = self.BUILD_DIR,
         )
         from django.test.simple import DjangoTestSuiteRunner
         failures = DjangoTestSuiteRunner().run_tests(self.apps, verbosity=1)
@@ -83,11 +99,11 @@ class QuickDjangoTest(object):
 if __name__ == '__main__':
     """
     What do when the user hits this file from the shell.
-    
+
     Example usage:
     
         $ python quicktest.py app1 app2
-    
+
     """
     parser = argparse.ArgumentParser(
         usage="[args]",

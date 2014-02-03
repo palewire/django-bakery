@@ -1,17 +1,9 @@
 from __future__ import absolute_import
 import os
-import tempfile
 from .. import views
 from django.db import models
+from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
-
-TEST_SETTINGS = {
-    'TEMPLATE_DIRS': (
-        '%s/templates' % os.path.abspath(os.path.dirname(__file__)),
-    ),
-    'BUILD_DIR': tempfile.mkdtemp(),
-}
 
 
 class MockObject(models.Model):
@@ -21,7 +13,6 @@ class MockObject(models.Model):
         return '/%s/' % self.id
 
 
-@override_settings(**TEST_SETTINGS)
 class BakeryTest(TestCase):
 
     def setUp(self):
@@ -36,7 +27,7 @@ class BakeryTest(TestCase):
         )
         v.build_method
         v.build()
-        build_path = os.path.join(TEST_SETTINGS['BUILD_DIR'], 'foo.html')
+        build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -48,7 +39,7 @@ class BakeryTest(TestCase):
         )
         v.build_method
         v.build_queryset()
-        build_path = os.path.join(TEST_SETTINGS['BUILD_DIR'], 'foo.html')
+        build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -61,7 +52,7 @@ class BakeryTest(TestCase):
         v.build_queryset()
         for o in MockObject.objects.all():
             build_path = os.path.join(
-                TEST_SETTINGS['BUILD_DIR'],
+                settings.BUILD_DIR,
                 o.get_absolute_url()[1:],
                 'index.html',
             )
