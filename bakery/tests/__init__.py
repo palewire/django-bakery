@@ -2,15 +2,22 @@ from __future__ import absolute_import
 import os
 from .. import views
 from django.db import models
+from .. import models as bmodels
 from django.conf import settings
 from django.test import TestCase
 
 
-class MockObject(models.Model):
+class MockObject(bmodels.BuildableModel):
+    detail_views = ['bakery.tests.MockDetailView']
     name = models.CharField(max_length=500)
 
     def get_absolute_url(self):
         return '/%s/' % self.id
+
+
+class MockDetailView(views.BuildableDetailView):
+    model = MockObject
+    template_name = 'detailview.html'
 
 
 class BakeryTest(TestCase):
@@ -19,6 +26,12 @@ class BakeryTest(TestCase):
         MockObject.objects.create(name=1)
         MockObject.objects.create(name=2)
         MockObject.objects.create(name=3)
+
+    def test_models(self):
+        obj = MockObject.objects.all()[0]
+        obj.build()
+        obj.unbuild()
+        bmodels.BuildableModel().get_absolute_url()
 
     def test_template_view(self):
         v = views.BuildableTemplateView(
