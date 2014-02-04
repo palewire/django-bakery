@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import os
+import django
 from .. import views
 from django.db import models
 from .. import models as bmodels
@@ -116,12 +117,13 @@ class BakeryTest(TestCase):
             'build_dir': settings.BUILD_DIR,
         })
         call_command("build", 'bakery.tests.MockDetailView')
-        self.assertRaises(
-            CommandError,
-            call_command,
-            'build',
-            'FooView',
-        )
+        if django.VERSION > (1, 4):
+            self.assertRaises(
+                CommandError,
+                call_command,
+                'build',
+                'FooView',
+            )
 
     def test_unbuild_cmd(self):
         call_command("unbuild")
