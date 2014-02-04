@@ -41,7 +41,7 @@ class BuildableTemplateView(TemplateView):
             dirname = os.path.join(settings.BUILD_DIR, dirname)
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
-        outfile = open(path, 'w')
+        outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
 
@@ -85,7 +85,7 @@ class BuildableListView(ListView):
         html = self.get(self.request).render().content
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
-        outfile = open(path, 'w')
+        outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
 
@@ -108,7 +108,7 @@ class BuildableDetailView(DetailView):
         return self.build_queryset
 
     def write(self, path, data):
-        outfile = open(path, 'w')
+        outfile = open(path, 'wb')
         outfile.write(six.binary_type(data))
         outfile.close()
 
