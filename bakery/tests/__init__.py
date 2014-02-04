@@ -117,7 +117,7 @@ class BakeryTest(TestCase):
             'build_dir': settings.BUILD_DIR,
         })
         call_command("build", 'bakery.tests.MockDetailView')
-        if django.VERSION > (1, 4):
+        if django.VERSION >= (1, 5):
             self.assertRaises(
                 CommandError,
                 call_command,
