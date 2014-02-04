@@ -118,7 +118,7 @@ class BakeryTest(TestCase):
         call_command("build", 'bakery.tests.MockDetailView')
         self.assertRaises(
             CommandError,
-            call_command, 
+            call_command,
             'build',
             'FooView',
         )
