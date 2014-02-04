@@ -70,15 +70,19 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
     for file_info in data_files:
         file_info[0] = '\\PURELIB\\%s' % file_info[0]
 
-setup(name='django-bakery',
-      version='0.2.2',
-      description='A set of helpers for baking your Django site out as flat files',
-      author='The Los Angeles Times Data Desk',
-      author_email='datadesk@latimes.com',
-      url='http://www.github.com/datadesk/django-bakery/',
-      packages=packages,
-      install_requires=['six==1.5.2'],
-      cmdclass = cmdclasses,
-      data_files=data_files,
-     )
 
+setup(name='django-bakery',
+    version='0.3.0',
+    description='A set of helpers for baking your Django site out as flat files',
+    author='The Los Angeles Times Data Desk',
+    author_email='datadesk@latimes.com',
+    url='http://www.github.com/datadesk/django-bakery/',
+    packages=packages,
+    classifiers=[
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3'
+    ],
+    install_requires=['six==1.5.2'],
+    cmdclass = cmdclasses,
+    data_files=data_files,
+)
