@@ -42,7 +42,7 @@ class BuildableTemplateView(TemplateView):
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
         outfile = open(path, 'w')
-        outfile.write(six.text_type(html))
+        outfile.write(six.binary_type(html))
         outfile.close()
 
 
@@ -86,7 +86,7 @@ class BuildableListView(ListView):
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         outfile = open(path, 'w')
-        outfile.write(six.text_type(html))
+        outfile.write(six.binary_type(html))
         outfile.close()
 
 
@@ -109,7 +109,7 @@ class BuildableDetailView(DetailView):
 
     def write(self, path, data):
         outfile = open(path, 'w')
-        outfile.write(six.text_type(data))
+        outfile.write(six.binary_type(data))
         outfile.close()
 
     def get_url(self, obj):
