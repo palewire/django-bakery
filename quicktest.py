@@ -22,6 +22,7 @@ class QuickDjangoTest(object):
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.admin',
+        'django.contrib.staticfiles',
     )
     TEMPLATE_DIRS = (
         os.path.abspath(
@@ -34,6 +35,24 @@ class QuickDjangoTest(object):
         ),
     )
     BUILD_DIR = tempfile.mkdtemp()
+    STATIC_ROOT = os.path.abspath(
+         os.path.join(
+             os.path.dirname(__file__),
+             'bakery',
+             'tests',
+             'static',
+         ),
+    )
+    STATIC_URL = '/static/'
+    MEDIA_ROOT = os.path.abspath(
+         os.path.join(
+             os.path.dirname(__file__),
+             'bakery',
+             'tests',
+             'media',
+         ),
+    )
+    MEDIA_URL = '/media/'
     BAKERY_VIEWS = ('bakery.tests.MockDetailView',)
 
     def __init__(self, *args, **kwargs):
@@ -67,6 +86,10 @@ class QuickDjangoTest(object):
            TEMPLATE_DIRS = self.TEMPLATE_DIRS,
            BUILD_DIR = self.BUILD_DIR,
            BAKERY_VIEWS = self.BAKERY_VIEWS,
+           STATIC_ROOT = self.STATIC_ROOT,
+           STATIC_URL = self.STATIC_URL,
+           MEDIA_ROOT = self.MEDIA_ROOT,
+           MEDIA_URL = self.MEDIA_URL,
         )
         from django.test.simple import run_tests
         failures = run_tests(self.apps, verbosity=1)
@@ -93,6 +116,10 @@ class QuickDjangoTest(object):
             TEMPLATE_DIRS = self.TEMPLATE_DIRS,
             BUILD_DIR = self.BUILD_DIR,
             BAKERY_VIEWS = self.BAKERY_VIEWS,
+            STATIC_ROOT = self.STATIC_ROOT,
+            STATIC_URL = self.STATIC_URL,
+            MEDIA_ROOT = self.MEDIA_ROOT,
+            MEDIA_URL = self.MEDIA_URL,
         )
         from django.test.simple import DjangoTestSuiteRunner
         failures = DjangoTestSuiteRunner().run_tests(self.apps, verbosity=1)

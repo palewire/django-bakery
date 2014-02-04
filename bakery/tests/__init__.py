@@ -6,6 +6,7 @@ from .. import models as bmodels
 from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
+from django.core.management.base import CommandError
 
 
 class MockObject(bmodels.BuildableModel):
@@ -101,7 +102,26 @@ class BakeryTest(TestCase):
         os.remove(build_path)
 
     def test_build_cmd(self):
+        call_command("build", **{'skip_media': True, 'verbosity': 3})
+        call_command("build", **{'skip_static': True, 'verbosity': 3})
         call_command("build", **{'skip_static': True, 'skip_media': True})
+        call_command("build", **{
+            'skip_static': True,
+            'skip_media': True,
+            'verbosity': 3,
+        })
+        call_command("build", **{
+            'skip_static': True,
+            'skip_media': True,
+            'build_dir': settings.BUILD_DIR,
+        })
+        call_command("build", 'bakery.tests.MockDetailView')
+        self.assertRaises(
+            CommandError,
+            call_command, 
+            'build',
+            'FooView',
+        )
 
     def test_unbuild_cmd(self):
         call_command("unbuild")

@@ -1,3 +1,9 @@
 [run]
 include =
   bakery/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if not hasattr\(settings
+
