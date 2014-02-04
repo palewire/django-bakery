@@ -30,6 +30,15 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+        v = views.BuildableTemplateView(
+            template_name='templateview.html',
+            build_path='foo/bar.html',
+        )
+        v.build_method
+        v.build()
+        build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
+        self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
 
     def test_list_view(self):
         v = views.BuildableListView(
@@ -40,6 +49,16 @@ class BakeryTest(TestCase):
         v.build_method
         v.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
+        self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
+        v = views.BuildableListView(
+            queryset=[1, 2, 3],
+            template_name='listview.html',
+            build_path='foo/bar.html',
+        )
+        v.build_method
+        v.build_queryset()
+        build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -58,3 +77,11 @@ class BakeryTest(TestCase):
             )
             self.assertTrue(os.path.exists(build_path))
             v.unbuild_object(o)
+
+    def test_404_view(self):
+        v = views.Buildable404View()
+        v.build_method
+        v.build()
+        build_path = os.path.join(settings.BUILD_DIR, '404.html')
+        self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
