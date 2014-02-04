@@ -1,5 +1,5 @@
 from django.conf import settings, urls
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.core.management.commands import runserver
 
 

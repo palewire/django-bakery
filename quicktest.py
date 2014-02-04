@@ -34,6 +34,7 @@ class QuickDjangoTest(object):
         ),
     )
     BUILD_DIR = tempfile.mkdtemp()
+    BAKERY_VIEWS = ('bakery.tests.MockDetailView',)
 
     def __init__(self, *args, **kwargs):
         self.apps = args
@@ -65,6 +66,7 @@ class QuickDjangoTest(object):
            INSTALLED_APPS = self.INSTALLED_APPS + self.apps,
            TEMPLATE_DIRS = self.TEMPLATE_DIRS,
            BUILD_DIR = self.BUILD_DIR,
+           BAKERY_VIEWS = self.BAKERY_VIEWS,
         )
         from django.test.simple import run_tests
         failures = run_tests(self.apps, verbosity=1)
@@ -90,6 +92,7 @@ class QuickDjangoTest(object):
             INSTALLED_APPS = self.INSTALLED_APPS + self.apps,
             TEMPLATE_DIRS = self.TEMPLATE_DIRS,
             BUILD_DIR = self.BUILD_DIR,
+            BAKERY_VIEWS = self.BAKERY_VIEWS,
         )
         from django.test.simple import DjangoTestSuiteRunner
         failures = DjangoTestSuiteRunner().run_tests(self.apps, verbosity=1)

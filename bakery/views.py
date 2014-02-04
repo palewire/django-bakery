@@ -152,7 +152,7 @@ class BuildableDetailView(DetailView):
         )
 
     def build_queryset(self):
-        [self.build_object(o) for o in self.queryset.all()]
+        [self.build_object(o) for o in self.get_queryset().all()]
 
     def unbuild_object(self, obj):
         """

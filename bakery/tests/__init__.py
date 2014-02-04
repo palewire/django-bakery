@@ -5,6 +5,7 @@ from django.db import models
 from .. import models as bmodels
 from django.conf import settings
 from django.test import TestCase
+from django.core.management import call_command
 
 
 class MockObject(bmodels.BuildableModel):
@@ -98,3 +99,18 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, '404.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+
+    def test_build_cmd(self):
+        call_command("build", **{'skip_static': True, 'skip_media': True})
+
+    def test_unbuild_cmd(self):
+        call_command("unbuild")
+
+    def test_buildserver_cmd(self):
+        pass
+
+    def test_publish_cmd(self):
+        pass
+
+    def test_unpublish_cmd(self):
+        pass
