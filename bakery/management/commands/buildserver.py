@@ -1,5 +1,4 @@
-from django.conf import settings, urls
-from django.conf.urls import patterns, url
+from django.test.utils import override_settings
 from django.core.management.commands import runserver
 
 
@@ -7,13 +6,6 @@ class Command(runserver.Command):
     help = "Starts a variation of Django's runserver designed to serve \
 the static files you've built."
 
+    @override_settings(ROOT_URLCONF='bakery.static_urls')
     def handle(self, *args, **kwds):
-        urls.urlpatterns = patterns(
-            "bakery.static_views",
-            url(r"^(.*)$", "serve", {
-                "document_root": settings.BUILD_DIR,
-                'show_indexes': True,
-                'default': 'index.html'
-                }),
-        )
         runserver.Command.handle(self, *args, **kwds)
