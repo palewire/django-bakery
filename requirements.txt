@@ -1,5 +1,5 @@
 PyYAML==3.10
-argparse==1.2.1
+argparse
 coverage==3.7.1
 pep8==1.4.6
 pyflakes==0.7.3
