@@ -76,12 +76,26 @@ settings.py or provide a list as arguments."
                 interactive=False,
                 verbosity=0
             )
+            target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
             if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
-                shutil.copytree(
-                    settings.STATIC_ROOT,
-                    os.path.join(self.build_dir, settings.STATIC_URL[1:])
+                shutil.copytree(settings.STATIC_ROOT, target_dir)
+            # If they exist in the static directory, copy the robots.txt
+            # and favicon.ico files down to the root so they will work
+            # on the live website.
+            robot_src = os.path.join(target_dir, 'robots.txt')
+            favicon_src = os.path.join(target_dir, 'favicon.ico')
+            if os.path.exists(robot_src):
+                shutil.copy(robot_src, os.path.join(
+                    settings.BUILD_DIR,
+                    'robots.txt'
+                    )
                 )
-
+            if os.path.exists(favicon_src):
+                shutil.copy(favicon_src, os.path.join(
+                    settings.BUILD_DIR,
+                    'favicon.ico',
+                    )
+                )
         # Build the media directory
         if not options.get("skip_media"):
             if self.verbosity > 1:

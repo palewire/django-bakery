@@ -117,6 +117,10 @@ class BakeryTest(TestCase):
             'build_dir': settings.BUILD_DIR,
         })
         call_command("build", 'bakery.tests.MockDetailView')
+        robots_path = os.path.join(settings.BUILD_DIR, 'robots.txt')
+        self.assertTrue(os.path.exists(robots_path))
+        favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
+        self.assertTrue(os.path.exists(favicon_path))
         if django.VERSION >= (1, 5):
             self.assertRaises(
                 CommandError,
