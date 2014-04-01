@@ -3,6 +3,20 @@ django-bakery
 
 A set of helpers for baking your Django site out as flat files
 
+Documentation
+-------------
+
+.. toctree::
+   :maxdepth: 2
+
+   gettingstarted
+   buildableviews
+   settingsvariables
+   managementcommands
+   celeryintegration
+   changelog
+   credits
+
 Contributing
 ------------
 
