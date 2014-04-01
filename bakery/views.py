@@ -16,7 +16,7 @@ class BuildableTemplateView(TemplateView):
     """
     Renders and builds a simple template.
 
-    When inherited, the child class should include the following attribuntes:
+    When inherited, the child class should include the following attributes.
 
         build_path:
             The target location of the built file in the BUILD_DIR.

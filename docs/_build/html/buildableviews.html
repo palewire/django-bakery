@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="django-bakery 0.3.2 documentation" href="index.html" />
-    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="next" title="Buildable models" href="buildablemodels.html" />
     <link rel="prev" title="Getting started" href="gettingstarted.html" /> 
   </head>
   <body>
@@ -35,7 +35,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="changelog.html" title="Changelog"
+          <a href="buildablemodels.html" title="Buildable models"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="gettingstarted.html" title="Getting started"
@@ -51,6 +51,26 @@
             
   <div class="section" id="buildable-views">
 <h1>Buildable views<a class="headerlink" href="#buildable-views" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="BuildableTemplateView">
+<em class="property">class </em><tt class="descname">BuildableTemplateView</tt><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders and builds a simple template as a flat file. When inherited, the child class should include the following attributes.</p>
+<dl class="attribute">
+<dt id="BuildableTemplateView.build_path">
+<tt class="descname">build_path</tt><a class="headerlink" href="#BuildableTemplateView.build_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The target location of the built file in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.
+<tt class="docutils literal"><span class="pre">index.html</span></tt> would place it at the built site&#8217;s root.
+<tt class="docutils literal"><span class="pre">foo/index.html</span></tt> would place it inside a subdirectory.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BuildableTemplateView.template_name">
+<tt class="descname">template_name</tt><a class="headerlink" href="#BuildableTemplateView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the template you would like Django to render.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -63,8 +83,8 @@
   <p class="topless"><a href="gettingstarted.html"
                         title="previous chapter">Getting started</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="changelog.html"
-                        title="next chapter">Changelog</a></p>
+  <p class="topless"><a href="buildablemodels.html"
+                        title="next chapter">Buildable models</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/buildableviews.txt"
@@ -94,7 +114,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="changelog.html" title="Changelog"
+          <a href="buildablemodels.html" title="Buildable models"
              >next</a> |</li>
         <li class="right" >
           <a href="gettingstarted.html" title="Getting started"
