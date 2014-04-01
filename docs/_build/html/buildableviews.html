@@ -54,7 +54,8 @@
 <dl class="class">
 <dt id="BuildableTemplateView">
 <em class="property">class </em><tt class="descname">BuildableTemplateView</tt><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Renders and builds a simple template as a flat file. When inherited, the child class should include the following attributes.</p>
+<dd><p>Renders and builds a simple template as a flat file. Extended from Django&#8217;s
+generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView">TemplateView</a>.</p>
 <dl class="attribute">
 <dt id="BuildableTemplateView.build_path">
 <tt class="descname">build_path</tt><a class="headerlink" href="#BuildableTemplateView.build_path" title="Permalink to this definition">¶</a></dt>
@@ -74,7 +75,8 @@
 <dl class="class">
 <dt id="BuildableListView">
 <em class="property">class </em><tt class="descname">BuildableListView</tt><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Render and builds a page about a list of objects.</p>
+<dd><p>Render and builds a page about a list of objects. Extended from Django&#8217;s
+generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView">ListView</a>.</p>
 <dl class="attribute">
 <dt id="BuildableListView.model">
 <tt class="descname">model</tt><a class="headerlink" href="#BuildableListView.model" title="Permalink to this definition">¶</a></dt>
@@ -107,6 +109,19 @@ the flat file inside a subdirectory.</p>
 <dd><p>The template you would like Django to render. You need
 to override this if you don&#8217;t want to rely on the Django <tt class="docutils literal"><span class="pre">ListView</span></tt>
 defaults.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BuildableDetailView">
+<em class="property">class </em><tt class="descname">BuildableDetailView</tt><a class="headerlink" href="#BuildableDetailView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render and build a &#8220;detail&#8221; page about an object or a series of pages
+about a list of objects. Extended from Django&#8217;s generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview">DetailView</a>.</p>
+<dl class="attribute">
+<dt>
+<tt class="descname">queryset:</tt></dt>
+<dd><p>The Django model instance the objects are looked up from.</p>
 </dd></dl>
 
 </dd></dl>

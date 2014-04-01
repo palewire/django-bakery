@@ -3,7 +3,8 @@ Buildable views
 
 .. class:: BuildableTemplateView
 
-    Renders and builds a simple template as a flat file. When inherited, the child class should include the following attributes.
+    Renders and builds a simple template as a flat file. Extended from Django's 
+    generic `TemplateView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView>`_.
 
     .. attribute:: build_path
 
@@ -18,7 +19,8 @@ Buildable views
 
 .. class:: BuildableListView
 
-    Render and builds a page about a list of objects.
+    Render and builds a page about a list of objects. Extended from Django's 
+    generic `ListView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView>`_.
 
     .. attribute:: model
 
@@ -45,3 +47,17 @@ Buildable views
         The template you would like Django to render. You need
         to override this if you don't want to rely on the Django ``ListView``
         defaults.
+
+.. class:: BuildableDetailView
+
+    Render and build a "detail" page about an object or a series of pages
+    about a list of objects. Extended from Django's generic `DetailView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview>`_.
+
+    .. attribute:: queryset:
+
+        The Django model instance the objects are looked up from.
+
+    .. attribute: template_name
+
+        The name of the template you would like Django to render. You need
+        to override this if you don't want to rely on the Django defaults.
