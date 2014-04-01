@@ -60,13 +60,53 @@
 <tt class="descname">build_path</tt><a class="headerlink" href="#BuildableTemplateView.build_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>The target location of the built file in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.
 <tt class="docutils literal"><span class="pre">index.html</span></tt> would place it at the built site&#8217;s root.
-<tt class="docutils literal"><span class="pre">foo/index.html</span></tt> would place it inside a subdirectory.</p>
+<tt class="docutils literal"><span class="pre">foo/index.html</span></tt> would place it inside a subdirectory. Required.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableTemplateView.template_name">
 <tt class="descname">template_name</tt><a class="headerlink" href="#BuildableTemplateView.template_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the template you would like Django to render.</p>
+<dd><p>The name of the template you would like Django to render. Required.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BuildableListView">
+<em class="property">class </em><tt class="descname">BuildableListView</tt><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render and builds a page about a list of objects.</p>
+<dl class="attribute">
+<dt id="BuildableListView.model">
+<tt class="descname">model</tt><a class="headerlink" href="#BuildableListView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Django database model where the list of objects can be drawn
+with a <tt class="docutils literal"><span class="pre">Model.objects.all</span></tt> query. Optional. If you want to provide
+a more specific list, define the <tt class="docutils literal"><span class="pre">queryset</span></tt> attribute instead.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BuildableListView.queryset">
+<tt class="descname">queryset</tt><a class="headerlink" href="#BuildableListView.queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of objects that will be provided to the template. Can be
+any iterable of items, not just a Django queryset. Optional, but
+if this attribute is not defined the <tt class="docutils literal"><span class="pre">model</span></tt> attribute must be
+defined.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BuildableListView.build_path">
+<tt class="descname">build_path</tt><a class="headerlink" href="#BuildableListView.build_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The target location of the flat file in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.
+Optional. The default is <tt class="docutils literal"><span class="pre">index.html</span></tt>,  would place the flat file
+at the site&#8217;s root. Defining it as <tt class="docutils literal"><span class="pre">foo/index.html</span></tt> would place
+the flat file inside a subdirectory.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BuildableListView.template_name">
+<tt class="descname">template_name</tt><a class="headerlink" href="#BuildableListView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The template you would like Django to render. You need
+to override this if you don&#8217;t want to rely on the Django <tt class="docutils literal"><span class="pre">ListView</span></tt>
+defaults.</p>
 </dd></dl>
 
 </dd></dl>
