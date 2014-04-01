@@ -7,7 +7,6 @@ argh==0.23.3
 argparse
 coverage==3.7.1
 docutils==0.11
-livereload==2.0.0
 pathtools==0.1.2
 pep8==1.4.6
 py==1.4.20
@@ -16,8 +15,5 @@ python-coveralls==2.4.2
 requests==2.2.1
 sh==1.09
 six==1.5.2
-sphinx-autobuild==0.2.3
-tornado==3.1.1
 tox==1.7.0
 virtualenv==1.11.2
-watchdog==0.6.0
