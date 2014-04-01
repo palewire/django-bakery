@@ -1,22 +1,13 @@
-.. django-bakery documentation master file, created by
-   sphinx-quickstart on Mon Mar 31 18:35:24 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+django-bakery
+=============
 
-Welcome to django-bakery's documentation!
-=========================================
+A set of helpers for baking your Django site out as flat files
 
-Contents:
+Contributing
+------------
 
-.. toctree::
-   :maxdepth: 2
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+* Code repository: `https://github.com/datadesk/django-bakery <https://github.com/datadesk/django-bakery>`_
+* Issues: `https://github.com/datadesk/django-bakery/issues <https://github.com/datadesk/django-bakery/issues>`_
+* Packaging: `https://pypi.python.org/pypi/django-bakery <https://pypi.python.org/pypi/django-bakery>`_
+* Testing: `https://travis-ci.org/datadesk/django-bakery <https://travis-ci.org/datadesk/django-bakery>`_
+* Coverage: `https://coveralls.io/r/datadesk/django-bakery <https://coveralls.io/r/datadesk/django-bakery>`_
