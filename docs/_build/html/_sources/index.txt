@@ -11,6 +11,7 @@ Documentation
 
    gettingstarted
    buildableviews
+   buildablemodels
    settingsvariables
    managementcommands
    celeryintegration

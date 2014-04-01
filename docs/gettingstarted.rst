@@ -28,7 +28,7 @@ Also in ``settings.py``, add a build directory where the site will be built as f
 
 The cru­cial step is to re­fact­or your views to in­her­it our :doc:`buildable class-based views </buildableviews>`. They are similar to Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.
 
-.. code-block:: python
+.. code-block:: django
 
     from yourapp.mod­els im­port Dummy­Mod­el
     from bakery.views im­port Build­able­De­tailView, Build­ableL­istView
