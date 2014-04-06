@@ -65,25 +65,26 @@
 )
 </pre></div>
 </div>
-<p>Also in <tt class="docutils literal"><span class="pre">settings.py</span></tt>, add a build directory where the site will be built as flat files.</p>
+<p>Also in <tt class="docutils literal"><span class="pre">settings.py</span></tt>, add a build directory where the site will be built as flat files. This is where bakery will create the static version of your website that can be hosted elsewhere.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BUILD_DIR</span> <span class="o">=</span> <span class="s">&#39;/home/you/code/your-site/build/&#39;</span>
 </pre></div>
 </div>
-<p>The cru­cial step is to re­fact­or your views to in­her­it our <a class="reference internal" href="buildableviews.html"><em>buildable class-based views</em></a>. They are similar to Django&#8217;s <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">generic class-based views</a>, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.</p>
+<p>The trickest step is to re­fact­or your views to in­her­it our <a class="reference internal" href="buildableviews.html"><em>buildable class-based views</em></a>. They are similar to Django&#8217;s <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">generic class-based views</a>, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.</p>
 <div class="highlight-django"><div class="highlight"><pre><span class="x">from yourapp.mod­els im­port Dummy­Mod­el</span>
 <span class="x">from bakery.views im­port Build­able­De­tailView, Build­ableL­istView</span>
 
 
 <span class="x">class DummyL­istView(Build­ableL­istView):</span>
 <span class="x">    &quot;&quot;&quot;</span>
-<span class="x">    A list of all tables.</span>
+<span class="x">    Generates a page that will feature a list linking to detail pages about</span>
+<span class="x">    each object in the queryset.</span>
 <span class="x">    &quot;&quot;&quot;</span>
 <span class="x">    queryset = Dummy­Mod­el.live.all()</span>
 
 
 <span class="x">class DummyDe­tailView(Build­able­De­tailView):</span>
 <span class="x">    &quot;&quot;&quot;</span>
-<span class="x">    All about one table.</span>
+<span class="x">    Generates a separate HTML page for each object in the queryset.</span>
 <span class="x">    &quot;&quot;&quot;</span>
 <span class="x">    queryset = Dummy­Mod­el.live.all()</span>
 </pre></div>

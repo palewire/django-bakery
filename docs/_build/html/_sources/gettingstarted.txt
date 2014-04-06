@@ -20,13 +20,13 @@ Edit your ``settings.py`` and add the app to your ``INSTALLED_APPS`` list.
         'bakery',
     )
 
-Also in ``settings.py``, add a build directory where the site will be built as flat files.
+Also in ``settings.py``, add a build directory where the site will be built as flat files. This is where bakery will create the static version of your website that can be hosted elsewhere.
 
 .. code-block:: python
 
     BUILD_DIR = '/home/you/code/your-site/build/'
 
-The cru­cial step is to re­fact­or your views to in­her­it our :doc:`buildable class-based views </buildableviews>`. They are similar to Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.
+The trickest step is to re­fact­or your views to in­her­it our :doc:`buildable class-based views </buildableviews>`. They are similar to Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.
 
 .. code-block:: django
 
@@ -36,14 +36,15 @@ The cru­cial step is to re­fact­or your views to in­her­it our :doc:`builda
 
     class DummyL­istView(Build­ableL­istView):
         """
-        A list of all tables.
+        Generates a page that will feature a list linking to detail pages about
+        each object in the queryset.
         """
         queryset = Dummy­Mod­el.live.all()
 
 
     class DummyDe­tailView(Build­able­De­tailView):
         """
-        All about one table.
+        Generates a separate HTML page for each object in the queryset.
         """
         queryset = Dummy­Mod­el.live.all()
 
