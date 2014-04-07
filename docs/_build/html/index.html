@@ -52,6 +52,16 @@
 <h2>Why and what for<a class="headerlink" href="#why-and-what-for" title="Permalink to this headline">¶</a></h2>
 <p>The code documented here is intended to make it easier to save every page gen­er­ated by a data­base-backed site as a flat file so you can host them us­ing a stat­ic file ser­vice like <a class="reference external" href="http://en.wikipedia.org/wiki/Amazon_S3">Amazon S3</a>.</p>
 <p>At the Los Angeles Times Data Desk, we call this pro­cess “bak­ing.” It’s our path to cheap­, stable host­ing for simple sites. We&#8217;ve used it for pub­lish­ing <a class="reference external" href="http://graphics.latimes.com/2012-election-gop-results-map-iowa/">elec­tion res­ults</a>, <a class="reference external" href="http://timelines.latimes.com/complete-guide-lafd-hiring-controversy/">timelines</a>, <a class="reference external" href="http://documents.latimes.com/barack-obama-long-form-birth-certificate/">doc­u­ments</a>, <a class="reference external" href="http://spreadsheets.latimes.com/city-appointees-tied-garcetti/">in­ter­act­ive tables</a>, <a class="reference external" href="http://graphics.latimes.com/flight-from-rage/">spe­cial pro­jects</a> and <a class="reference external" href="http://graphics.latimes.com/towergraphic-washington-landslide-victims/">numerous</a> <a class="reference external" href="http://graphics.latimes.com/how-fast-is-lafd/">other</a> <a class="reference external" href="http://graphics.latimes.com/picksheet-critics-picks-april-4-10-2014/">things</a>.</p>
+<p>The sys­tem comes with some ma­jor ad­vant­ages, like:</p>
+<ol class="arabic simple">
+<li>No data­base crashes</li>
+<li>Zero serv­er con­fig­ur­a­tion and up­keep</li>
+<li>No need to op­tim­ize your app code</li>
+<li>You don’t pay to host CPUs, only band­width</li>
+<li>An off­line ad­min­is­tra­tion pan­el is more se­cure</li>
+<li>Less stress (This one can change your life)</li>
+</ol>
+<p>There are draw­backs. For one, you have to integrate the &#8220;bakery&#8221; in­to your code base. More im­port­ant, a flat site can only be so com­plex. No on­line data­base means your site is all read and no write, which means no user-gen­er­ated con­tent and no com­plex searches.</p>
 <p><a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">Django&#8217;s class-based views</a> are at the heart of our approach. Putting all the pieces together is a little tricky at first, particularly if you haven&#8217;t studied <a class="reference external" href="https://github.com/django/django/tree/master/django/views/generic">the Django source code</a> or lack experience <a class="reference external" href="http://www.diveintopython.net/object_oriented_framework/defining_classes.html">working with Python classes</a> in general. But once you figure it out, you can do all kinds of crazy things: Like configuring Django to bake out your entire site with a single command.</p>
 <p>Here&#8217;s how.</p>
 </div>
