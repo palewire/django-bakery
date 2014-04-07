@@ -26,7 +26,9 @@ Also in ``settings.py``, add a build directory where the site will be built as f
 
     BUILD_DIR = '/home/you/code/your-site/build/'
 
-The trickest step is to re­fact­or your views to in­her­it our :doc:`buildable class-based views </buildableviews>`. They are similar to Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.
+The trickest step is to re­fact­or your views to in­her­it our :doc:`buildable class-based views </buildableviews>`. They are similar to Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem. 
+
+If you've never seen class-based views before, you should study up in `the Django docs <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_ because we don't aren't going to rewrite their documentation here. If you've already seen class-based views and decided you dislike them, `you're not alone <http://lukeplant.me.uk/blog/posts/djangos-cbvs-were-a-mistake/>`_ but you'll have to take our word that they're worth the trouble in this case. You'll see why soon enough. 
 
 .. code-block:: django
 
@@ -57,19 +59,19 @@ After you’ve con­ver­ted your views, add them to a list in ``settings.py`` w
         'yourapp.views.DummyDe­tailView',
     ]
 
-Then run the man­age­ment com­mand that will bake them out.
+Then run the man­age­ment com­mand that will bake them out. 
 
 .. code-block:: bash
 
     $ python manage.py build
 
-That should cre­ate your build dir­ect­ory and build all the des­ig­nated views in­to it. You can re­view its work by fir­ing up the buildserver, which will loc­ally host your flat files in the same way the Django’s runserver hosts your data­base-driv­en pages.
+This will create a copy of every page that your views support in the ``BUILD_DIR``. You can re­view its work by fir­ing up the ``buildserver``, which will loc­ally host your flat files in the same way the Django’s ``runserver`` hosts your dynamic data­base-driv­en pages.
 
 .. code-block:: bash
 
     $ python manage.py buildserver
 
-To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­ate a buck­et. You can go to `aws.amazon.com/s3/ <http://aws.amazon.com/s3/>`_ to set up an ac­count. If you need some ba­sic in­struc­tions you can find them `here <http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703>`_. Then set your buck­et name in ``settings.py``.
+To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­ate a "buck­et" inside Amazon's service. You can go to `aws.amazon.com/s3/ <http://aws.amazon.com/s3/>`_ to set up an ac­count. If you need some ba­sic in­struc­tions you can find them `here <http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703>`_. Then set your buck­et name in ``settings.py``.
 
 .. code-block:: python
 

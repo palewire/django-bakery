@@ -70,6 +70,7 @@
 </pre></div>
 </div>
 <p>The trickest step is to re­fact­or your views to in­her­it our <a class="reference internal" href="buildableviews.html"><em>buildable class-based views</em></a>. They are similar to Django&#8217;s <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">generic class-based views</a>, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem.</p>
+<p>If you&#8217;ve never seen class-based views before, you should study up in <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">the Django docs</a> because we don&#8217;t aren&#8217;t going to rewrite their documentation here. If you&#8217;ve already seen class-based views and decided you dislike them, <a class="reference external" href="http://lukeplant.me.uk/blog/posts/djangos-cbvs-were-a-mistake/">you&#8217;re not alone</a> but you&#8217;ll have to take our word that they&#8217;re worth the trouble in this case. You&#8217;ll see why soon enough.</p>
 <div class="highlight-django"><div class="highlight"><pre><span class="x">from yourapp.mod­els im­port Dummy­Mod­el</span>
 <span class="x">from bakery.views im­port Build­able­De­tailView, Build­ableL­istView</span>
 
@@ -100,11 +101,11 @@
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py build
 </pre></div>
 </div>
-<p>That should cre­ate your build dir­ect­ory and build all the des­ig­nated views in­to it. You can re­view its work by fir­ing up the buildserver, which will loc­ally host your flat files in the same way the Django’s runserver hosts your data­base-driv­en pages.</p>
+<p>This will create a copy of every page that your views support in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>. You can re­view its work by fir­ing up the <tt class="docutils literal"><span class="pre">buildserver</span></tt>, which will loc­ally host your flat files in the same way the Django’s <tt class="docutils literal"><span class="pre">runserver</span></tt> hosts your dynamic data­base-driv­en pages.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py buildserver
 </pre></div>
 </div>
-<p>To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­ate a buck­et. You can go to <a class="reference external" href="http://aws.amazon.com/s3/">aws.amazon.com/s3/</a> to set up an ac­count. If you need some ba­sic in­struc­tions you can find them <a class="reference external" href="http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703">here</a>. Then set your buck­et name in <tt class="docutils literal"><span class="pre">settings.py</span></tt>.</p>
+<p>To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­ate a &#8220;buck­et&#8221; inside Amazon&#8217;s service. You can go to <a class="reference external" href="http://aws.amazon.com/s3/">aws.amazon.com/s3/</a> to set up an ac­count. If you need some ba­sic in­struc­tions you can find them <a class="reference external" href="http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703">here</a>. Then set your buck­et name in <tt class="docutils literal"><span class="pre">settings.py</span></tt>.</p>
 <div class="highlight-python"><div class="highlight"><pre>AWS_BUCK­ET_­NAME = &#39;your-buck­et&#39;
 </pre></div>
 </div>
