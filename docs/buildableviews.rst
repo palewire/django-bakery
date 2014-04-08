@@ -25,7 +25,7 @@ Buildable views
     .. attribute:: model
 
         A Django database model where the list of objects can be drawn
-        with a ``Model.objects.all`` query. Optional. If you want to provide
+        with a ``Model.objects.all()`` query. Optional. If you want to provide
         a more specific list, define the ``queryset`` attribute instead.
 
     .. attribute:: queryset
@@ -48,16 +48,35 @@ Buildable views
         to override this if you don't want to rely on the Django ``ListView``
         defaults.
 
+    .. code-block:: python
+
+        import os
+        from django.conf import settings
+        from myapp.models import MyModel
+        from bakery.views import BuildableListView
+
+
+        class ExampleListView(BuildableListView):
+            model = MyModel
+            template_name = 'mymodel_list.html'
+
+
+        class DifferentExampleListView(BuildableListView):
+            queryset = MyModel.objects.filter(is_published=True)
+            template_name = 'mymodel_list.html'
+            build_path = os.path.join(settings.BUILD_DIR, 'mymodel', 'index.html')
+
+
 .. class:: BuildableDetailView
 
     Render and build a "detail" page about an object or a series of pages
     about a list of objects. Extended from Django's generic `DetailView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview>`_.
 
-    .. attribute:: queryset:
+    .. attribute:: queryset
 
         The Django model instance the objects are looked up from.
 
-    .. attribute: template_name
+    .. attribute:: template_name
 
         The name of the template you would like Django to render. You need
         to override this if you don't want to rely on the Django defaults.

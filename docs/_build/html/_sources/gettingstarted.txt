@@ -30,7 +30,7 @@ The trickest step is to re­fact­or your views to in­her­it our :doc:`buildab
 
 If you've never seen class-based views before, you should study up in `the Django docs <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_ because we don't aren't going to rewrite their documentation here. If you've already seen class-based views and decided you dislike them, `you're not alone <http://lukeplant.me.uk/blog/posts/djangos-cbvs-were-a-mistake/>`_ but you'll have to take our word that they're worth the trouble in this case. You'll see why soon enough. 
 
-.. code-block:: django
+.. code-block:: python
 
     from yourapp.mod­els im­port Dummy­Mod­el
     from bakery.views im­port Build­able­De­tailView, Build­ableL­istView

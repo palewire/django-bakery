@@ -81,7 +81,7 @@ generic <a class="reference external" href="https://docs.djangoproject.com/en/de
 <dt id="BuildableListView.model">
 <tt class="descname">model</tt><a class="headerlink" href="#BuildableListView.model" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Django database model where the list of objects can be drawn
-with a <tt class="docutils literal"><span class="pre">Model.objects.all</span></tt> query. Optional. If you want to provide
+with a <tt class="docutils literal"><span class="pre">Model.objects.all()</span></tt> query. Optional. If you want to provide
 a more specific list, define the <tt class="docutils literal"><span class="pre">queryset</span></tt> attribute instead.</p>
 </dd></dl>
 
@@ -111,6 +111,23 @@ to override this if you don&#8217;t want to rely on the Django <tt class="docuti
 defaults.</p>
 </dd></dl>
 
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">MyModel</span>
+<span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableListView</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleListView</span><span class="p">(</span><span class="n">BuildableListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;mymodel_list.html&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">DifferentExampleListView</span><span class="p">(</span><span class="n">BuildableListView</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;mymodel_list.html&#39;</span>
+    <span class="n">build_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">BUILD_DIR</span><span class="p">,</span> <span class="s">&#39;mymodel&#39;</span><span class="p">,</span> <span class="s">&#39;index.html&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="class">
@@ -119,9 +136,16 @@ defaults.</p>
 <dd><p>Render and build a &#8220;detail&#8221; page about an object or a series of pages
 about a list of objects. Extended from Django&#8217;s generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview">DetailView</a>.</p>
 <dl class="attribute">
-<dt>
-<tt class="descname">queryset:</tt></dt>
+<dt id="BuildableDetailView.queryset">
+<tt class="descname">queryset</tt><a class="headerlink" href="#BuildableDetailView.queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Django model instance the objects are looked up from.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BuildableDetailView.template_name">
+<tt class="descname">template_name</tt><a class="headerlink" href="#BuildableDetailView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the template you would like Django to render. You need
+to override this if you don&#8217;t want to rely on the Django defaults.</p>
 </dd></dl>
 
 </dd></dl>
