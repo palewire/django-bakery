@@ -1,2 +1,5 @@
 Buildable models
 ================
+
+BuildableModel
+--------------
