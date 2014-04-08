@@ -70,6 +70,14 @@ generic <a class="reference external" href="https://docs.djangoproject.com/en/de
 <dd><p>The name of the template you would like Django to render. Required.</p>
 </dd></dl>
 
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleTemplateView</span><span class="p">(</span><span class="n">BuildableTemplateView</span><span class="p">):</span>
+    <span class="n">build_path</span> <span class="o">=</span> <span class="s">&#39;examples/index.html&#39;</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;examples.html&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="class">
@@ -111,9 +119,7 @@ to override this if you don&#8217;t want to rely on the Django <tt class="docuti
 defaults.</p>
 </dd></dl>
 
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
-<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">MyModel</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">MyModel</span>
 <span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableListView</span>
 
 
@@ -123,9 +129,9 @@ defaults.</p>
 
 
 <span class="k">class</span> <span class="nc">DifferentExampleListView</span><span class="p">(</span><span class="n">BuildableListView</span><span class="p">):</span>
+    <span class="n">build_path</span> <span class="o">=</span> <span class="s">&#39;mymodel/index.html&#39;</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;mymodel_list.html&#39;</span>
-    <span class="n">build_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">BUILD_DIR</span><span class="p">,</span> <span class="s">&#39;mymodel&#39;</span><span class="p">,</span> <span class="s">&#39;index.html&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -16,6 +16,15 @@ Buildable views
 
         The name of the template you would like Django to render. Required.
 
+    .. code-block:: python
+
+        from bakery.views import BuildableTemplateView
+
+
+        class ExampleTemplateView(BuildableTemplateView):
+            build_path = 'examples/index.html'
+            template_name = 'examples.html'
+
 
 .. class:: BuildableListView
 
@@ -50,8 +59,6 @@ Buildable views
 
     .. code-block:: python
 
-        import os
-        from django.conf import settings
         from myapp.models import MyModel
         from bakery.views import BuildableListView
 
@@ -62,9 +69,9 @@ Buildable views
 
 
         class DifferentExampleListView(BuildableListView):
+            build_path = 'mymodel/index.html'
             queryset = MyModel.objects.filter(is_published=True)
             template_name = 'mymodel_list.html'
-            build_path = os.path.join(settings.BUILD_DIR, 'mymodel', 'index.html')
 
 
 .. class:: BuildableDetailView
