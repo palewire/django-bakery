@@ -50,6 +50,7 @@ If you've never seen class-based views before, you should study up in `the Djang
         """
         queryset = Dummy­Mod­el.live.all()
 
+
 After you’ve con­ver­ted your views, add them to a list in ``settings.py`` where all build­able views will be collected.
 
 .. code-block:: python
