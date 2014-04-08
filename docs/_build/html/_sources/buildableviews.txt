@@ -1,30 +1,46 @@
 Buildable views
 ===============
 
-.. class:: BuildableTemplateView
+Django's `class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_  are used to render HTML pages to flat files. Putting all the pieces together is a little tricky at first, particularly if you haven't studied `the Django source code <https://github.com/django/django/tree/master/django/views/generic>`_ or lack experience `working with Python classes <http://www.diveintopython.net/object_oriented_framework/defining_classes.html>`_ in general. But if you figure it out, we think it's worth the trouble.
+
+BuildableTemplateView
+---------------------
+
+.. py:class:: BuildableTemplateView
 
     Renders and builds a simple template as a flat file. Extended from Django's 
     generic `TemplateView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView>`_.
 
-    .. attribute:: build_path
+    .. py:attribute:: build_path
 
         The target location of the built file in the ``BUILD_DIR``.
         ``index.html`` would place it at the built site's root.
         ``foo/index.html`` would place it inside a subdirectory. Required.
 
-    .. attribute:: template_name
+    .. py:attribute:: template_name
 
         The name of the template you would like Django to render. Required.
+
+    .. py:method:: build()
+
+        Writes the rendered template's HTML to a flat file. Only override this if you know what you're doing.
+
+    .. py:attribute:: build_method
+
+        An alias to the ``build`` method used by the :doc:`management commands </managementcommands>`
+
+    **Example myapp/views.py**
 
     .. code-block:: python
 
         from bakery.views import BuildableTemplateView
 
-
         class ExampleTemplateView(BuildableTemplateView):
             build_path = 'examples/index.html'
             template_name = 'examples.html'
 
+BuildableListView
+-----------------
 
 .. class:: BuildableListView
 
@@ -57,6 +73,16 @@ Buildable views
         to override this if you don't want to rely on the Django ``ListView``
         defaults.
 
+    .. py:attribute:: build_method
+
+        An alias to the ``build_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: build_queryset()
+
+        Writes the rendered template's HTML to a flat file. Only override this if you know what you're doing.
+
+    **Example myapp/views.py**
+
     .. code-block:: python
 
         from myapp.models import MyModel
@@ -73,6 +99,9 @@ Buildable views
             queryset = MyModel.objects.filter(is_published=True)
             template_name = 'mymodel_list.html'
 
+
+BuildableDetailView
+-------------------
 
 .. class:: BuildableDetailView
 
@@ -97,6 +126,42 @@ Buildable views
         to override this if you don't want to rely on the default, which is 
         ``os.path.join(settings.BUILD_DIR, obj.get_absolute_url(), 'index.html')``.
 
+    .. method:: get_build_path(obj)
+
+        Used to determine where to build the detail page. Override this if you
+        would like your detail page at a different location. By default it
+        will be built at ``os.path.join(obj.get_url(), "index.html"``.
+
+    .. method:: get_html(obj)
+
+        How to render the output for the provided object's page. If you choose to render
+        using something other than a Django template, like HttpResponse for
+        instance, you will want to override this. By default it uses the template
+        object's default ``render`` method.
+
+    .. method:: get_url(obj)
+
+        Returns the build directory, and therefore the URL, where the provided
+        object's flat file should be placed. By default is it ``obj.get_absolute_url()``.
+
+    .. py:attribute:: build_method
+
+        An alias to the ``build_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: build_object(obj)
+
+        Writes the rendered HTML for the template and the provided object to the build directory.
+
+    .. py:method:: build_queryset()
+
+        Writes the rendered template's HTML for each object in the ``queryset`` or ``model`` to a flat file. Only override this if you know what you're doing.
+
+    .. py:method:: unbuild_object(obj)
+
+        Deletes the directory where the provided object's flat files are stored.
+
+    **Example myapp/views.py**
+
     .. code-block:: python
 
         from myapp.models import MyModel
@@ -107,4 +172,20 @@ Buildable views
             queryset = MyModel.objects.filter(is_published=True)
             template_name = 'mymodel_detail.html'
 
+Buildable404View
+----------------
 
+.. class:: Buildable404View
+
+    Renders and builds a simple 404 error page template as a flat file. Extended from the ``BuildableTemplateView`` above.
+
+    **All it does**
+
+    .. code-block:: python
+
+        from bakery.views import BuildableTemplateView
+
+
+        class Buildable404View(BuildableTemplateView):
+            build_path = '404.html'
+            template_name = '404.html'

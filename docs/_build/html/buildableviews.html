@@ -51,6 +51,9 @@
             
   <div class="section" id="buildable-views">
 <h1>Buildable views<a class="headerlink" href="#buildable-views" title="Permalink to this headline">¶</a></h1>
+<p>Django&#8217;s <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">class-based views</a>  are used to render HTML pages to flat files. Putting all the pieces together is a little tricky at first, particularly if you haven&#8217;t studied <a class="reference external" href="https://github.com/django/django/tree/master/django/views/generic">the Django source code</a> or lack experience <a class="reference external" href="http://www.diveintopython.net/object_oriented_framework/defining_classes.html">working with Python classes</a> in general. But if you figure it out, we think it&#8217;s worth the trouble.</p>
+<div class="section" id="buildabletemplateview">
+<h2>BuildableTemplateView<a class="headerlink" href="#buildabletemplateview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableTemplateView">
 <em class="property">class </em><tt class="descname">BuildableTemplateView</tt><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
@@ -70,8 +73,20 @@ generic <a class="reference external" href="https://docs.djangoproject.com/en/de
 <dd><p>The name of the template you would like Django to render. Required.</p>
 </dd></dl>
 
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>
+<dl class="method">
+<dt id="BuildableTemplateView.build">
+<tt class="descname">build</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableTemplateView.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the rendered template&#8217;s HTML to a flat file. Only override this if you know what you&#8217;re doing.</p>
+</dd></dl>
 
+<dl class="attribute">
+<dt id="BuildableTemplateView.build_method">
+<tt class="descname">build_method</tt><a class="headerlink" href="#BuildableTemplateView.build_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias to the <tt class="docutils literal"><span class="pre">build</span></tt> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
+</dd></dl>
+
+<p><strong>Example myapp/views.py</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>
 
 <span class="k">class</span> <span class="nc">ExampleTemplateView</span><span class="p">(</span><span class="n">BuildableTemplateView</span><span class="p">):</span>
     <span class="n">build_path</span> <span class="o">=</span> <span class="s">&#39;examples/index.html&#39;</span>
@@ -80,6 +95,9 @@ generic <a class="reference external" href="https://docs.djangoproject.com/en/de
 </div>
 </dd></dl>
 
+</div>
+<div class="section" id="buildablelistview">
+<h2>BuildableListView<a class="headerlink" href="#buildablelistview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableListView">
 <em class="property">class </em><tt class="descname">BuildableListView</tt><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
@@ -119,6 +137,19 @@ to override this if you don&#8217;t want to rely on the Django <tt class="docuti
 defaults.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="BuildableListView.build_method">
+<tt class="descname">build_method</tt><a class="headerlink" href="#BuildableListView.build_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias to the <tt class="docutils literal"><span class="pre">build_queryset</span></tt> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableListView.build_queryset">
+<tt class="descname">build_queryset</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableListView.build_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the rendered template&#8217;s HTML to a flat file. Only override this if you know what you&#8217;re doing.</p>
+</dd></dl>
+
+<p><strong>Example myapp/views.py</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">MyModel</span>
 <span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableListView</span>
 
@@ -136,6 +167,9 @@ defaults.</p>
 </div>
 </dd></dl>
 
+</div>
+<div class="section" id="buildabledetailview">
+<h2>BuildableDetailView<a class="headerlink" href="#buildabledetailview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableDetailView">
 <em class="property">class </em><tt class="descname">BuildableDetailView</tt><a class="headerlink" href="#BuildableDetailView" title="Permalink to this definition">¶</a></dt>
@@ -165,6 +199,55 @@ to override this if you don&#8217;t want to rely on the default, which is
 <tt class="docutils literal"><span class="pre">os.path.join(settings.BUILD_DIR,</span> <span class="pre">obj.get_absolute_url(),</span> <span class="pre">'index.html')</span></tt>.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="BuildableDetailView.get_build_path">
+<tt class="descname">get_build_path</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.get_build_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to determine where to build the detail page. Override this if you
+would like your detail page at a different location. By default it
+will be built at <tt class="docutils literal"><span class="pre">os.path.join(obj.get_url(),</span> <span class="pre">&quot;index.html&quot;</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableDetailView.get_html">
+<tt class="descname">get_html</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.get_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>How to render the output for the provided object&#8217;s page. If you choose to render
+using something other than a Django template, like HttpResponse for
+instance, you will want to override this. By default it uses the template
+object&#8217;s default <tt class="docutils literal"><span class="pre">render</span></tt> method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableDetailView.get_url">
+<tt class="descname">get_url</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.get_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the build directory, and therefore the URL, where the provided
+object&#8217;s flat file should be placed. By default is it <tt class="docutils literal"><span class="pre">obj.get_absolute_url()</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BuildableDetailView.build_method">
+<tt class="descname">build_method</tt><a class="headerlink" href="#BuildableDetailView.build_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias to the <tt class="docutils literal"><span class="pre">build_queryset</span></tt> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableDetailView.build_object">
+<tt class="descname">build_object</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.build_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the rendered HTML for the template and the provided object to the build directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableDetailView.build_queryset">
+<tt class="descname">build_queryset</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableDetailView.build_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the rendered template&#8217;s HTML for each object in the <tt class="docutils literal"><span class="pre">queryset</span></tt> or <tt class="docutils literal"><span class="pre">model</span></tt> to a flat file. Only override this if you know what you&#8217;re doing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableDetailView.unbuild_object">
+<tt class="descname">unbuild_object</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.unbuild_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the directory where the provided object&#8217;s flat files are stored.</p>
+</dd></dl>
+
+<p><strong>Example myapp/views.py</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">MyModel</span>
 <span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableDetailView</span>
 
@@ -177,6 +260,25 @@ to override this if you don&#8217;t want to rely on the default, which is
 </dd></dl>
 
 </div>
+<div class="section" id="buildable404view">
+<h2>Buildable404View<a class="headerlink" href="#buildable404view" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Buildable404View">
+<em class="property">class </em><tt class="descname">Buildable404View</tt><a class="headerlink" href="#Buildable404View" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders and builds a simple 404 error page template as a flat file. Extended from the <tt class="docutils literal"><span class="pre">BuildableTemplateView</span></tt> above.</p>
+<p><strong>All it does</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>
+
+
+<span class="k">class</span> <span class="nc">Buildable404View</span><span class="p">(</span><span class="n">BuildableTemplateView</span><span class="p">):</span>
+    <span class="n">build_path</span> <span class="o">=</span> <span class="s">&#39;404.html&#39;</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;404.html&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
 
 
           </div>
@@ -184,6 +286,17 @@ to override this if you don&#8217;t want to rely on the default, which is
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Buildable views</a><ul>
+<li><a class="reference internal" href="#buildabletemplateview">BuildableTemplateView</a></li>
+<li><a class="reference internal" href="#buildablelistview">BuildableListView</a></li>
+<li><a class="reference internal" href="#buildabledetailview">BuildableDetailView</a></li>
+<li><a class="reference internal" href="#buildable404view">Buildable404View</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="gettingstarted.html"
                         title="previous chapter">Getting started</a></p>
