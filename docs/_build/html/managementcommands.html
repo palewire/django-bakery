@@ -55,6 +55,7 @@
 this library that help make things happen.</p>
 <div class="section" id="build">
 <h2>build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
+<p>Bake out a site as flat files in the build directory.</p>
 <dl class="cmdoption">
 <dt id="cmdoption--build_dir">
 <tt class="descname">--build_dir</tt><tt class="descclassname"> &lt;path&gt;</tt><a class="headerlink" href="#cmdoption--build_dir" title="Permalink to this definition">¶</a></dt>
@@ -79,24 +80,47 @@ this library that help make things happen.</p>
 </div>
 <div class="section" id="buildserver">
 <h2>buildserver<a class="headerlink" href="#buildserver" title="Permalink to this headline">¶</a></h2>
+<p>Starts a variation of Django&#8217;s <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/django-admin/#runserver-port-or-address-port">runserver</a> designed to serve the static files you&#8217;ve built
+in the build directory.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py buildserver
 </pre></div>
 </div>
 </div>
 <div class="section" id="publish">
 <h2>publish<a class="headerlink" href="#publish" title="Permalink to this headline">¶</a></h2>
+<p>Syncs the build directory with your Amazon S3 bucket using <tt class="docutils literal"><span class="pre">s3cmd</span></tt>.</p>
+<dl class="cmdoption">
+<dt id="cmdoption--aws-bucket-name">
+<tt class="descname">--aws-bucket-name</tt><tt class="descclassname"> &lt;name&gt;</tt><a class="headerlink" href="#cmdoption--aws-bucket-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the AWS bucket to sync with. Will use settings.AWS_BUCKET_NAME by default.</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--build_dir">
+<tt class="descname">--build_dir</tt><tt class="descclassname"> &lt;path&gt;</tt><a class="headerlink" href="#cmdoption--build_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the path of the build directory. Will use settings.BUILD_DIR by default.</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--config">
+<tt class="descname">--config</tt><tt class="descclassname"> &lt;path&gt;</tt><a class="headerlink" href="#cmdoption--config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the path of an s3cmd configuration file. Will use <tt class="docutils literal"><span class="pre">~/.s3cmd</span></tt> by default.</p>
+</dd></dl>
+
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py publish
 </pre></div>
 </div>
 </div>
 <div class="section" id="unbuild">
 <h2>unbuild<a class="headerlink" href="#unbuild" title="Permalink to this headline">¶</a></h2>
+<p>Empties the build directory.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py unbuild
 </pre></div>
 </div>
 </div>
 <div class="section" id="unpublish">
 <h2>unpublish<a class="headerlink" href="#unpublish" title="Permalink to this headline">¶</a></h2>
+<p>Empties the Amazon S3 bucket defined in <tt class="docutils literal"><span class="pre">settings.py</span></tt>.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py unpublish
 </pre></div>
 </div>
