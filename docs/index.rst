@@ -36,7 +36,6 @@ Documentation
    buildablemodels
    settingsvariables
    managementcommands
-   celeryintegration
    changelog
    credits
 
