@@ -51,12 +51,75 @@
             
   <div class="section" id="buildable-models">
 <h1>Buildable models<a class="headerlink" href="#buildable-models" title="Permalink to this headline">¶</a></h1>
+<p>If your site pub­lishes a large data­base, the build-and-pub­lish routine can take a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire data­base to re­build every time there’s a minor edit.</p>
+<p>We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els. When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that ob­ject is con­nec­ted to. We ac­com­plish this with a <tt class="docutils literal"><span class="pre">BuildableModel</span></tt> class you can in­her­it. It works the same as a standard Django model, except that you are asked define a list of the de­tail views con­nec­ted to each ob­ject.</p>
 <div class="section" id="buildablemodel">
 <h2>BuildableModel<a class="headerlink" href="#buildablemodel" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableModel">
 <em class="property">class </em><tt class="descname">BuildableModel</tt><a class="headerlink" href="#BuildableModel" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>An abstract base model that creates an object that can builds out its own detail pages.</p>
+<dl class="attribute">
+<dt id="BuildableModel.detail_views">
+<tt class="descname">detail_views</tt><a class="headerlink" href="#BuildableModel.detail_views" title="Permalink to this definition">¶</a></dt>
+<dd><p>An iterable containing paths to the views that are built using the object, which should inherit from <a class="reference internal" href="buildableviews.html"><em>buildable class-based views</em></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableModel.build">
+<tt class="descname">build</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableModel.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through the views pointed to by <tt class="docutils literal"><span class="pre">detail_views</span></tt>, running
+each view&#8217;s <tt class="docutils literal"><span class="pre">build_object</span></tt> method with <tt class="docutils literal"><span class="pre">self</span></tt>. Then calls <tt class="docutils literal"><span class="pre">_build_extra()</span></tt>
+and <tt class="docutils literal"><span class="pre">_build_related()</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableModel.unbuild">
+<tt class="descname">unbuild</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableModel.unbuild" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through the views pointed to by <tt class="docutils literal"><span class="pre">detail_views</span></tt>, running
+each view&#8217;s <tt class="docutils literal"><span class="pre">unbuild_object</span></tt> method with <tt class="docutils literal"><span class="pre">self</span></tt>. Then calls <tt class="docutils literal"><span class="pre">_unbuild_extra()</span></tt>
+and <tt class="docutils literal"><span class="pre">_build_related()</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableModel._build_extra">
+<tt class="descname">_build_extra</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableModel._build_extra" title="Permalink to this definition">¶</a></dt>
+<dd><p>A place to include code that will build extra content related to the object
+that is not rendered by the <tt class="docutils literal"><span class="pre">detail_views</span></tt>, such a related image.
+Empty by default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableModel._build_related">
+<tt class="descname">_build_related</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableModel._build_related" title="Permalink to this definition">¶</a></dt>
+<dd><p>A place to include code that will build related content, such as an RSS feed,
+that does not require passing in the object to a view. Empty by default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BuildableModel._unbuild_extra">
+<tt class="descname">_unbuild_extra</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableModel._unbuild_extra" title="Permalink to this definition">¶</a></dt>
+<dd><p>A place to include code that will remove extra content related to the object
+that is not rendered by the <tt class="docutils literal"><span class="pre">detail_views</span></tt>, like deleting a related image.
+Empty by default.</p>
+</dd></dl>
+
+<div class="highlight-django"><div class="highlight"><pre><span class="x">from django.db im­port mod­els</span>
+<span class="x">from bakery.mod­els im­port Build­ableMod­el</span>
+
+
+<span class="x">class My­Mod­el(Build­ableMod­el)</span>
+<span class="x">    de­tail_views = (&#39;myapp.views.ExampleDetailView&#39;,)</span>
+<span class="x">    title = mod­els.Char­Field(max_length=100)</span>
+<span class="x">    de­scrip­tion = mod­els.Text­Field()</span>
+
+<span class="x">    def _build_re­lated(self):</span>
+<span class="x">        from myapp import views</span>
+<span class="x">        views.MySitem­apView().build_queryset()</span>
+<span class="x">        views.MyRSS­Feed().build_queryset()</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </div>
 </div>
