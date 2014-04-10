@@ -16,7 +16,7 @@ A set of helpers for baking your Django site out as flat files
 [![PyPI version](https://badge.fury.io/py/django-bakery.png)](http://badge.fury.io/py/django-bakery)
 [![Coverage Status](https://coveralls.io/repos/datadesk/django-bakery/badge.png?branch=master)](https://coveralls.io/r/datadesk/django-bakery?branch=master)
 
-* Documentation: [django-bakery.rtfd.org](http://django-bakery.rtfd.org)
+* Documentation: [http://django-bakery.rtfd.org](http://django-bakery.rtfd.org)
 * Issues: [https://github.com/datadesk/django-bakery/issues](https://github.com/datadesk/django-bakery/issues)
 * Packaging: [https://pypi.python.org/pypi/django-bakery](https://pypi.python.org/pypi/django-bakery)
 * Testing: [https://travis-ci.org/datadesk/django-bakery](https://travis-ci.org/datadesk/django-bakery)
