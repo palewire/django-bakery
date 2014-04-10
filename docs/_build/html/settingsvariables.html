@@ -54,19 +54,28 @@
 <p>Configuration options for your <tt class="docutils literal"><span class="pre">settings.py</span></tt>.</p>
 <div class="section" id="build-dir">
 <h2>BUILD_DIR<a class="headerlink" href="#build-dir" title="Permalink to this headline">¶</a></h2>
-<p>The location where you want the flat files to be built.</p>
+<dl class="envvar">
+<dt id="envvar-BUILD_DIR">
+<tt class="descname">BUILD_DIR</tt><a class="headerlink" href="#envvar-BUILD_DIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>The location where you want the flat files to be built.</p>
+</dd></dl>
+
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BUILD_DIR</span> <span class="o">=</span> <span class="s">&#39;/home/you/code/your-site/build/&#39;</span>
-</pre></div>
-</div>
-<p>I like something a little snappier like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c"># I like something a little snappier like...</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="n">BUILD_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__file__</span><span class="p">,</span> <span class="s">&#39;build&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="bakery-views">
 <h2>BAKERY_VIEWS<a class="headerlink" href="#bakery-views" title="Permalink to this headline">¶</a></h2>
-<p>The list of views you want to be built out as flat files when the <tt class="docutils literal"><span class="pre">build</span></tt> <a class="reference internal" href="managementcommands.html"><em>management command</em></a> is executed.</p>
+<dl class="envvar">
+<dt id="envvar-BAKERY_VIEWS">
+<tt class="descname">BAKERY_VIEWS</tt><a class="headerlink" href="#envvar-BAKERY_VIEWS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of views you want to be built out as flat files when the <tt class="docutils literal"><span class="pre">build</span></tt> <a class="reference internal" href="managementcommands.html"><em>management command</em></a> is executed.</p>
+</dd></dl>
+
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_VIEWS</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s">&#39;myapp.views.ExampleL­istView&#39;</span><span class="p">,</span>
     <span class="s">&#39;myapp.views.ExampleDe­tailView&#39;</span><span class="p">,</span>
@@ -78,7 +87,12 @@
 </div>
 <div class="section" id="aws-bucket-name">
 <h2>AWS_BUCKET_NAME<a class="headerlink" href="#aws-bucket-name" title="Permalink to this headline">¶</a></h2>
-<p>The name of the <a class="reference external" href="http://aws.amazon.com/s3/">Amazon S3 &#8220;bucket&#8221;</a> on the Internet were you want to publish the flat files in your local <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.</p>
+<dl class="envvar">
+<dt id="envvar-AWS_BUCKET_NAME">
+<tt class="descname">AWS_BUCKET_NAME</tt><a class="headerlink" href="#envvar-AWS_BUCKET_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the <a class="reference external" href="http://aws.amazon.com/s3/">Amazon S3 &#8220;bucket&#8221;</a> on the Internet were you want to publish the flat files in your local <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.</p>
+</dd></dl>
+
 <div class="highlight-python"><div class="highlight"><pre>AWS_BUCK­ET_­NAME = &#39;your-buck­et&#39;
 </pre></div>
 </div>

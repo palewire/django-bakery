@@ -7,19 +7,19 @@ this library that help make things happen.
 build
 -----
 
-.. django-admin:: build
+.. program:: build
 
     Bake out a site as flat files in the ``BUILD_DIR``.
 
-.. django-admin-option:: --build_dir <path>
+.. cmdoption:: --build_dir <path>
 
    Specify the path of the build directory. Will use ``settings.BUILD_DIR`` by default.
 
-.. django-admin-option:: --skip-static
+.. cmdoption:: --skip-static
 
     Skip collecting the static files when building.
 
-.. django-admin-option:: --skip-media
+.. cmdoption:: --skip-media
 
     Skip collecting the media files when building.
 
