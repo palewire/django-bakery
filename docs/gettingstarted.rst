@@ -55,10 +55,10 @@ After you’ve con­ver­ted your views, add them to a list in ``settings.py`` w
 
 .. code-block:: python
 
-    BAKERY_VIEWS = [
+    BAKERY_VIEWS = (
         'yourapp.views.DummyL­istView',
         'yourapp.views.DummyDe­tailView',
-    ]
+    )
 
 Then run the man­age­ment com­mand that will bake them out. 
 

@@ -91,10 +91,10 @@ class DummyDe­tailView(Build­able­De­tailView):
 </pre></div>
 </div>
 <p>After you’ve con­ver­ted your views, add them to a list in <tt class="docutils literal"><span class="pre">settings.py</span></tt> where all build­able views will be collected.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_VIEWS</span> <span class="o">=</span> <span class="p">[</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_VIEWS</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s">&#39;yourapp.views.DummyL­istView&#39;</span><span class="p">,</span>
     <span class="s">&#39;yourapp.views.DummyDe­tailView&#39;</span><span class="p">,</span>
-<span class="p">]</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Then run the man­age­ment com­mand that will bake them out.</p>
