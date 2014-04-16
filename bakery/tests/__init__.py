@@ -58,7 +58,11 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
-        build_gzip_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html.gz')
+        build_gzip_path = os.path.join(
+            settings.BUILD_DIR,
+            'foo',
+            'bar.html.gz'
+        )
         self.assertTrue(os.path.exists(build_gzip_path))
         os.remove(build_gzip_path)
 
@@ -86,7 +90,11 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
-        build_gzip_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html.gz')
+        build_gzip_path = os.path.join(
+            settings.BUILD_DIR,
+            'foo',
+            'bar.html.gz'
+        )
         self.assertTrue(os.path.exists(build_gzip_path))
         os.remove(build_gzip_path)
 
