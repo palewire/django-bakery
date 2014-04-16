@@ -44,13 +44,7 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
-    def handle(self, *args, **options):
-        """
-        Cobble together s3cmd command with all the proper options and run it.
-        """
-        # The s3cmd basic command, before we append all the options.
-        cmd = "s3cmd sync --delete-removed --acl-public"
-
+    def sync(self, cmd):
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
@@ -94,3 +88,25 @@ in settings.py or provide it with --aws-bucket-name"
 
         # Execute the command
         subprocess.call(cmd, shell=True)
+
+    def sync_gzipped_files(self):
+        cmd = "s3cmd sync --exclude '*.*' --include '*.gz' --add-header='Content-Encoding: gzip' --delete-removed --acl-public"
+        self.sync(cmd)
+
+    # The s3cmd basic command, before we append all the options.
+    def sync_all_files(self):
+        cmd = "s3cmd sync --delete-removed --acl-public"
+        self.sync(cmd)
+
+    def handle(self, *args, **options):
+        """
+        Cobble together s3cmd command with all the proper options and run it.
+        """
+        # sync gzipped files, if not opted out
+        if getattr(settings, 'BAKERY_GZIP', True):
+            sync_gzipped_files()
+
+        # sync the rest of the files
+        self.sync_all_files()
+
+
