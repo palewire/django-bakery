@@ -13,7 +13,20 @@ from django.views.generic import TemplateView, DetailView, ListView
 logger = logging.getLogger(__name__)
 
 
-class BuildableTemplateView(TemplateView):
+class BuildableMixin(object):
+    """
+    Common methods we will use in buildable models.
+    """
+    def write(self, path, html):
+        """
+        Writes out the provided HTML to the provided path.
+        """
+        outfile = open(path, 'wb')
+        outfile.write(six.binary_type(html))
+        outfile.close()
+
+
+class BuildableTemplateView(TemplateView, BuildableMixin):
     """
     Renders and builds a simple template.
 
@@ -42,9 +55,7 @@ class BuildableTemplateView(TemplateView):
             dirname = os.path.join(settings.BUILD_DIR, dirname)
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
-        outfile = open(path, 'wb')
-        outfile.write(six.binary_type(html))
-        outfile.close()
+        self.write(path, html)
         # Let's also write out a gzipped version of the data
         # I don't think this is required, but will be good to test at first.
         # Otherwise, we can just gzip to a file when rendering, 
@@ -55,7 +66,7 @@ class BuildableTemplateView(TemplateView):
         gz_file.close()
 
 
-class BuildableListView(ListView):
+class BuildableListView(ListView, BuildableMixin):
     """
     Render and builds a page about a list of objects.
 
@@ -94,9 +105,7 @@ class BuildableListView(ListView):
         html = self.get(self.request).render().content
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
-        outfile = open(path, 'wb')
-        outfile.write(six.binary_type(html))
-        outfile.close()
+        self.write(path, html)
         # Let's also write out a gzipped version of the data
         # I don't think this is required, but will be good to test at first.
         # Otherwise, we can just gzip to a file when rendering, 
@@ -106,7 +115,8 @@ class BuildableListView(ListView):
         gz_file.write(six.binary_type(html))
         gz_file.close()
 
-class BuildableDetailView(DetailView):
+
+class BuildableDetailView(DetailView, BuildableMixin):
     """
     Render and build a "detail" view of an object.
 
@@ -122,19 +132,6 @@ class BuildableDetailView(DetailView):
     @property
     def build_method(self):
         return self.build_queryset
-
-    def write(self, path, data):
-        outfile = open(path, 'wb')
-        outfile.write(six.binary_type(data))
-        outfile.close()
-        # Let's also write out a gzipped version of the data
-        # I don't think this is required, but will be good to test at first.
-        # Otherwise, we can just gzip to a file when rendering, 
-        # and forget the .gz extension
-        gz_filename = '%s.gz' % path
-        gz_file = gzip.open(gz_filename, 'wb')
-        gz_file.write(six.binary_type(data))
-        gz_file.close()        
 
     def get_url(self, obj):
         """
@@ -170,10 +167,17 @@ class BuildableDetailView(DetailView):
         logger.debug("Building %s" % obj)
         self.request = RequestFactory().get(self.get_url(obj))
         self.set_kwargs(obj)
-        self.write(
-            self.get_build_path(obj),
-            self.get_html()
-        )
+        path = self.get_build_path(obj)
+        html = self.get_html()
+        self.write(path, html)
+        # Let's also write out a gzipped version of the data
+        # I don't think this is required, but will be good to test at first.
+        # Otherwise, we can just gzip to a file when rendering, 
+        # and forget the .gz extension
+        gz_filename = '%s.gz' % path
+        gz_file = gzip.open(gz_filename, 'wb')
+        gz_file.write(six.binary_type(html))
+        gz_file.close()
 
     def build_queryset(self):
         [self.build_object(o) for o in self.get_queryset().all()]
