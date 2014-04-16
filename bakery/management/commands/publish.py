@@ -89,8 +89,11 @@ in settings.py or provide it with --aws-bucket-name"
         # Execute the command
         subprocess.call(cmd, shell=True)
 
+    # only gzipping rendered html views for now
+    # once we get our collect static routines worked out we should include 
+    # .css and .js too 
     def sync_gzipped_files(self, options):
-        cmd = "s3cmd sync --exclude '*.*' --include '*.gz' --add-header='Content-Encoding: gzip' --delete-removed --acl-public"
+        cmd = "s3cmd sync --exclude '*.*' --include '*.html' --add-header='Content-Encoding: gzip' --delete-removed --acl-public"
         self.sync(cmd, options)
 
     # The s3cmd basic command, before we append all the options.
@@ -103,7 +106,7 @@ in settings.py or provide it with --aws-bucket-name"
         Cobble together s3cmd command with all the proper options and run it.
         """
         # sync gzipped files, if not opted out
-        if getattr(settings, 'BAKERY_GZIP', True):
+        if getattr(settings, 'BAKERY_GZIP', False):
             self.sync_gzipped_files(options)
 
         # sync the rest of the files
