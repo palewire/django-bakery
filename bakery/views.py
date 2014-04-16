@@ -24,6 +24,19 @@ class BuildableMixin(object):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
+        self.gzip(path, html)
+
+    def gzip(self, path, html):
+        """
+        Zips up the provided HTML as a companion for the provided path.
+
+        Intended to take advantage of the peculiarities of
+        Amazon S3's GZIP service.
+        """
+        gz_filename = '%s.gz' % path
+        gz_file = gzip.open(gz_filename, 'wb')
+        gz_file.write(six.binary_type(html))
+        gz_file.close()
 
 
 class BuildableTemplateView(TemplateView, BuildableMixin):
@@ -56,14 +69,6 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
         self.write(path, html)
-        # Let's also write out a gzipped version of the data
-        # I don't think this is required, but will be good to test at first.
-        # Otherwise, we can just gzip to a file when rendering, 
-        # and forget the .gz extension
-        gz_filename = '%s.gz' % path
-        gz_file = gzip.open(gz_filename, 'wb')
-        gz_file.write(six.binary_type(html))
-        gz_file.close()
 
 
 class BuildableListView(ListView, BuildableMixin):
@@ -106,14 +111,6 @@ class BuildableListView(ListView, BuildableMixin):
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         self.write(path, html)
-        # Let's also write out a gzipped version of the data
-        # I don't think this is required, but will be good to test at first.
-        # Otherwise, we can just gzip to a file when rendering, 
-        # and forget the .gz extension
-        gz_filename = '%s.gz' % path
-        gz_file = gzip.open(gz_filename, 'wb')
-        gz_file.write(six.binary_type(html))
-        gz_file.close()
 
 
 class BuildableDetailView(DetailView, BuildableMixin):
@@ -170,14 +167,6 @@ class BuildableDetailView(DetailView, BuildableMixin):
         path = self.get_build_path(obj)
         html = self.get_html()
         self.write(path, html)
-        # Let's also write out a gzipped version of the data
-        # I don't think this is required, but will be good to test at first.
-        # Otherwise, we can just gzip to a file when rendering, 
-        # and forget the .gz extension
-        gz_filename = '%s.gz' % path
-        gz_file = gzip.open(gz_filename, 'wb')
-        gz_file.write(six.binary_type(html))
-        gz_file.close()
 
     def build_queryset(self):
         [self.build_object(o) for o in self.get_queryset().all()]
