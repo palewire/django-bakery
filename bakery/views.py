@@ -24,7 +24,8 @@ class BuildableMixin(object):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
-        self.gzip(path, html)
+        if getattr(settings, 'BAKERY_GZIP', True):
+            self.gzip(path, html)
 
     def gzip(self, path, html):
         """
