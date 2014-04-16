@@ -93,8 +93,8 @@ in settings.py or provide it with --aws-bucket-name"
     # once we get our collect static routines worked out we should include 
     # .css and .js too 
     def sync_gzipped_files(self, options):
-        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH', '*.(html|xml)')
-        cmd = "s3cmd sync --exclude '*.*' --rinclude %s --add-header='Content-Encoding: gzip' --acl-public" % gzip_file_match
+        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH', '.(html|xml)')
+        cmd = "s3cmd sync --exclude '*.*' --rinclude '%s' --add-header='Content-Encoding: gzip' --acl-public" % gzip_file_match
         self.sync(cmd, options)
 
     # The s3cmd basic command, before we append all the options.
