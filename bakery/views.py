@@ -4,6 +4,7 @@ for building flat files.
 """
 import os
 import six
+import gzip
 import shutil
 import logging
 from django.conf import settings
@@ -44,6 +45,14 @@ class BuildableTemplateView(TemplateView):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
+        # Let's also write out a gzipped version of the data
+        # I don't think this is required, but will be good to test at first.
+        # Otherwise, we can just gzip to a file when rendering, 
+        # and forget the .gz extension
+        gz_filename = '%s.gz' % path
+        gz_file = gzip.open(path, 'wb')
+        gz_file.write(six.binary_type(html))
+        gz_file.close()
 
 
 class BuildableListView(ListView):
@@ -88,7 +97,14 @@ class BuildableListView(ListView):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
-
+        # Let's also write out a gzipped version of the data
+        # I don't think this is required, but will be good to test at first.
+        # Otherwise, we can just gzip to a file when rendering, 
+        # and forget the .gz extension
+        gz_filename = '%s.gz' % path
+        gz_file = gzip.open(path, 'wb')
+        gz_file.write(six.binary_type(html))
+        gz_file.close()
 
 class BuildableDetailView(DetailView):
     """
@@ -111,6 +127,14 @@ class BuildableDetailView(DetailView):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(data))
         outfile.close()
+        # Let's also write out a gzipped version of the data
+        # I don't think this is required, but will be good to test at first.
+        # Otherwise, we can just gzip to a file when rendering, 
+        # and forget the .gz extension
+        gz_filename = '%s.gz' % path
+        gz_file = gzip.open(path, 'wb')
+        gz_file.write(six.binary_type(data))
+        gz_file.close()        
 
     def get_url(self, obj):
         """
