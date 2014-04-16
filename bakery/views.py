@@ -31,8 +31,12 @@ class BuildableMixin(object):
 
         Intended to take advantage of the peculiarities of
         Amazon S3's GZIP service.
+
+        mtime, an option that writes a timestamp to the output file
+        is set to 0, to avoid having s3cmd do unnecessary uploads because
+        of differences in the timestamp
         """
-        outfile = gzip.open(path, 'wb')
+        outfile = gzip.open(path, 'wb', mtime=0)
         outfile.write(six.binary_type(html))
         outfile.close()
 
