@@ -50,7 +50,7 @@ class BuildableTemplateView(TemplateView):
         # Otherwise, we can just gzip to a file when rendering, 
         # and forget the .gz extension
         gz_filename = '%s.gz' % path
-        gz_file = gzip.open(path, 'wb')
+        gz_file = gzip.open(gz_filename, 'wb')
         gz_file.write(six.binary_type(html))
         gz_file.close()
 
@@ -102,7 +102,7 @@ class BuildableListView(ListView):
         # Otherwise, we can just gzip to a file when rendering, 
         # and forget the .gz extension
         gz_filename = '%s.gz' % path
-        gz_file = gzip.open(path, 'wb')
+        gz_file = gzip.open(gz_filename, 'wb')
         gz_file.write(six.binary_type(html))
         gz_file.close()
 
@@ -132,7 +132,7 @@ class BuildableDetailView(DetailView):
         # Otherwise, we can just gzip to a file when rendering, 
         # and forget the .gz extension
         gz_filename = '%s.gz' % path
-        gz_file = gzip.open(path, 'wb')
+        gz_file = gzip.open(gz_filename, 'wb')
         gz_file.write(six.binary_type(data))
         gz_file.close()        
 
