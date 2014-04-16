@@ -89,14 +89,14 @@ in settings.py or provide it with --aws-bucket-name"
         # Execute the command
         subprocess.call(cmd, shell=True)
 
-    def sync_gzipped_files(self):
+    def sync_gzipped_files(self, options):
         cmd = "s3cmd sync --exclude '*.*' --include '*.gz' --add-header='Content-Encoding: gzip' --delete-removed --acl-public"
-        self.sync(cmd)
+        self.sync(cmd, options)
 
     # The s3cmd basic command, before we append all the options.
-    def sync_all_files(self):
+    def sync_all_files(self, options):
         cmd = "s3cmd sync --delete-removed --acl-public"
-        self.sync(cmd)
+        self.sync(cmd, options)
 
     def handle(self, *args, **options):
         """
@@ -104,9 +104,9 @@ in settings.py or provide it with --aws-bucket-name"
         """
         # sync gzipped files, if not opted out
         if getattr(settings, 'BAKERY_GZIP', True):
-            self.sync_gzipped_files()
+            self.sync_gzipped_files(options)
 
         # sync the rest of the files
-        self.sync_all_files()
+        self.sync_all_files(options)
 
 
