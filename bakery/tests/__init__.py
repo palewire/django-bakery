@@ -46,6 +46,9 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+        build_gzip_path = os.path.join(settings.BUILD_DIR, 'foo.html.gz')
+        self.assertTrue(os.path.exists(build_gzip_path))
+        os.remove(build_gzip_path)
         v = views.BuildableTemplateView(
             template_name='templateview.html',
             build_path='foo/bar.html',
@@ -55,6 +58,9 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+        build_gzip_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html.gz')
+        self.assertTrue(os.path.exists(build_gzip_path))
+        os.remove(build_gzip_path)
 
     def test_list_view(self):
         v = views.BuildableListView(
@@ -67,6 +73,9 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+        build_gzip_path = os.path.join(settings.BUILD_DIR, 'foo.html.gz')
+        self.assertTrue(os.path.exists(build_gzip_path))
+        os.remove(build_gzip_path)
         v = views.BuildableListView(
             queryset=[1, 2, 3],
             template_name='listview.html',
@@ -77,6 +86,9 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+        build_gzip_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html.gz')
+        self.assertTrue(os.path.exists(build_gzip_path))
+        os.remove(build_gzip_path)
 
     def test_detail_view(self):
         v = views.BuildableDetailView(
@@ -92,6 +104,12 @@ class BakeryTest(TestCase):
                 'index.html',
             )
             self.assertTrue(os.path.exists(build_path))
+            build_gzip_path = os.path.join(
+                settings.BUILD_DIR,
+                o.get_absolute_url()[1:],
+                'index.html.gz',
+            )
+            self.assertTrue(os.path.exists(build_gzip_path))
             v.unbuild_object(o)
 
     def test_404_view(self):
@@ -101,6 +119,9 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, '404.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+        build_gzip_path = os.path.join(settings.BUILD_DIR, '404.html.gz')
+        self.assertTrue(os.path.exists(build_gzip_path))
+        os.remove(build_gzip_path)
 
     def test_build_cmd(self):
         call_command("build", **{'skip_media': True, 'verbosity': 3})
