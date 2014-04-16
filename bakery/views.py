@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class BuildableMixin(object):
     """
-    Common methods we will use in buildable models.
+    Common methods we will use in buildable views.
     """
     def write(self, path, html):
         """
