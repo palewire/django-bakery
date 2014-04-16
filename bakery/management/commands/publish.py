@@ -44,7 +44,7 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
-    def sync(self, cmd):
+    def sync(self, cmd, options):
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
