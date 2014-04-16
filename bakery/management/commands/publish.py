@@ -104,7 +104,7 @@ in settings.py or provide it with --aws-bucket-name"
         """
         # sync gzipped files, if not opted out
         if getattr(settings, 'BAKERY_GZIP', True):
-            sync_gzipped_files()
+            self.sync_gzipped_files()
 
         # sync the rest of the files
         self.sync_all_files()
