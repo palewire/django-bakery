@@ -1,4 +1,5 @@
 import os
+import re
 import six
 import shutil
 from django.conf import settings
