@@ -89,11 +89,9 @@ in settings.py or provide it with --aws-bucket-name"
         # Execute the command
         subprocess.call(cmd, shell=True)
 
-    # only gzipping rendered html views and sitemaps for now
-    # once we get our collect static routines worked out we should include 
-    # .css and .js too 
+    # gzip the rendered html views, sitemaps, and any static css, js and json
     def sync_gzipped_files(self, options):
-        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH', '(\.html|\.xml)$')
+        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH', '(\.html|\.xml|\.css|\.js|\.json)$')
         cmd = "s3cmd sync --exclude '*.*' --rinclude '%s' --add-header='Content-Encoding: gzip' --acl-public" % gzip_file_match
         self.sync(cmd, options)
 
