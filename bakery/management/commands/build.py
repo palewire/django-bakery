@@ -91,6 +91,8 @@ settings.py or provide a list as arguments."
                             # get the relative path that we want to copy into
                             rel_path = os.path.relpath(dirpath, settings.STATIC_ROOT)
                             dest_path = os.path.join(target_dir, rel_path[2:])
+                            if not os.path.exists(dest_path):
+                                os.mkdirs(dest_path)
                             # run the regex match
                             m = pattern.search(filename)
                             if m:
@@ -104,7 +106,7 @@ settings.py or provide a list as arguments."
                                 f_in.close()
                             # otherwise, just copy the file
                             else:
-                                shutil.copy(og_file, os.path.join(dest_path, filename))
+                                shutil.copy(og_file, dest_path)
                 # if gzip isn't enabled, just copy the tree straight over
                 else:
                     shutil.copytree(settings.STATIC_ROOT, target_dir)
