@@ -1,6 +1,7 @@
 import os
 import re
 import six
+import gzip
 import shutil
 from django.conf import settings
 from optparse import make_option
@@ -90,7 +91,7 @@ settings.py or provide a list as arguments."
                             og_file = os.path.join(dirpath, filename)
                             # get the relative path that we want to copy into
                             rel_path = os.path.relpath(dirpath, settings.STATIC_ROOT)
-                            dest_path = os.path.join(target_dir, rel_path[2:])
+                            dest_path = os.path.join(target_dir, rel_path)
                             if not os.path.exists(dest_path):
                                 os.makedirs(dest_path)
                             # run the regex match
