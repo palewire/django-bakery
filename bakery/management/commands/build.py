@@ -89,7 +89,7 @@ settings.py or provide a list as arguments."
                             og_file = os.path.join(dirpath, filename)
                             # get the relative path that we want to copy into
                             rel_path = os.path.relpath(dirpath, settings.STATIC_ROOT)
-                            new_file = os.path.join(target_dir, rel_path, filename)
+                            dest_path = os.path.join(target_dir, rel_path[2:])
                             # run the regex match
                             m = pattern.search(filename)
                             if m:
@@ -97,13 +97,13 @@ settings.py or provide a list as arguments."
                                 # create the new path in the build directory
                                 f_in = open(og_file, 'rb')
                                 # copy the file to gzip compressed output
-                                f_out = gzip.open(new_file, 'wb', mtime=0)
+                                f_out = gzip.open(os.path.join(dest_path, filename, 'wb', mtime=0)
                                 f_out.writelines(f_in)
                                 f_out.close()
                                 f_in.close()
                             # otherwise, just copy the file
                             else:
-                                shutil.copy(og_file, new_file)
+                                shutil.copy(og_file, dest_path)
                 # if gzip isn't enabled, just copy the tree straight over
                 else:
                     shutil.copytree(settings.STATIC_ROOT, target_dir)
