@@ -1,6 +1,5 @@
 import os
 import six
-import glob
 import shutil
 from django.conf import settings
 from optparse import make_option
@@ -78,24 +77,36 @@ settings.py or provide a list as arguments."
                 verbosity=0
             )
             target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
-            # walk through the static directory, 
-            # and match for any .css or .js file
-            if getattr(settings, 'BAKERY_GZIP', False):
-                for (dirpath, dirnames, filenames) in walk(settings.STATIC_ROOT):
-                    pattern = re.compile('(\.css|\.js|\.json)$')
-                    for filename in filenames:
-                        m = pattern.search(filename)
-                        if m:
-                            print "gzipping %s" % filename
-                            f_path = os.path.join(dirpath, filename)
-                            f_in = open(f_path, 'rb')
-                            f_out = gzip.open('%s.gz' % f_path, 'wb', mtime=0)
-                            f_out.writelines(f_in)
-                            f_out.close()
-                            f_in.close()
         
             if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
-                shutil.copytree(settings.STATIC_ROOT, target_dir)
+                if getattr(settings, 'BAKERY_GZIP', False):
+                    for (dirpath, dirnames, filenames) in os.walk(settings.STATIC_ROOT):
+                        # regex to match against. CSS, JS, JSON files
+                        pattern = re.compile('(\.css|\.js|\.json)$')
+                        for filename in filenames:
+                            # reference to the original file
+                            og_file = os.path.join(dirpath, filename)
+                            # get the relative path that we want to copy into
+                            rel_path = os.path.relpath(dirpath, settings.STATIC_ROOT)
+                            new_file = os.path.join(target_dir, rel_path, filename)
+                            # run the regex match
+                            m = pattern.search(filename)
+                            if m:
+                                print "gzipping %s" % filename
+                                # create the new path in the build directory
+                                f_in = open(og_file, 'rb')
+                                # copy the file to gzip compressed output
+                                f_out = gzip.open(new_file, 'wb', mtime=0)
+                                f_out.writelines(f_in)
+                                f_out.close()
+                                f_in.close()
+                            # otherwise, just copy the file
+                            else:
+                                shutil.copy(og_file, new_file)
+                # if gzip isn't enabled, just copy the tree straight over
+                else:
+                    shutil.copytree(settings.STATIC_ROOT, target_dir)
+
             # If they exist in the static directory, copy the robots.txt
             # and favicon.ico files down to the root so they will work
             # on the live website.
