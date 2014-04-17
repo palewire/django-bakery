@@ -101,7 +101,7 @@ settings.py or provide a list as arguments."
                                 # create the new path in the build directory
                                 f_in = open(og_file, 'rb')
                                 # copy the file to gzip compressed output
-                                f_out = gzip.open(os.path.join(dest_path, filename), 'wb', mtime=0)
+                                f_out = gzip.GzipFile(os.path.join(dest_path, filename), 'wb', mtime=0)
                                 f_out.writelines(f_in)
                                 f_out.close()
                                 f_in.close()
