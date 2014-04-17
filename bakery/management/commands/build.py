@@ -81,7 +81,7 @@ settings.py or provide a list as arguments."
             # walk through the static directory, 
             # and match for any .css or .js file
             if getattr(settings, 'BAKERY_GZIP', False):
-                for (dirpath, dirnames, filenames) in walk(target_dir):
+                for (dirpath, dirnames, filenames) in walk(settings.STATIC_ROOT):
                     pattern = re.compile('(\.css|\.js|\.json)$')
                     for filename in filenames:
                         m = pattern.search(filename)
