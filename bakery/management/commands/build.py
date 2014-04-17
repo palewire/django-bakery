@@ -80,17 +80,19 @@ settings.py or provide a list as arguments."
             target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
             # walk through the static directory, 
             # and match for any .css or .js file
-            for (dirpath, dirnames, filenames) in walk(target_dir):
-                pattern = re.compile('(\.css|\.js|\.json)$')
-                for filename in filenames:
-                    m = pattern.search(filename)
-                    if m:
-                        f_path = os.path.join(dirpath, filename)
-                        f_in = open(f_path, 'rb')
-                        f_out = gzip.open('%s.gz' % f_path, 'wb', mtime=0)
-                        f_out.writelines(f_in)
-                        f_out.close()
-                        f_in.close()
+            if getattr(settings, 'BAKERY_GZIP', False):
+                for (dirpath, dirnames, filenames) in walk(target_dir):
+                    pattern = re.compile('(\.css|\.js|\.json)$')
+                    for filename in filenames:
+                        m = pattern.search(filename)
+                        if m:
+                            print "gzipping %s" % filename
+                            f_path = os.path.join(dirpath, filename)
+                            f_in = open(f_path, 'rb')
+                            f_out = gzip.open('%s.gz' % f_path, 'wb', mtime=0)
+                            f_out.writelines(f_in)
+                            f_out.close()
+                            f_in.close()
         
             if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
                 shutil.copytree(settings.STATIC_ROOT, target_dir)
