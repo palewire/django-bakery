@@ -117,7 +117,7 @@ class BuildableListView(ListView, BuildableMixin):
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         if getattr(settings, 'BAKERY_GZIP', False):
             self.gzip(path, html)
-        else:        
+        else:
             self.write(path, html)
 
 
@@ -176,7 +176,7 @@ class BuildableDetailView(DetailView, BuildableMixin):
         html = self.get_html()
         if getattr(settings, 'BAKERY_GZIP', False):
             self.gzip(path, html)
-        else:        
+        else:
             self.write(path, html)
 
     def build_queryset(self):
