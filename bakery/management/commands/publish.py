@@ -44,13 +44,7 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
-    def handle(self, *args, **options):
-        """
-        Cobble together s3cmd command with all the proper options and run it.
-        """
-        # The s3cmd basic command, before we append all the options.
-        cmd = "s3cmd sync --delete-removed --acl-public"
-
+    def sync(self, cmd, options):
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
@@ -94,3 +88,27 @@ in settings.py or provide it with --aws-bucket-name"
 
         # Execute the command
         subprocess.call(cmd, shell=True)
+
+    # gzip the rendered html views, sitemaps, and any static css, js and json
+    def sync_gzipped_files(self, options):
+        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH', '(\.html|\.xml|\.css|\.js|\.json)$')
+        cmd = "s3cmd sync --exclude '*.*' --rinclude '%s' --add-header='Content-Encoding: gzip' --acl-public" % gzip_file_match
+        self.sync(cmd, options)
+
+    # The s3cmd basic command, before we append all the options.
+    def sync_all_files(self, options):
+        cmd = "s3cmd sync --delete-removed --acl-public"
+        self.sync(cmd, options)
+
+    def handle(self, *args, **options):
+        """
+        Cobble together s3cmd command with all the proper options and run it.
+        """
+        # sync gzipped files, if not opted out
+        if getattr(settings, 'BAKERY_GZIP', False):
+            self.sync_gzipped_files(options)
+
+        # sync the rest of the files
+        self.sync_all_files(options)
+
+

@@ -1,5 +1,7 @@
 import os
+import re
 import six
+import gzip
 import shutil
 from django.conf import settings
 from optparse import make_option
@@ -77,8 +79,39 @@ settings.py or provide a list as arguments."
                 verbosity=0
             )
             target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
+        
             if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
-                shutil.copytree(settings.STATIC_ROOT, target_dir)
+                if getattr(settings, 'BAKERY_GZIP', False):
+                    for (dirpath, dirnames, filenames) in os.walk(settings.STATIC_ROOT):
+                        # regex to match against. CSS, JS, JSON files
+                        pattern = re.compile('(\.css|\.js|\.json)$')
+                        for filename in filenames:
+                            print os.path.join(dirpath, filename)
+                            # reference to the original file
+                            og_file = os.path.join(dirpath, filename)
+                            # get the relative path that we want to copy into
+                            rel_path = os.path.relpath(dirpath, settings.STATIC_ROOT)
+                            dest_path = os.path.join(target_dir, rel_path)
+                            if not os.path.exists(dest_path):
+                                os.makedirs(dest_path)
+                            # run the regex match
+                            m = pattern.search(filename)
+                            if m:
+                                print "gzipping %s" % filename
+                                # create the new path in the build directory
+                                f_in = open(og_file, 'rb')
+                                # copy the file to gzip compressed output
+                                f_out = gzip.GzipFile(os.path.join(dest_path, filename), 'wb', mtime=0)
+                                f_out.writelines(f_in)
+                                f_out.close()
+                                f_in.close()
+                            # otherwise, just copy the file
+                            else:
+                                shutil.copy(og_file, dest_path)
+                # if gzip isn't enabled, just copy the tree straight over
+                else:
+                    shutil.copytree(settings.STATIC_ROOT, target_dir)
+
             # If they exist in the static directory, copy the robots.txt
             # and favicon.ico files down to the root so they will work
             # on the live website.

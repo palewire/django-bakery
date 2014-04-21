@@ -24,8 +24,6 @@ class BuildableMixin(object):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
-        if getattr(settings, 'BAKERY_GZIP', True):
-            self.gzip(path, html)
 
     def gzip(self, path, html):
         """
@@ -33,11 +31,14 @@ class BuildableMixin(object):
 
         Intended to take advantage of the peculiarities of
         Amazon S3's GZIP service.
+
+        mtime, an option that writes a timestamp to the output file
+        is set to 0, to avoid having s3cmd do unnecessary uploads because
+        of differences in the timestamp
         """
-        gz_filename = '%s.gz' % path
-        gz_file = gzip.open(gz_filename, 'wb')
-        gz_file.write(six.binary_type(html))
-        gz_file.close()
+        outfile = gzip.GzipFile(path, 'wb', mtime=0)
+        outfile.write(six.binary_type(html))
+        outfile.close()
 
 
 class BuildableTemplateView(TemplateView, BuildableMixin):
@@ -69,7 +70,10 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
             dirname = os.path.join(settings.BUILD_DIR, dirname)
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
-        self.write(path, html)
+        if getattr(settings, 'BAKERY_GZIP', False):
+            self.gzip(path, html)
+        else:
+            self.write(path, html)
 
 
 class BuildableListView(ListView, BuildableMixin):
@@ -111,7 +115,10 @@ class BuildableListView(ListView, BuildableMixin):
         html = self.get(self.request).render().content
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
-        self.write(path, html)
+        if getattr(settings, 'BAKERY_GZIP', False):
+            self.gzip(path, html)
+        else:        
+            self.write(path, html)
 
 
 class BuildableDetailView(DetailView, BuildableMixin):
@@ -167,7 +174,10 @@ class BuildableDetailView(DetailView, BuildableMixin):
         self.set_kwargs(obj)
         path = self.get_build_path(obj)
         html = self.get_html()
-        self.write(path, html)
+        if getattr(settings, 'BAKERY_GZIP', False):
+            self.gzip(path, html)
+        else:        
+            self.write(path, html)
 
     def build_queryset(self):
         [self.build_object(o) for o in self.get_queryset().all()]
