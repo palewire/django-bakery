@@ -36,6 +36,7 @@ class BuildableMixin(object):
         is set to 0, to avoid having s3cmd do unnecessary uploads because
         of differences in the timestamp
         """
+        six.print_("gzipping %s" % path)
         outfile = gzip.GzipFile(path, 'wb', mtime=0)
         outfile.write(six.binary_type(html))
         outfile.close()

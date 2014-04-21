@@ -132,6 +132,16 @@ class BakeryTest(TestCase):
     def test_unbuild_cmd(self):
         call_command("unbuild")
 
+    def test_gzipped(self):
+        with self.settings(BAKERY_GZIP=True):
+            print "testing gzipped files"
+            self.test_models()
+            self.test_template_view()
+            self.test_list_view()
+            self.test_detail_view()
+            self.test_404_view()
+            self.test_build_cmd()
+
     def test_buildserver_cmd(self):
         pass
 
