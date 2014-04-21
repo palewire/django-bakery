@@ -50,7 +50,6 @@ settings.py or provide a list as arguments."
             # regex to match against. CSS, JS, JSON files
             pattern = re.compile('(\.css|\.js|\.json)$')
             for filename in filenames:
-                print os.path.join(dirpath, filename)
                 # reference to the original file
                 og_file = os.path.join(dirpath, filename)
                 # get the relative path that we want to copy into
