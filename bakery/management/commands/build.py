@@ -45,7 +45,7 @@ settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
 settings.py or provide a list as arguments."
 
-    def build_gzipped_files(target_dir):
+    def build_gzipped_files(self, target_dir):
         for (dirpath, dirnames, filenames) in os.walk(settings.STATIC_ROOT):
             # regex to match against. CSS, JS, JSON files
             pattern = re.compile('(\.css|\.js|\.json)$')
