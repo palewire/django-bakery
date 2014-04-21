@@ -45,3 +45,24 @@ AWS_BUCKET_NAME
 
     AWS_BUCK­ET_­NAME = 'your-buck­et'
 
+BAKERY_GZIP
+---------------
+
+.. envvar:: BAKERY_GZIP
+    Opt-in to automatic gzipping of your files in the build method and addition of
+    the required headers when deploying to Amazon S3. Defaults to False.
+
+.. code-block:: python
+    BAKERY_GZIP = True
+
+GZIP_FILE_MATCH
+---------------
+
+.. envvar:: GZIP_FILE_MATCH
+    Regular expression used to determine which files to add the
+    'Content-Encoding: gzip' metadata header to when syncinc to Amazon S3. 
+    Defaults to include all .html, .xml, .css, .js and .json files.
+
+.. code-block:: python
+    # defaults to all .html, .xml, .css, .js and .json files
+    GZIP_FILE_MATCH = '(\.html|\.xml|\.css|\.js|\.json)$'
