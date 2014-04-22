@@ -13,6 +13,12 @@ from django.test.client import RequestFactory
 from django.views.generic import TemplateView, DetailView, ListView
 logger = logging.getLogger(__name__)
 
+def isPythonVersion(version):
+    if float(sys.version[:3]) >= version:
+        return True
+    else:
+        return False
+
 
 class BuildableMixin(object):
     """
@@ -38,10 +44,10 @@ class BuildableMixin(object):
         of differences in the timestamp
         """
         six.print_("gzipping %s" % path)
-        if (float(sys.version[:3]) >= 2.7):
+        if isPythonVersion(2.7):
             outfile = gzip.GzipFile(path, 'wb', mtime=0)
         else:
-            outfile = gzip.GzipFile(path, 'wb')            
+            outfile = gzip.GzipFile(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
 
