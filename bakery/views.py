@@ -4,6 +4,7 @@ for building flat files.
 """
 import os
 import six
+import sys
 import gzip
 import shutil
 import logging
@@ -37,7 +38,10 @@ class BuildableMixin(object):
         of differences in the timestamp
         """
         six.print_("gzipping %s" % path)
-        outfile = gzip.GzipFile(path, 'wb', mtime=0)
+        if (float(sys.version[:3]) >= 2.7):
+            outfile = gzip.GzipFile(path, 'wb', mtime=0)
+        else:
+            outfile = gzip.GzipFile(path, 'wb')            
         outfile.write(six.binary_type(html))
         outfile.close()
 
