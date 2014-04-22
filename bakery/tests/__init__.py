@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import os
 import django
+import gzip
 from .. import views
 from django.db import models
 from .. import models as bmodels
