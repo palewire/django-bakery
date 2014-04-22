@@ -55,8 +55,8 @@ settings.py or provide a list as arguments."
 
     def build_gzipped_files(self, target_dir):
         for (dirpath, dirnames, filenames) in os.walk(settings.STATIC_ROOT):
-            # regex to match against. CSS, JS, JSON files
-            pattern = re.compile('(\.css|\.js|\.json)$')
+            # regex to match against. CSS, JS, JSON, HTML files
+            pattern = re.compile('(\.css|\.js|\.json|\.html)$')
             for filename in filenames:
                 # reference to the original file
                 og_file = os.path.join(dirpath, filename)
