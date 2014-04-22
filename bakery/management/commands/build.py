@@ -1,6 +1,7 @@
 import os
 import re
 import six
+import sys
 import gzip
 import shutil
 from django.conf import settings
@@ -37,6 +38,13 @@ Will use settings.BUILD_DIR by default."
 )
 
 
+def isPythonVersion(version):
+    if float(sys.version[:3]) >= version:
+        return True
+    else:
+        return False
+
+
 class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
     option_list = BaseCommand.option_list + custom_options
@@ -65,7 +73,10 @@ settings.py or provide a list as arguments."
                     f_in = open(og_file, 'rb')
                     f_name = os.path.join(dest_path, filename)
                     # copy the file to gzip compressed output
-                    f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
+                    if isPythonVersion(2.7):
+                        f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
+                    else:
+                        f_out = gzip.GzipFile(f_name, 'wb')
                     f_out.writelines(f_in)
                     f_out.close()
                     f_in.close()

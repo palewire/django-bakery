@@ -13,6 +13,7 @@ from django.test.client import RequestFactory
 from django.views.generic import TemplateView, DetailView, ListView
 logger = logging.getLogger(__name__)
 
+
 def isPythonVersion(version):
     if float(sys.version[:3]) >= version:
         return True
