@@ -28,6 +28,7 @@ class BuildableMixin(object):
         """
         Writes out the provided HTML to the provided path.
         """
+        logger.debug("Building HTML file to %s" % path)
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
@@ -43,7 +44,7 @@ class BuildableMixin(object):
         is set to 0, to avoid having s3cmd do unnecessary uploads because
         of differences in the timestamp
         """
-        logger.debug("gzipping %s" % path)
+        logger.debug("Building gzipped HTML file to %s" % path)
         if float(sys.version[:3]) > 2.7:
             outfile = gzip.GzipFile(path, 'wb', mtime=0)
         else:

@@ -38,13 +38,6 @@ Will use settings.BUILD_DIR by default."
 )
 
 
-def isPythonVersion(version):
-    if float(sys.version[:3]) >= version:
-        return True
-    else:
-        return False
-
-
 class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
     option_list = BaseCommand.option_list + custom_options
@@ -73,7 +66,7 @@ settings.py or provide a list as arguments."
                     f_in = open(og_file, 'rb')
                     f_name = os.path.join(dest_path, filename)
                     # copy the file to gzip compressed output
-                    if isPythonVersion(2.7):
+                    if float(sys.version[:3]) >= 2.7:
                         f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
                     else:
                         f_out = gzip.GzipFile(f_name, 'wb')
@@ -112,6 +105,7 @@ settings.py or provide a list as arguments."
         if not options.get("skip_static"):
             if self.verbosity > 1:
                 six.print_("Creating static directory")
+
             management.call_command(
                 "collectstatic",
                 interactive=False,
@@ -143,6 +137,7 @@ settings.py or provide a list as arguments."
                     'favicon.ico',
                     )
                 )
+
         # Build the media directory
         if not options.get("skip_media"):
             if self.verbosity > 1:
