@@ -54,7 +54,7 @@ settings.py or provide a list as arguments."
                 # reference to the original file
                 og_file = os.path.join(dirpath, filename)
                 # get the relative path that we want to copy into
-                rel_path = os.path.relpath(dirpath, settings.STATIC_ROOT)
+                rel_path = os.path.relpath(dirpath, source_dir)
                 dest_path = os.path.join(target_dir, rel_path)
                 if not os.path.exists(dest_path):
                     os.makedirs(dest_path)
