@@ -61,7 +61,8 @@ settings.py or provide a list as arguments."
                 # run the regex match
                 m = pattern.search(filename)
                 if m:
-                    six.print_("gzipping %s" % filename)
+                    if self.verbosity > 1:
+                        six.print_("gzipping %s" % filename)
                     # create the new path in the build directory
                     f_in = open(og_file, 'rb')
                     f_name = os.path.join(dest_path, filename)
