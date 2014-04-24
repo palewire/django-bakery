@@ -14,13 +14,6 @@ from django.views.generic import TemplateView, DetailView, ListView
 logger = logging.getLogger(__name__)
 
 
-def isPythonVersion(version):
-    if float(sys.version[:3]) >= version:
-        return True
-    else:
-        return False
-
-
 class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
@@ -45,7 +38,7 @@ class BuildableMixin(object):
         of differences in the timestamp
         """
         logger.debug("gzipping %s" % path)
-        if isPythonVersion(2.7):
+        if float(sys.version[:3]) > 2.7:
             outfile = gzip.GzipFile(path, 'wb', mtime=0)
         else:
             outfile = gzip.GzipFile(path, 'wb')
