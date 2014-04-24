@@ -46,38 +46,54 @@ settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
 settings.py or provide a list as arguments."
 
-    def build_gzipped_files(self, source_dir, target_dir):
+    def copytree_and_gzip(self, source_dir, target_dir):
+        """
+        Copies the provided source directory to the provided target directory
+        and gzips JavaScript, CSS and HTML files along the way.
+        """
         # regex to match against. CSS, JS, JSON, HTML files
         pattern = re.compile('(\.css|\.js|\.json|\.html)$')
 
+        # Walk through the source directory...
         for (dirpath, dirnames, filenames) in os.walk(source_dir):
+
+            # And for each file...
             for filename in filenames:
-                # reference to the original file
+
+                # ... figure out the path to the file...
                 og_file = os.path.join(dirpath, filename)
-                # get the relative path that we want to copy into
+
+                # And then where we want to copy it to.
                 rel_path = os.path.relpath(dirpath, source_dir)
                 dest_path = os.path.join(target_dir, rel_path)
                 if not os.path.exists(dest_path):
                     os.makedirs(dest_path)
-                # run the regex match
-                m = pattern.search(filename)
-                if m:
+
+                # If it isn't a file want to gzip...
+                if not pattern.search(filename):
+                    # just copy it to the target.
+                    shutil.copy(og_file, dest_path)
+
+                # If it is one want to gzip...
+                else: 
+                    # ... let the world know...
                     if self.verbosity > 1:
                         six.print_("gzipping %s" % filename)
-                    # create the new path in the build directory
+
+                    # ... create the new file in the build directory ...
                     f_in = open(og_file, 'rb')
                     f_name = os.path.join(dest_path, filename)
-                    # copy the file to gzip compressed output
+
+                    # ... copy the file to gzip compressed output ...
                     if float(sys.version[:3]) >= 2.7:
                         f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
                     else:
                         f_out = gzip.GzipFile(f_name, 'wb')
+
+                    # ... and shut it down.
                     f_out.writelines(f_in)
                     f_out.close()
                     f_in.close()
-                # otherwise, just copy the file
-                else:
-                    shutil.copy(og_file, dest_path)
 
     def handle(self, *args, **options):
         """
@@ -117,7 +133,7 @@ settings.py or provide a list as arguments."
 
             if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
                 if getattr(settings, 'BAKERY_GZIP', False):
-                    self.build_gzipped_files(settings.STATIC_ROOT, target_dir)
+                    self.copytree_and_gzip(settings.STATIC_ROOT, target_dir)
                 # if gzip isn't enabled, just copy the tree straight over
                 else:
                     shutil.copytree(settings.STATIC_ROOT, target_dir)
