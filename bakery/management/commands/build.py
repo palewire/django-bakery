@@ -46,8 +46,8 @@ settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
 settings.py or provide a list as arguments."
 
-    def build_gzipped_files(self, target_dir):
-        for (dirpath, dirnames, filenames) in os.walk(settings.STATIC_ROOT):
+    def build_gzipped_files(self, source_dir, target_dir):
+        for (dirpath, dirnames, filenames) in os.walk(source_dir):
             # regex to match against. CSS, JS, JSON, HTML files
             pattern = re.compile('(\.css|\.js|\.json|\.html)$')
             for filename in filenames:
@@ -116,7 +116,7 @@ settings.py or provide a list as arguments."
 
             if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
                 if getattr(settings, 'BAKERY_GZIP', False):
-                    self.build_gzipped_files(target_dir)
+                    self.build_gzipped_files(settings.STATIC_ROOT, target_dir)
                 # if gzip isn't enabled, just copy the tree straight over
                 else:
                     shutil.copytree(settings.STATIC_ROOT, target_dir)
