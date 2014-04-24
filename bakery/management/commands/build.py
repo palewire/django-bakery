@@ -47,9 +47,10 @@ settings.py or provide it with --build-dir"
 settings.py or provide a list as arguments."
 
     def build_gzipped_files(self, source_dir, target_dir):
+        # regex to match against. CSS, JS, JSON, HTML files
+        pattern = re.compile('(\.css|\.js|\.json|\.html)$')
+
         for (dirpath, dirnames, filenames) in os.walk(source_dir):
-            # regex to match against. CSS, JS, JSON, HTML files
-            pattern = re.compile('(\.css|\.js|\.json|\.html)$')
             for filename in filenames:
                 # reference to the original file
                 og_file = os.path.join(dirpath, filename)
