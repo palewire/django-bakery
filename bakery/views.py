@@ -18,7 +18,13 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
-    def write(self, path, html):
+    def build_file(self, path, html):
+        if getattr(settings, 'BAKERY_GZIP', False):
+            self.gzip_file(path, html)
+        else:
+            self.write_file(path, html)
+
+    def write_file(self, path, html):
         """
         Writes out the provided HTML to the provided path.
         """
@@ -75,10 +81,7 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
             dirname = os.path.join(settings.BUILD_DIR, dirname)
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
-        if getattr(settings, 'BAKERY_GZIP', False):
-            self.gzip_file(path, html)
-        else:
-            self.write(path, html)
+        self.build_file(path, html)
 
 
 class BuildableListView(ListView, BuildableMixin):
@@ -120,10 +123,7 @@ class BuildableListView(ListView, BuildableMixin):
         html = self.get(self.request).render().content
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
-        if getattr(settings, 'BAKERY_GZIP', False):
-            self.gzip_file(path, html)
-        else:
-            self.write(path, html)
+        self.build_file(path, html)
 
 
 class BuildableDetailView(DetailView, BuildableMixin):
@@ -179,10 +179,7 @@ class BuildableDetailView(DetailView, BuildableMixin):
         self.set_kwargs(obj)
         path = self.get_build_path(obj)
         html = self.get_html()
-        if getattr(settings, 'BAKERY_GZIP', False):
-            self.gzip_file(path, html)
-        else:
-            self.write(path, html)
+        self.build_file(path, html)
 
     def build_queryset(self):
         [self.build_object(o) for o in self.get_queryset().all()]
