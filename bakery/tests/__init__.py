@@ -118,6 +118,16 @@ class BakeryTest(TestCase):
             'build_dir': settings.BUILD_DIR,
         })
         call_command("build", 'bakery.tests.MockDetailView')
+        foobar_path = os.path.join(
+            settings.BUILD_DIR,
+            'static',
+            'foo.bar'
+        )
+        self.assertTrue(os.path.exists(foobar_path))
+        self.assertEqual(
+            open(foobar_path, 'rb').read().strip(),
+            'Hello tests'
+        )
         robots_path = os.path.join(settings.BUILD_DIR, 'robots.txt')
         self.assertTrue(os.path.exists(robots_path))
         favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
