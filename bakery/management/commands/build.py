@@ -75,7 +75,7 @@ settings.py or provide a list as arguments."
                     shutil.copy(og_file, dest_path)
 
                 # If it is one we want to gzip...
-                else: 
+                else:
                     # ... let the world know...
                     if self.verbosity > 1:
                         six.print_("gzipping %s" % filename)
