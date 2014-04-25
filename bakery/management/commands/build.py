@@ -4,12 +4,14 @@ import six
 import sys
 import gzip
 import shutil
+import logging
 from django.conf import settings
 from optparse import make_option
 from django.core import management
 from django.core.urlresolvers import get_callable
 from django.core.exceptions import ViewDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
+logger = logging.getLogger(__name__)
 
 
 custom_options = (
@@ -77,8 +79,9 @@ settings.py or provide a list as arguments."
                 # If it is one we want to gzip...
                 else:
                     # ... let the world know...
+                    logger.debug("Gzipping %s" % filename)
                     if self.verbosity > 1:
-                        six.print_("gzipping %s" % filename)
+                        six.print_("Gzipping %s" % filename)
 
                     # ... create the new file in the build directory ...
                     f_in = open(og_file, 'rb')
@@ -100,6 +103,7 @@ settings.py or provide a list as arguments."
         Making it happen.
         """
         self.verbosity = int(options.get('verbosity'))
+        logger.info("Building started")
 
         # Figure out what build directory to use
         if options.get("build_dir"):
@@ -111,6 +115,7 @@ settings.py or provide a list as arguments."
             self.build_dir = settings.BUILD_DIR
 
         # Destroy the build directory, if it exists
+        logger.debug("Creating %s" % self.build_dir)
         if self.verbosity > 1:
             six.print_("Creating build directory")
         if os.path.exists(self.build_dir):
@@ -121,8 +126,9 @@ settings.py or provide a list as arguments."
 
         # Build up static files
         if not options.get("skip_static"):
+            logger.debug("Building static directory")
             if self.verbosity > 1:
-                six.print_("Creating static directory")
+                six.print_("Building static directory")
 
             management.call_command(
                 "collectstatic",
@@ -158,6 +164,7 @@ settings.py or provide a list as arguments."
 
         # Build the media directory
         if not options.get("skip_media"):
+            logger.debug("Building static directory")
             if self.verbosity > 1:
                 six.print_("Building media directory")
             if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
@@ -176,6 +183,7 @@ settings.py or provide a list as arguments."
 
         # Then loop through and run them all
         for view_str in view_list:
+            logger.debug("Building %s" % view_str)
             if self.verbosity > 1:
                 six.print_("Building %s" % view_str)
             try:
