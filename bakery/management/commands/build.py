@@ -108,7 +108,7 @@ settings.py or provide a list as arguments."
         Making it happen.
         """
         self.verbosity = int(options.get('verbosity'))
-        logger.info("Building started")
+        logger.info("Build started")
 
         # Figure out what build directory to use
         if options.get("build_dir"):

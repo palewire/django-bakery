@@ -1,9 +1,11 @@
 import os
 import six
+import logging
 import subprocess
 from django.conf import settings
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
+logger = logging.getLogger(__name__)
 
 
 custom_options = (
@@ -83,6 +85,7 @@ in settings.py or provide it with --aws-bucket-name"
         cmd += ' s3://%s' % self.aws_bucket_name
 
         # Print out the command unless verbosity is above the default
+        logger.debug('Executing %s' % cmd)
         if int(options.get('verbosity')) > 1:
             six.print_('Executing %s' % cmd)
 
@@ -109,6 +112,8 @@ in settings.py or provide it with --aws-bucket-name"
         """
         Cobble together s3cmd command with all the proper options and run it.
         """
+        logger.info("Publish started")
+
         # sync gzipped files, if not opted out
         if getattr(settings, 'BAKERY_GZIP', False):
             self.sync_gzipped_files(options)
