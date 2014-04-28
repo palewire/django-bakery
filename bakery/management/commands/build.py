@@ -54,8 +54,11 @@ settings.py or provide a list as arguments."
         and gzips JavaScript, CSS and HTML files along the way.
         """
         # regex to match against. CSS, JS, JSON, HTML files
-        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH',
-                                  '(\.html|\.xml|\.css|\.js|\.json)$')
+        gzip_file_match = getattr(
+            settings,
+            'GZIP_FILE_MATCH',
+            '(\.html|\.xml|\.css|\.js|\.json)$'
+        )
         pattern = re.compile(gzip_file_match)
 
         # Walk through the source directory...
