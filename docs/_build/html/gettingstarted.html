@@ -51,6 +51,8 @@
             
   <div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>Before you begin, you should have a Django project <a class="reference external" href="https://docs.djangoproject.com/en/dev/intro/install/">created and configured</a>.</p>
 <p>In­stall our library from PyPI, like so:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install django-bakery
@@ -65,6 +67,9 @@
 )
 </pre></div>
 </div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>Also in <tt class="docutils literal"><span class="pre">settings.py</span></tt>, add a build directory where the site will be built as flat files. This is where bakery will create the static version of your website that can be hosted elsewhere.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BUILD_DIR</span> <span class="o">=</span> <span class="s">&#39;/home/you/code/your-site/build/&#39;</span>
 </pre></div>
@@ -97,6 +102,9 @@ class DummyDe­tailView(Build­able­De­tailView):
 <span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="execution">
+<h2>Execution<a class="headerlink" href="#execution" title="Permalink to this headline">¶</a></h2>
 <p>Then run the man­age­ment com­mand that will bake them out.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py build
 </pre></div>
@@ -124,6 +132,20 @@ class DummyDe­tailView(Build­able­De­tailView):
 </div>
 <p>Now you should be able to vist your bucket&#8217;s live URLs and see the site in action. To make your bucket act more like a normal website or connect it to a domain you control <a class="reference external" href="http://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html">follow these instructions</a>.</p>
 </div>
+<div class="section" id="optimization">
+<h2>Optimization<a class="headerlink" href="#optimization" title="Permalink to this headline">¶</a></h2>
+<p>If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files by having bakery compress they using`gzip &lt;<a class="reference external" href="http://en.wikipedia.org/wiki/Gzip">http://en.wikipedia.org/wiki/Gzip</a>&gt;`_ files as they are uploaded. Read more about this feature <a class="reference external" href="http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/">here</a>, <a class="reference external" href="http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html">here</a> or <a class="reference external" href="http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3">here</a>.</p>
+<p>Getting started is as simple as returning to <tt class="docutils literal"><span class="pre">settings.py</span></tt> and adding the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_GZIP</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>And rebuilding and publishing your files</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py build
+<span class="nv">$ </span>python manage.py publish
+</pre></div>
+</div>
+</div>
+</div>
 
 
           </div>
@@ -131,6 +153,17 @@ class DummyDe­tailView(Build­able­De­tailView):
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Getting started</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#execution">Execution</a></li>
+<li><a class="reference internal" href="#optimization">Optimization</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">django-bakery</a></p>

@@ -1,6 +1,9 @@
 Getting started
 ===============
 
+Installation
+------------
+
 Before you begin, you should have a Django project `created and configured <https://docs.djangoproject.com/en/dev/intro/install/>`_.
 
 In­stall our library from PyPI, like so:
@@ -19,6 +22,9 @@ Edit your ``settings.py`` and add the app to your ``INSTALLED_APPS`` list.
         # ...
         'bakery',
     )
+
+Configuration
+-------------
 
 Also in ``settings.py``, add a build directory where the site will be built as flat files. This is where bakery will create the static version of your website that can be hosted elsewhere.
 
@@ -60,6 +66,9 @@ After you’ve con­ver­ted your views, add them to a list in ``settings.py`` w
         'yourapp.views.DummyDe­tailView',
     )
 
+Execution
+---------
+
 Then run the man­age­ment com­mand that will bake them out. 
 
 .. code-block:: bash
@@ -99,3 +108,21 @@ Fi­nally, now that everything is set up, pub­lish­ing your files to S3 is as 
     $ python manage.py publish
 
 Now you should be able to vist your bucket's live URLs and see the site in action. To make your bucket act more like a normal website or connect it to a domain you control `follow these instructions <http://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html>`_.
+
+Optimization
+------------
+
+If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files by having bakery compress they using`gzip <http://en.wikipedia.org/wiki/Gzip>`_ files as they are uploaded. Read more about this feature `here <http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/>`_, `here <http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html>`_ or `here <http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3>`_.
+
+Getting started is as simple as returning to ``settings.py`` and adding the following:
+
+.. code-block:: python
+
+    BAKERY_GZIP = True
+
+And rebuilding and publishing your files
+
+.. code-block:: bash
+
+    $ python manage.py build
+    $ python manage.py publish
