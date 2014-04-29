@@ -45,7 +45,7 @@ class BuildableMixin(object):
         of differences in the timestamp
         """
         logger.debug("Building gzipped HTML file to %s" % path)
-        if float(sys.version[:3]) > 2.7:
+        if float(sys.version[:3]) >= 2.7:
             outfile = gzip.GzipFile(path, 'wb', mtime=0)
         else:
             outfile = gzip.GzipFile(path, 'wb')
