@@ -1,7 +1,7 @@
 """
 Tricks lifted from Django's own setup.py and django_debug_toolbar.
 """
-from distutils.core import setup
+from setuptools import setup, find_packages
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 import os
