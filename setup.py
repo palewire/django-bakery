@@ -1,12 +1,12 @@
 """
 Tricks lifted from Django's own setup.py and django_debug_toolbar.
 """
-
 from distutils.core import setup
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 import os
 import sys
+
 
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
@@ -26,6 +26,7 @@ if sys.platform == "darwin":
 else: 
     cmdclasses = {'install_data': install_data} 
 
+
 def fullsplit(path, result=None):
     """
     Split a pathname into components (the opposite of os.path.join) in a
@@ -39,6 +40,7 @@ def fullsplit(path, result=None):
     if head == path:
         return result
     return fullsplit(head, [tail] + result)
+
 
 # Tell distutils to put the data_files in platform-specific installation
 # locations. See here for an explanation:
@@ -73,7 +75,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
 
 setup(
     name='django-bakery',
-    version='0.3.2',
+    version='0.4.0',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
