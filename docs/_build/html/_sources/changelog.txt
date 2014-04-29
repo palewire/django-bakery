@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.4.0
+-----
+
+* Added gzip support to build routine for Amazon S3 publishing (via `@emamd <https://twitter.com/emamd>`_)
+* Mixin buildable view with common methods
+
 0.3.0
 -----
 
