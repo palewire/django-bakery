@@ -62,8 +62,8 @@ GZIP_FILE_MATCH
 
 .. envvar:: GZIP_FILE_MATCH
 
-    Regular expression used to determine which files to add the
-    'Content-Encoding: gzip' metadata header to when syncinc to Amazon S3. 
+    An uncompiled regular expression used to determine which files to have the
+    'Content-Encoding: gzip' metadata header added when syncing to Amazon S3. 
     Defaults to include all .html, .xml, .css, .js and .json files.
 
     Only matters if you have set ``BAKERY_GZIP`` to ``True``.

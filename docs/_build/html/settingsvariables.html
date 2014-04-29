@@ -115,8 +115,8 @@ the required headers when deploying to Amazon S3. Defaults to <tt class="docutil
 <dl class="envvar">
 <dt id="envvar-GZIP_FILE_MATCH">
 <tt class="descname">GZIP_FILE_MATCH</tt><a class="headerlink" href="#envvar-GZIP_FILE_MATCH" title="Permalink to this definition">¶</a></dt>
-<dd><p>Regular expression used to determine which files to add the
-&#8216;Content-Encoding: gzip&#8217; metadata header to when syncinc to Amazon S3.
+<dd><p>An uncompiled regular expression used to determine which files to have the
+&#8216;Content-Encoding: gzip&#8217; metadata header added when syncing to Amazon S3.
 Defaults to include all .html, .xml, .css, .js and .json files.</p>
 <p>Only matters if you have set <tt class="docutils literal"><span class="pre">BAKERY_GZIP</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
 </dd></dl>
