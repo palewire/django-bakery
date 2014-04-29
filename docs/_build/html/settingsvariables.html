@@ -97,6 +97,35 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="bakery-gzip">
+<h2>BAKERY_GZIP<a class="headerlink" href="#bakery-gzip" title="Permalink to this headline">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-BAKERY_GZIP">
+<tt class="descname">BAKERY_GZIP</tt><a class="headerlink" href="#envvar-BAKERY_GZIP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opt in to automatic gzipping of your files in the build method and addition of
+the required headers when deploying to Amazon S3. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</p>
+</dd></dl>
+
+<div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_GZIP</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gzip-file-match">
+<h2>GZIP_FILE_MATCH<a class="headerlink" href="#gzip-file-match" title="Permalink to this headline">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-GZIP_FILE_MATCH">
+<tt class="descname">GZIP_FILE_MATCH</tt><a class="headerlink" href="#envvar-GZIP_FILE_MATCH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regular expression used to determine which files to add the
+&#8216;Content-Encoding: gzip&#8217; metadata header to when syncinc to Amazon S3.
+Defaults to include all .html, .xml, .css, .js and .json files.</p>
+<p>Only matters if you have set <tt class="docutils literal"><span class="pre">BAKERY_GZIP</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
+</dd></dl>
+
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># defaults to all .html, .xml, .css, .js and .json files</span>
+<span class="n">GZIP_FILE_MATCH</span> <span class="o">=</span> <span class="s">&#39;(\.html|\.xml|\.css|\.js|\.json)$&#39;</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -111,6 +140,8 @@
 <li><a class="reference internal" href="#build-dir">BUILD_DIR</a></li>
 <li><a class="reference internal" href="#bakery-views">BAKERY_VIEWS</a></li>
 <li><a class="reference internal" href="#aws-bucket-name">AWS_BUCKET_NAME</a></li>
+<li><a class="reference internal" href="#bakery-gzip">BAKERY_GZIP</a></li>
+<li><a class="reference internal" href="#gzip-file-match">GZIP_FILE_MATCH</a></li>
 </ul>
 </li>
 </ul>
