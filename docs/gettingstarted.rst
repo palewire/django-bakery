@@ -112,7 +112,7 @@ Now you should be able to vist your bucket's live URLs and see the site in actio
 Optimization
 ------------
 
-If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files by having bakery compress they using`gzip <http://en.wikipedia.org/wiki/Gzip>`_ files as they are uploaded. Read more about this feature `here <http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/>`_, `here <http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html>`_ or `here <http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3>`_.
+If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files by having bakery compress they using `gzip <http://en.wikipedia.org/wiki/Gzip>`_ files as they are uploaded. Read more about this feature `here <http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/>`_, `here <http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html>`_ or `here <http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3>`_.
 
 Getting started is as simple as returning to ``settings.py`` and adding the following:
 
