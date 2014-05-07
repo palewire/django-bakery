@@ -126,7 +126,7 @@ class BakeryTest(TestCase):
         self.assertTrue(os.path.exists(foobar_path))
         self.assertEqual(
             open(foobar_path, 'rb').read().strip(),
-            'Hello tests'
+            six.b('Hello tests')
         )
         robots_path = os.path.join(settings.BUILD_DIR, 'robots.txt')
         self.assertTrue(os.path.exists(robots_path))
