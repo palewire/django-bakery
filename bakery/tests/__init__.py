@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import os
 import six
+import json
 import django
 from .. import views
 from django.db import models
@@ -22,6 +23,11 @@ class MockObject(bmodels.BuildableModel):
 class MockDetailView(views.BuildableDetailView):
     model = MockObject
     template_name = 'detailview.html'
+
+
+class MockJSONView(views.BuildableTemplateView):
+    template_name = 'jsonview.json'
+    build_path = 'jsonview.json'
 
 
 class BakeryTest(TestCase):
@@ -101,6 +107,17 @@ class BakeryTest(TestCase):
         v.build()
         build_path = os.path.join(settings.BUILD_DIR, '404.html')
         self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
+
+    def test_json_view(self):
+        v = MockJSONView()
+        v.build()
+        build_path = os.path.join(settings.BUILD_DIR, 'jsonview.json')
+        self.assertTrue(os.path.exists(build_path))
+        self.assertEqual(
+            json.loads(open(build_path, 'rb').read()),
+            {"hello": "tests"}
+        )
         os.remove(build_path)
 
     def test_build_cmd(self):
