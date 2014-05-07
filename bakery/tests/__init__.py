@@ -115,7 +115,7 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'jsonview.json')
         self.assertTrue(os.path.exists(build_path))
         self.assertEqual(
-            json.loads(open(build_path, 'rb').read()),
+            json.loads(open(build_path, 'rb').read().decode()),
             {"hello": "tests"}
         )
         os.remove(build_path)
