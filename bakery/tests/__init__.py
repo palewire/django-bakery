@@ -40,7 +40,6 @@ class JSONResponseMixin(object):
 
 
 class MockJSONView(JSONResponseMixin, views.BuildableTemplateView):
-    template_name = 'jsonview.json'
     build_path = 'jsonview.json'
 
     def get_content(self):
