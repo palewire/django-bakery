@@ -18,6 +18,15 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
+    def get_content(self):
+        """
+        How to render the HTML or other content for the page.
+
+        If you choose to render using something other than a Django template,
+        like HttpResponse for instance, you will want to override this.
+        """
+        return self.get(self.request).render().content
+
     def build_file(self, path, html):
         if getattr(settings, 'BAKERY_GZIP', False):
             self.gzip_file(path, html)
@@ -74,7 +83,6 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
     def build(self):
         logger.debug("Building %s" % self.template_name)
         self.request = RequestFactory().get(self.build_path)
-        html = self.get(self.request).render().content
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         # Make sure the directory exists
         dirname = os.path.dirname(self.build_path)
@@ -82,7 +90,7 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
             dirname = os.path.join(settings.BUILD_DIR, dirname)
             os.path.exists(dirname) or os.makedirs(dirname)
         # Write out the data
-        self.build_file(path, html)
+        self.build_file(path, self.get_content())
 
 
 class BuildableListView(ListView, BuildableMixin):
@@ -120,11 +128,9 @@ class BuildableListView(ListView, BuildableMixin):
         if dirname:
             dirname = os.path.join(settings.BUILD_DIR, dirname)
             os.path.exists(dirname) or os.makedirs(dirname)
-        # Render the list page as HTML
-        html = self.get(self.request).render().content
         # Write it out to the appointed flat file
         path = os.path.join(settings.BUILD_DIR, self.build_path)
-        self.build_file(path, html)
+        self.build_file(path, self.get_content())
 
 
 class BuildableDetailView(DetailView, BuildableMixin):
@@ -166,21 +172,12 @@ class BuildableDetailView(DetailView, BuildableMixin):
             'slug': getattr(obj, self.get_slug_field(), None),
         }
 
-    def get_html(self):
-        """
-        How to render the HTML for the detail page. If you choose to render
-        using something other than a Django template, like HttpResponse for
-        instance, you will want to override this.
-        """
-        return self.get(self.request).render().content
-
     def build_object(self, obj):
         logger.debug("Building %s" % obj)
         self.request = RequestFactory().get(self.get_url(obj))
         self.set_kwargs(obj)
         path = self.get_build_path(obj)
-        html = self.get_html()
-        self.build_file(path, html)
+        self.build_file(path, self.get_content())
 
     def build_queryset(self):
         [self.build_object(o) for o in self.get_queryset().all()]

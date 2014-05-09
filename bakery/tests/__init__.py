@@ -8,6 +8,7 @@ from django.db import models
 from .. import models as bmodels
 from django.conf import settings
 from django.test import TestCase
+from django.http import HttpResponse
 from django.core.management import call_command
 from django.core.management.base import CommandError
 
@@ -25,9 +26,28 @@ class MockDetailView(views.BuildableDetailView):
     template_name = 'detailview.html'
 
 
-class MockJSONView(views.BuildableTemplateView):
+class JSONResponseMixin(object):
+
+    def render_to_response(self, context, **response_kwargs):
+        return HttpResponse(
+            self.convert_context_to_json(context),
+            content_type='application/json',
+            **response_kwargs
+        )
+
+    def convert_context_to_json(self, context):
+        return json.dumps(context)
+
+
+class MockJSONView(JSONResponseMixin, views.BuildableTemplateView):
     template_name = 'jsonview.json'
     build_path = 'jsonview.json'
+
+    def get_content(self):
+        return self.get(self.request).content
+
+    def get_context_data(self, **kwargs):
+        return {'hello': 'tests'}
 
 
 class BakeryTest(TestCase):
