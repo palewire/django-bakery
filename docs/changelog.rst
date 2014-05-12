@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.4.2
+-----
+
+* Added a ``get_content`` method to all of the buildable views to make it easier to build pages that don't require a template, like JSON outputs
+
 0.4.0
 -----
 
