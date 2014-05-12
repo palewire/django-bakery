@@ -6,6 +6,11 @@ Changelog
 
 * Added a ``get_content`` method to all of the buildable views to make it easier to build pages that don't require a template, like JSON outputs
 
+0.4.1
+-----
+
+* Bug fix with calculating Python version in the views in v0.4.0
+
 0.4.0
 -----
 
