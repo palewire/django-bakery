@@ -105,7 +105,13 @@ in settings.py or provide it with --aws-bucket-name"
 
     # The s3cmd basic command, before we append all the options.
     def sync_all_files(self, options):
-        cmd = "s3cmd sync --delete-removed --acl-public"
+        gzip_file_match = getattr(
+            settings,
+            'GZIP_FILE_MATCH',
+            '(\.html|\.xml|\.css|\.js|\.json)$'
+        )        
+        cmd = "s3cmd sync --rexclude '%s' " % gzip_file_match
+        cmd +=  "--delete-removed --acl-public" 
         self.sync(cmd, options)
 
     def handle(self, *args, **options):
