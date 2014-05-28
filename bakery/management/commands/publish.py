@@ -1,5 +1,6 @@
 import os
 import six
+import boto
 import subprocess
 from django.conf import settings
 from optparse import make_option
@@ -33,6 +34,16 @@ Will use settings.AWS_BUCKET_NAME by default."
     ),
 )
 
+# The list of content types to gzip, add more if needed
+# might not need this, instead sticking with the regex, since our files are already gzipped
+GZIP_CONTENT_TYPES = (
+    'text/css',
+    'text/html',
+    'text/plain',
+    'application/javascript',
+    'application/x-javascript',
+    'application/xml'
+)
 
 class Command(BaseCommand):
     help = "Syncs the build directory with Amazon S3 bucket using s3cmd"
@@ -43,6 +54,14 @@ something before you build it."
 settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
+
+    def save_keys(self, keys):
+        for key in keys:
+            key_string = str(key.key)
+            parent_folder = "\\".join(key_string.split("/")[0:2])
+            parent_folder = os.path.join(build_dir, parent_folder)
+            print parent_folder
+            key_path = os.path.join(parent_folder, key_string.split('/')[-1])
 
     def sync(self, cmd, options):
         # If the user specifies a build directory...
@@ -86,8 +105,14 @@ in settings.py or provide it with --aws-bucket-name"
         if int(options.get('verbosity')) > 1:
             six.print_('Executing %s' % cmd)
 
+        # boto stuff
+        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+        bucket = conn.get_bucket(aws_bucket_name)
+        s3_keys = bucket.list()
+        self.save_keys(s3_keys)        
+
         # Execute the command
-        subprocess.call(cmd, shell=True)
+        # subprocess.call(cmd, shell=True)
 
     # gzip the rendered html views, sitemaps, and any static css, js and json
     def sync_gzipped_files(self, options):
@@ -95,7 +120,7 @@ in settings.py or provide it with --aws-bucket-name"
                                   '(\.html|\.xml|\.css|\.js|\.json)$')
         cmd = "s3cmd sync --exclude '*.*' --rinclude '%s' " % gzip_file_match
         cmd += "--add-header='Content-Encoding: gzip' --acl-public"
-        self.sync(cmd, options)
+        # self.sync(cmd, options)
 
     # The s3cmd basic command, before we append all the options.
     def sync_all_files(self, options):

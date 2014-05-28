@@ -17,3 +17,4 @@ sh==1.09
 six==1.5.2
 tox==1.7.0
 virtualenv==1.11.2
+boto==2.28
