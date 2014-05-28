@@ -107,7 +107,7 @@ in settings.py or provide it with --aws-bucket-name"
 
         # boto stuff
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-        bucket = conn.get_bucket(aws_bucket_name)
+        bucket = conn.get_bucket(self.aws_bucket_name)
         s3_keys = bucket.list()
         self.save_keys(s3_keys)        
 
