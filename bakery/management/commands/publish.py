@@ -59,7 +59,7 @@ in settings.py or provide it with --aws-bucket-name"
         for key in keys:
             key_string = str(key.key)
             parent_folder = "\\".join(key_string.split("/")[0:2])
-            parent_folder = os.path.join(build_dir, parent_folder)
+            parent_folder = os.path.join(self.build_dir, parent_folder)
             print parent_folder
             key_path = os.path.join(parent_folder, key_string.split('/')[-1])
 
