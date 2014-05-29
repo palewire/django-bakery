@@ -104,9 +104,9 @@ in settings.py or provide it with --aws-bucket-name"
                 local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
 
                 # don't upload if the md5 sums are the same
-                if s3_md5 == local_md5 and not self.force:
+                if s3_md5 == local_md5 and not self.force_publish:
                     pass
-                elif self.force:
+                elif self.force_publish:
                     six.print_("forcing update of file %s" % file_key)
                     self.upload_s3(key, filename)                    
                 else:
