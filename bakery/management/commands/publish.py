@@ -65,12 +65,23 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
-    def upload_s3(self, dirname, names, keys):
-        # gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
-                                  # '(\.html|\.xml|\.css|\.js|\.json)$')
+    def upload_s3(self, key, filename):
+        headers = {}
 
+        # guess and add the mimetype to header
+        content_type = mimetypes.guess_type(filename)[0]
+        headers['Content-Type'] = content_type
+
+        # add the gzip headers, if necessary
+        if content_type in self.gzip_content_types:
+            headers['Content-Encoding'] = 'gzip'
+
+        # access and write the contents from the file
+        file_obj = open(filename, 'rb')
+        key.set_contents_from_file(file_obj, headers, policy=self.acl)
+
+    def sync_s3(self, dirname, names, keys):
         for fname in names:
-            headers = {}
             filename = os.path.join(dirname, fname)
             
             if os.path.isdir(filename):
@@ -92,32 +103,19 @@ in settings.py or provide it with --aws-bucket-name"
 
                 # don't upload if the md5 sums are the same
                 if s3_md5 == local_md5:
-                    print "file already exists, md5 the same for %s" % file_key
+                    # print "file already exists, md5 the same for %s" % file_key
+                    pass
                 else:
                     print "uploading %s" % filename
-                    # guess and add the mimetype to header
-                    content_type = mimetypes.guess_type(filename)[0]
-                    headers['Content-Type'] = content_type
+                    self.upload_s3(key, filename)
 
-                    if content_type in self.gzip_content_types:
-                        headers['Content-Encoding'] = 'gzip'
-
-                    file_obj = open(filename, 'rb')
-                    key.set_contents_from_file(file_obj, headers, policy=self.acl, replace=True)
             # if the file doesn't exist, create it
             else:
                 print "creating file %s" % file_key
                 key = self.bucket.new_key(file_key)
-                content_type = mimetypes.guess_type(filename)[0]
-                headers['Content-Type'] = content_type
+                self.upload_s3(key, filename)
 
-                if content_type in self.gzip_content_types:
-                    headers['Content-Encoding'] = 'gzip'
-                
-                file_obj = open(filename, 'rb')
-                key.set_contents_from_file(file_obj, headers, policy=self.acl)
-
-    def sync(self, cmd, options):
+    def sync(self, options):
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
@@ -136,13 +134,6 @@ in settings.py or provide it with --aws-bucket-name"
             # Go ahead of use it
             self.build_dir = settings.BUILD_DIR
 
-        # Append the build dir to our basic s3cmd command
-        cmd += " %s/" % self.build_dir
-
-        # If the user has specified a custom config path append that
-        if options.get('config'):
-            cmd += ' --config=%(config)s' % options
-
         # If the user provides a bucket name, use that.
         if options.get("aws_bucket_name"):
             self.aws_bucket_name = options.get("aws_bucket_name")
@@ -152,14 +143,12 @@ in settings.py or provide it with --aws-bucket-name"
                 raise CommandError(self.bucket_unconfig_msg)
             self.aws_bucket_name = settings.AWS_BUCKET_NAME
 
-        # Append the AWS bucket name to the command
-        cmd += ' s3://%s' % self.aws_bucket_name
-
         # Print out the command unless verbosity is above the default
         if int(options.get('verbosity')) > 1:
             six.print_('Executing %s' % cmd)
 
-        # boto stuff
+        # initialize the boto connection, grab the bucket
+        # and make a dict out of the results object from bucket.list()
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
         keys = dict((key.name, key) for key in self.bucket.list())
@@ -172,12 +161,6 @@ in settings.py or provide it with --aws-bucket-name"
         # Execute the command
         # subprocess.call(cmd, shell=True)
 
-
-    # The s3cmd basic command, before we append all the options.
-    def sync_all_files(self, options):
-        cmd = "s3cmd sync --delete-removed --acl-public"
-        self.sync(cmd, options)
-
     def handle(self, *args, **options):
         """
         Cobble together s3cmd command with all the proper options and run it.
@@ -186,4 +169,4 @@ in settings.py or provide it with --aws-bucket-name"
         self.acl = ACL
 
         # sync the rest of the files
-        self.sync_all_files(options)
+        self.sync(options)
