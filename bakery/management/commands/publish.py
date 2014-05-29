@@ -1,7 +1,9 @@
 import os
+import re
 import six
 import boto
-import subprocess
+import hashlib
+import mimetypes
 from django.conf import settings
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
@@ -63,7 +65,9 @@ settings.py or provide it with --build-dir"
 in settings.py or provide it with --aws-bucket-name"
 
     def upload_s3(self, dirname, names):
-        keys = bucket.list()
+        keys = self.bucket.list()
+        gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
+                                  '(\.html|\.xml|\.css|\.js|\.json)$')
 
         for file in names:
             headers = {}
@@ -74,17 +78,32 @@ in settings.py or provide it with --aws-bucket-name"
 
             file_key = filename[len(self.build_dir)]
 
-            # Check if file on S3 is older than local file, if so, upload
-            # I'm guessing we'll actually want to use MD5 checksums here
-            s3_key = bucket.get_key(file_key)
-            s3_md5 = s3_key.etag.strip('"')
-            local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+            # test if the filename matches the gzip pattern
+            gzip_match = re.search(gzip_file_match, filename)
 
-            # don't upload if the md5 sums are the same
-            if s3_md5 == local_md5:
-                print "file already exists, md5 the same for %s" % filename
-            else:
-                print "uploading %s" % filename
+            # I think the best way to go about this is to iterate over the result set
+            # and if the file_key matches, then we can check md5 sums
+            for key in keys:
+                print key.name, file_key
+                if key.name == file_key:
+                    s3_md5 = key.etag.strip('"')
+                    local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+
+                    # don't upload if the md5 sums are the same
+                    if s3_md5 == local_md5:
+                        print "file already exists, md5 the same for %s" % filename
+                    else:
+                        print "uploading %s" % filename
+                        # guess and add the mimetype to header
+                        content_type = mimetypes.guess_type(filename)[0]
+                        headers['Content-Type'] = content_type
+
+                        if gzip_match:
+                            headers['Content-Encoding'] = 'gzip'
+
+                        file_obj = open(filename, 'rb')
+                        filedata = file_obj.read()
+                        s3_key.set_contents_from_string(filedata, headers, replace=True)
 
 
     def sync(self, cmd, options):
@@ -131,7 +150,12 @@ in settings.py or provide it with --aws-bucket-name"
 
         # boto stuff
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-        bucket = conn.get_bucket(self.aws_bucket_name)
+        self.bucket = conn.get_bucket(self.aws_bucket_name)
+
+        # walk through the build directory
+        for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
+            self.upload_s3(dirpath, filenames)
+
 
         # Execute the command
         # subprocess.call(cmd, shell=True)
