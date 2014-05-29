@@ -37,8 +37,8 @@ Will use settings.AWS_BUCKET_NAME by default."
     ),
     make_option(
         "--force",
-        action="store",
-        dest="",
+        action="store_true",
+        dest="force",
         default="",
         help="Force a republish of all items in the build directory"
     ),
@@ -104,8 +104,11 @@ in settings.py or provide it with --aws-bucket-name"
                 local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
 
                 # don't upload if the md5 sums are the same
-                if s3_md5 == local_md5:
+                if s3_md5 == local_md5 and not self.force:
                     pass
+                elif self.force:
+                    six.print_("forcing update of file %s" % file_key)
+                    self.upload_s3(key, filename)                    
                 else:
                     six.print_("updating file %s" % file_key)
                     self.upload_s3(key, filename)
@@ -115,7 +118,6 @@ in settings.py or provide it with --aws-bucket-name"
                 six.print_("creating file %s" % file_key)
                 key = self.bucket.new_key(file_key)
                 self.upload_s3(key, filename)
-
 
     def handle(self, *args, **options):
         """
@@ -153,6 +155,10 @@ in settings.py or provide it with --aws-bucket-name"
                 raise CommandError(self.bucket_unconfig_msg)
             self.aws_bucket_name = settings.AWS_BUCKET_NAME
 
+        # If the user is force publishing
+        if options.get('force'):
+            self.force_publish = True
+
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
@@ -165,4 +171,4 @@ in settings.py or provide it with --aws-bucket-name"
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
-        six.print_("publish completed, uploaded %d files in %d seconds" % (self.uploaded_files, elapsed_time))
+        six.print_("publish completed, uploaded %d files in %.2f seconds" % (self.uploaded_files, elapsed_time))
