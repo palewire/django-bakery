@@ -79,7 +79,7 @@ in settings.py or provide it with --aws-bucket-name"
         # access and write the contents from the file
         file_obj = open(filename, 'rb')
         key.set_contents_from_file(file_obj, headers, policy=self.acl)
-        uploaded_files += 1
+        self.uploaded_files += 1
 
     def sync_s3(self, dirname, names, keys):
         for fname in names:
