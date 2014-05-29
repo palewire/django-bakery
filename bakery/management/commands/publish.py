@@ -29,8 +29,15 @@ Will use settings.BUILD_DIR by default."
         action="store",
         dest="aws_bucket_name",
         default='',
-        help="Specify the AWS bucket to synce with. \
+        help="Specify the AWS bucket to sync with. \
 Will use settings.AWS_BUCKET_NAME by default."
+    ),
+    make_option(
+        "--force",
+        action="store",
+        dest="",
+        default="",
+        help="Force a republish of all items in the build directory"
     ),
 )
 
@@ -56,6 +63,8 @@ settings.py or provide it with --build-dir"
 in settings.py or provide it with --aws-bucket-name"
 
     def upload_s3(self, dirname, names):
+        keys = bucket.list()
+
         for file in names:
             headers = {}
             filename = os.path.join(dirname, file)
