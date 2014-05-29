@@ -55,13 +55,28 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
-    def save_keys(self, keys):
-        for key in keys:
-            key_string = str(key.key)
-            parent_folder = "\\".join(key_string.split("/")[0:2])
-            parent_folder = os.path.join(self.build_dir, parent_folder)
-            print parent_folder
-            key_path = os.path.join(parent_folder, key_string.split('/')[-1])
+    def upload_s3(self, dirname, names):
+        for file in names:
+            headers = {}
+            filename = os.path.join(dirname, file)
+            
+            if os.path.isdir(filename):
+                continue # don't try to upload directories
+
+            file_key = filename[len(self.build_dir)]
+
+            # Check if file on S3 is older than local file, if so, upload
+            # I'm guessing we'll actually want to use MD5 checksums here
+            s3_key = bucket.get_key(file_key)
+            s3_md5 = s3_key.etag.strip('"')
+            local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+
+            # don't upload if the md5 sums are the same
+            if s3_md5 == local_md5:
+                print "file already exists, md5 the same for %s" % filename
+            else:
+                print "uploading %s" % filename
+
 
     def sync(self, cmd, options):
         # If the user specifies a build directory...
@@ -108,8 +123,6 @@ in settings.py or provide it with --aws-bucket-name"
         # boto stuff
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
         bucket = conn.get_bucket(self.aws_bucket_name)
-        s3_keys = bucket.list()
-        self.save_keys(s3_keys)        
 
         # Execute the command
         # subprocess.call(cmd, shell=True)
