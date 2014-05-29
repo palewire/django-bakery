@@ -64,7 +64,7 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
-    def upload_s3(self, dirname, names):
+    def upload_s3(self, dirname, names, keys):
         gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
                                   '(\.html|\.xml|\.css|\.js|\.json)$')
 
@@ -151,11 +151,11 @@ in settings.py or provide it with --aws-bucket-name"
         # boto stuff
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
-        self.keys = dict((key.name, key) for key in self.bucket.list())
+        keys = dict((key.name, key) for key in self.bucket.list())
 
         # walk through the build directory
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
-            self.upload_s3(dirpath, filenames)
+            self.upload_s3(dirpath, filenames, keys)
 
 
         # Execute the command
