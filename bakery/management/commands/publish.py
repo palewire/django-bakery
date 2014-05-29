@@ -2,6 +2,7 @@ import os
 import re
 import six
 import boto
+import time
 import hashlib
 import mimetypes
 from django.conf import settings
@@ -81,7 +82,7 @@ in settings.py or provide it with --aws-bucket-name"
         key.set_contents_from_file(file_obj, headers, policy=self.acl)
         self.uploaded_files += 1
 
-    def sync_s3(self, dirname, names, keys):
+    def sync_s3(self, dirname, names):
         for fname in names:
             filename = os.path.join(dirname, fname)
             
@@ -97,8 +98,8 @@ in settings.py or provide it with --aws-bucket-name"
             # gzip_match = re.search(gzip_file_match, filename)
 
             # check if the file exists
-            if file_key in keys:
-                key = keys[file_key]
+            if file_key in self.keys:
+                key = self.keys[file_key]
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
 
@@ -106,16 +107,25 @@ in settings.py or provide it with --aws-bucket-name"
                 if s3_md5 == local_md5:
                     pass
                 else:
-                    print "updating file %s" % file_key
+                    six.print_("updating file %s" % file_key)
                     self.upload_s3(key, filename)
 
             # if the file doesn't exist, create it
             else:
-                print "creating file %s" % file_key
+                six.print_("creating file %s" % file_key)
                 key = self.bucket.new_key(file_key)
                 self.upload_s3(key, filename)
 
-    def sync(self, options):
+
+    def handle(self, *args, **options):
+        """
+        Cobble together s3cmd command with all the proper options and run it.
+        """
+        self.gzip_content_types = GZIP_CONTENT_TYPES
+        self.acl = ACL
+        self.uploaded_files = 0
+        start_time = time.time()
+
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
@@ -143,33 +153,16 @@ in settings.py or provide it with --aws-bucket-name"
                 raise CommandError(self.bucket_unconfig_msg)
             self.aws_bucket_name = settings.AWS_BUCKET_NAME
 
-        # Print out the command unless verbosity is above the default
-        if int(options.get('verbosity')) > 1:
-            six.print_('Executing %s' % cmd)
-
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
-        keys = dict((key.name, key) for key in self.bucket.list())
+        self.keys = dict((key.name, key) for key in self.bucket.list())
 
         # walk through the build directory
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
-            self.sync_s3(dirpath, filenames, keys)
+            self.sync_s3(dirpath, filenames)
 
-
-        # Execute the command
-        # subprocess.call(cmd, shell=True)
-
-    def handle(self, *args, **options):
-        """
-        Cobble together s3cmd command with all the proper options and run it.
-        """
-        self.gzip_content_types = GZIP_CONTENT_TYPES
-        self.acl = ACL
-        self.uploaded_files = 0
-
-        # sync the rest of the files
-        self.sync(options)
-
-        print "publish completed, uploaded %d files" % self.uploaded_files
+        # we're finished, print the final output
+        elapsed_time = time.time() - start_time
+        six.print_("publish completed, uploaded %d files in %d seconds" % (self.uploaded_files, elapsed_time))
