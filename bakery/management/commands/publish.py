@@ -85,8 +85,8 @@ in settings.py or provide it with --aws-bucket-name"
             # I think the best way to go about this is to iterate over the result set
             # and if the file_key matches, then we can check md5 sums
             for key in keys:
-                print key.name, file_key
                 if key.name == file_key:
+                    print 'matched %s, %s' % (file_key, key.name)
                     s3_md5 = key.etag.strip('"')
                     local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
 
@@ -105,7 +105,7 @@ in settings.py or provide it with --aws-bucket-name"
                         file_obj = open(filename, 'rb')
                         filedata = file_obj.read()
                         s3_key.set_contents_from_string(filedata, headers, replace=True)
-
+                    break
 
     def sync(self, cmd, options):
         # If the user specifies a build directory...
