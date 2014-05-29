@@ -92,7 +92,7 @@ in settings.py or provide it with --aws-bucket-name"
 
                 # don't upload if the md5 sums are the same
                 if s3_md5 == local_md5:
-                    print "file already exists, md5 the same for %s" % filename
+                    print "file already exists, md5 the same for %s" % file_key
                 else:
                     print "uploading %s" % filename
                     # guess and add the mimetype to header
@@ -106,7 +106,7 @@ in settings.py or provide it with --aws-bucket-name"
                     key.set_contents_from_file(file_obj, headers, policy=self.acl, replace=True)
             # if the file doesn't exist, create it
             else:
-                print "creating file %s" % filename
+                print "creating file %s" % file_key
                 key = self.bucket.new_key(file_key)
                 content_type = mimetypes.guess_type(filename)[0]
                 headers['Content-Type'] = content_type
