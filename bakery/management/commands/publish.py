@@ -78,6 +78,7 @@ in settings.py or provide it with --aws-bucket-name"
 
             # get the relative path to the file, which is also the s3 key name
             file_key = os.path.join(os.path.relpath(dirname, self.build_dir), fname)
+            file_key.strip('./')
             print file_key
 
             # test if the filename matches the gzip pattern
