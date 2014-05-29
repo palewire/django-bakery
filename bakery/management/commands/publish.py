@@ -112,7 +112,10 @@ in settings.py or provide it with --aws-bucket-name"
 
     # The s3cmd basic command, before we append all the options.
     def sync_all_files(self, options):
-        cmd = "s3cmd sync --delete-removed --acl-public"
+        if options.get("keep_removed"):
+            cmd = "s3cmd sync --acl-public"
+        else:
+            cmd = "s3cmd sync --delete-removed --acl-public"
         self.sync(cmd, options)
 
     def handle(self, *args, **options):
