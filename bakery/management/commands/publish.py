@@ -86,6 +86,7 @@ in settings.py or provide it with --aws-bucket-name"
 
             # check if the file exists
             if keys[file_key]:
+                key = keys[file_key]
                 print 'matched %s, %s' % (file_key, key.name)
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
