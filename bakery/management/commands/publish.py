@@ -79,6 +79,7 @@ in settings.py or provide it with --aws-bucket-name"
         # access and write the contents from the file
         file_obj = open(filename, 'rb')
         key.set_contents_from_file(file_obj, headers, policy=self.acl)
+        uploaded_files += 1
 
     def sync_s3(self, dirname, names, keys):
         for fname in names:
@@ -103,10 +104,9 @@ in settings.py or provide it with --aws-bucket-name"
 
                 # don't upload if the md5 sums are the same
                 if s3_md5 == local_md5:
-                    # print "file already exists, md5 the same for %s" % file_key
                     pass
                 else:
-                    print "uploading %s" % filename
+                    print "updating file %s" % file_key
                     self.upload_s3(key, filename)
 
             # if the file doesn't exist, create it
@@ -167,6 +167,9 @@ in settings.py or provide it with --aws-bucket-name"
         """
         self.gzip_content_types = GZIP_CONTENT_TYPES
         self.acl = ACL
+        self.uploaded_files = 0
 
         # sync the rest of the files
         self.sync(options)
+
+        print "publish completed, uploaded %d files" % self.uploaded_files
