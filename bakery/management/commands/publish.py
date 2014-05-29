@@ -82,7 +82,7 @@ in settings.py or provide it with --aws-bucket-name"
             # test if the filename matches the gzip pattern
             gzip_match = re.search(gzip_file_match, filename)
 
-            key = bucket.get_key(file_key)
+            key = self.bucket.get_key(file_key)
 
             # I think the best way to go about this is to iterate over the result set
             # and if the file_key matches, then we can check md5 sums
