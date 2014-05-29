@@ -69,14 +69,15 @@ in settings.py or provide it with --aws-bucket-name"
         gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
                                   '(\.html|\.xml|\.css|\.js|\.json)$')
 
-        for file in names:
+        for fname in names:
             headers = {}
-            filename = os.path.join(dirname, file)
+            filename = os.path.join(dirname, fname)
             
             if os.path.isdir(filename):
                 continue # don't try to upload directories
 
-            file_key = filename[len(self.build_dir)]
+            # get the relative path to the file, which is also the s3 key name
+            file_key = os.path.join(os.path.relpath(dirname, build_dir), fname)
 
             # test if the filename matches the gzip pattern
             gzip_match = re.search(gzip_file_match, filename)
