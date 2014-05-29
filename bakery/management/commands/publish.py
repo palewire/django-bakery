@@ -155,7 +155,7 @@ in settings.py or provide it with --aws-bucket-name"
 
         # walk through the build directory
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
-            self.upload_s3(dirpath, filenames, keys)
+            self.sync_s3(dirpath, filenames, keys)
 
 
         # Execute the command
