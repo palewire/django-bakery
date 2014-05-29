@@ -65,7 +65,6 @@ settings.py or provide it with --build-dir"
 in settings.py or provide it with --aws-bucket-name"
 
     def upload_s3(self, dirname, names):
-        keys = dict((key.name, key) for key in self.bucket.list())
         gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
                                   '(\.html|\.xml|\.css|\.js|\.json)$')
 
@@ -106,7 +105,6 @@ in settings.py or provide it with --aws-bucket-name"
                     file_obj = open(filename, 'rb')
                     filedata = file_obj.read()
                     # s3_key.set_contents_from_string(filedata, headers, replace=True)
-                break
 
     def sync(self, cmd, options):
         # If the user specifies a build directory...
@@ -153,6 +151,7 @@ in settings.py or provide it with --aws-bucket-name"
         # boto stuff
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
+        self.keys = dict((key.name, key) for key in self.bucket.list())
 
         # walk through the build directory
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
