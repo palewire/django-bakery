@@ -82,30 +82,32 @@ in settings.py or provide it with --aws-bucket-name"
             # test if the filename matches the gzip pattern
             gzip_match = re.search(gzip_file_match, filename)
 
+            key = bucket.get_key(file_key)
+
             # I think the best way to go about this is to iterate over the result set
             # and if the file_key matches, then we can check md5 sums
-            for key in keys:
-                if key.name == file_key:
-                    print 'matched %s, %s' % (file_key, key.name)
-                    s3_md5 = key.etag.strip('"')
-                    local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+            # for key in keys:
+            #     if key.name == file_key:
+            #        print 'matched %s, %s' % (file_key, key.name)
+            s3_md5 = key.etag.strip('"')
+            local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
 
-                    # don't upload if the md5 sums are the same
-                    if s3_md5 == local_md5:
-                        print "file already exists, md5 the same for %s" % filename
-                    else:
-                        print "uploading %s" % filename
-                        # guess and add the mimetype to header
-                        content_type = mimetypes.guess_type(filename)[0]
-                        headers['Content-Type'] = content_type
+            # don't upload if the md5 sums are the same
+            if s3_md5 == local_md5:
+                print "file already exists, md5 the same for %s" % filename
+            else:
+                print "uploading %s" % filename
+                # guess and add the mimetype to header
+                content_type = mimetypes.guess_type(filename)[0]
+                headers['Content-Type'] = content_type
 
-                        if gzip_match:
-                            headers['Content-Encoding'] = 'gzip'
+                if gzip_match:
+                    headers['Content-Encoding'] = 'gzip'
 
-                        file_obj = open(filename, 'rb')
-                        filedata = file_obj.read()
-                        s3_key.set_contents_from_string(filedata, headers, replace=True)
-                    break
+                file_obj = open(filename, 'rb')
+                filedata = file_obj.read()
+                #s3_key.set_contents_from_string(filedata, headers, replace=True)
+            #        break
 
     def sync(self, cmd, options):
         # If the user specifies a build directory...
