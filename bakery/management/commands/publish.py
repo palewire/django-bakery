@@ -53,6 +53,7 @@ GZIP_CONTENT_TYPES = (
     'application/x-javascript',
     'application/xml'
 )
+ACL = 'public-read'
 
 class Command(BaseCommand):
     help = "Syncs the build directory with Amazon S3 bucket using s3cmd"
@@ -65,8 +66,8 @@ settings.py or provide it with --build-dir"
 in settings.py or provide it with --aws-bucket-name"
 
     def upload_s3(self, dirname, names, keys):
-        gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
-                                  '(\.html|\.xml|\.css|\.js|\.json)$')
+        # gzip_file_match =  getattr(settings, 'GZIP_FILE_MATCH',
+                                  # '(\.html|\.xml|\.css|\.js|\.json)$')
 
         for fname in names:
             headers = {}
@@ -81,12 +82,11 @@ in settings.py or provide it with --aws-bucket-name"
                 file_key = file_key[2:]
 
             # test if the filename matches the gzip pattern
-            gzip_match = re.search(gzip_file_match, filename)
+            # gzip_match = re.search(gzip_file_match, filename)
 
             # check if the file exists
-            if keys[file_key]:
+            if file_key in keys:
                 key = keys[file_key]
-                print 'matched %s, %s' % (file_key, key.name)
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
 
@@ -99,12 +99,23 @@ in settings.py or provide it with --aws-bucket-name"
                     content_type = mimetypes.guess_type(filename)[0]
                     headers['Content-Type'] = content_type
 
-                    if gzip_match:
+                    if content_type in self.gzip_content_types:
                         headers['Content-Encoding'] = 'gzip'
 
                     file_obj = open(filename, 'rb')
-                    filedata = file_obj.read()
-                    # s3_key.set_contents_from_string(filedata, headers, replace=True)
+                    key.set_contents_from_file(file_obj, headers, policy=self.acl, replace=True)
+            # if the file doesn't exist, create it
+            else:
+                print "creating file %s" % filename
+                key = self.bucket.new_key(file_key)
+                content_type = mimetypes.guess_type(filename)[0]
+                headers['Content-Type'] = content_type
+
+                if content_type in self.gzip_content_types:
+                    headers['Content-Encoding'] = 'gzip'
+                
+                file_obj = open(filename, 'rb')
+                key.set_contents_from_file(file_obj, headers, policy=self.acl)
 
     def sync(self, cmd, options):
         # If the user specifies a build directory...
@@ -161,13 +172,6 @@ in settings.py or provide it with --aws-bucket-name"
         # Execute the command
         # subprocess.call(cmd, shell=True)
 
-    # gzip the rendered html views, sitemaps, and any static css, js and json
-    def sync_gzipped_files(self, options):
-        gzip_file_match = getattr(settings, 'GZIP_FILE_MATCH',
-                                  '(\.html|\.xml|\.css|\.js|\.json)$')
-        cmd = "s3cmd sync --exclude '*.*' --rinclude '%s' " % gzip_file_match
-        cmd += "--add-header='Content-Encoding: gzip' --acl-public"
-        # self.sync(cmd, options)
 
     # The s3cmd basic command, before we append all the options.
     def sync_all_files(self, options):
@@ -178,9 +182,8 @@ in settings.py or provide it with --aws-bucket-name"
         """
         Cobble together s3cmd command with all the proper options and run it.
         """
-        # sync gzipped files, if not opted out
-        if getattr(settings, 'BAKERY_GZIP', False):
-            self.sync_gzipped_files(options)
+        self.gzip_content_types = GZIP_CONTENT_TYPES
+        self.acl = ACL
 
         # sync the rest of the files
         self.sync_all_files(options)
