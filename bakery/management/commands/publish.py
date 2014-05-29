@@ -33,6 +33,13 @@ Will use settings.BUILD_DIR by default."
         help="Specify the AWS bucket to synce with. \
 Will use settings.AWS_BUCKET_NAME by default."
     ),
+    make_option(
+        "--keep-removed",
+        action="store_true",
+        dest="keep_removed",
+        default=False,
+        help="Prevents any deletions as part of the s3cmd sync with s3"
+    ),
 )
 
 
