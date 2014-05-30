@@ -49,7 +49,6 @@ Will use settings.AWS_BUCKET_NAME by default."
 GZIP_CONTENT_TYPES = (
     'text/css',
     'text/html',
-    'text/plain',
     'application/javascript',
     'application/x-javascript',
     'application/xml'
@@ -78,9 +77,9 @@ in settings.py or provide it with --aws-bucket-name"
             headers['Content-Encoding'] = 'gzip'
 
         # access and write the contents from the file
-        file_obj = open(filename, 'rb')
-        key.set_contents_from_file(file_obj, headers, policy=self.acl)
-        self.uploaded_files += 1
+        with open(filename, 'rb') as file_obj: 
+            key.set_contents_from_file(file_obj, headers, policy=self.acl)
+            self.uploaded_files += 1
 
     def sync_s3(self, dirname, names):
         for fname in names:
@@ -93,6 +92,8 @@ in settings.py or provide it with --aws-bucket-name"
             file_key = os.path.join(os.path.relpath(dirname, self.build_dir), fname)
             if file_key.startswith('./'):
                 file_key = file_key[2:]
+
+            self.local_files_list.append(file_key)
 
             # test if the filename matches the gzip pattern
             # gzip_match = re.search(gzip_file_match, filename)
@@ -125,7 +126,9 @@ in settings.py or provide it with --aws-bucket-name"
         """
         self.gzip_content_types = GZIP_CONTENT_TYPES
         self.acl = ACL
+        self.local_files_list = []
         self.uploaded_files = 0
+        self.deleted_files = 0
         start_time = time.time()
 
         # If the user specifies a build directory...
@@ -171,6 +174,14 @@ in settings.py or provide it with --aws-bucket-name"
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
             self.sync_s3(dirpath, filenames)
 
+        # now look through the keys list and see if it isn't in our local directory
+        # delete any that have been removed
+        for key in self.keys:
+            if not key.name in self.local_files_list:
+                six.print_("deleting file %s" % key.name)
+                self.bucket.delete_key(key.name)
+                self.deleted_files += 1
+
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
-        six.print_("publish completed, uploaded %d files in %.2f seconds" % (self.uploaded_files, elapsed_time))
+        six.print_("publish completed, uploaded %d and deleted %d files in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
