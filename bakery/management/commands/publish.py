@@ -133,7 +133,7 @@ in settings.py or provide it with --aws-bucket-name"
             # ... validate that it is good.
             if not os.path.exists(options.get('build_dir')):
                 raise CommandError(self.build_missing_msg)
-            # Go ahead of use it
+            # Go ahead and use it
             self.build_dir = options.get("build_dir")
         # If the user does not specify a build dir...
         else:
@@ -143,7 +143,7 @@ in settings.py or provide it with --aws-bucket-name"
             # Then make sure it actually exists
             if not os.path.exists(settings.BUILD_DIR):
                 raise CommandError(self.build_missing_msg)
-            # Go ahead of use it
+            # Go ahead and use it
             self.build_dir = settings.BUILD_DIR
 
         # If the user provides a bucket name, use that.
@@ -155,7 +155,7 @@ in settings.py or provide it with --aws-bucket-name"
                 raise CommandError(self.bucket_unconfig_msg)
             self.aws_bucket_name = settings.AWS_BUCKET_NAME
 
-        # If the user is force publishing
+        # If the user sets the --force option
         if options.get('force'):
             self.force_publish = True
         else:
