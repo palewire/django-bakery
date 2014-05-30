@@ -42,10 +42,17 @@ Will use settings.AWS_BUCKET_NAME by default."
         default="",
         help="Force a republish of all items in the build directory"
     ),
+    make_option(
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        default="",
+        help="Display the output of what would have been uploaded \
+removed, but without actually publishing."
+    ),
 )
 
-# The list of content types to gzip, add more if needed
-# might not need this, instead sticking with the regex, since our files are already gzipped
+# Mimetypes of content we want to gzip
 GZIP_CONTENT_TYPES = (
     'text/css',
     'text/html',
@@ -78,7 +85,8 @@ in settings.py or provide it with --aws-bucket-name"
 
         # access and write the contents from the file
         with open(filename, 'rb') as file_obj: 
-            key.set_contents_from_file(file_obj, headers, policy=self.acl)
+            if not self.dry_run:
+                key.set_contents_from_file(file_obj, headers, policy=self.acl)
             self.uploaded_files += 1
 
     def sync_s3(self, dirname, names):
@@ -88,8 +96,9 @@ in settings.py or provide it with --aws-bucket-name"
             if os.path.isdir(filename):
                 continue # don't try to upload directories
 
-            # get the relative path to the file, which is also the s3 key name
-            file_key = os.path.join(os.path.relpath(dirname, self.build_dir), fname)
+            # get the relpath to the file, which is also the s3 key name
+            file_key = os.path.join(os.path.relpath(dirname, self.build_dir), 
+                fname)
             if file_key.startswith('./'):
                 file_key = file_key[2:]
 
@@ -97,7 +106,9 @@ in settings.py or provide it with --aws-bucket-name"
             if file_key in self.keys:
                 key = self.keys[file_key]
                 s3_md5 = key.etag.strip('"')
-                local_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+                local_md5 = hashlib.md5(
+                        open(filename, "rb").read()
+                    ).hexdigest()
 
                 # don't upload if the md5 sums are the same
                 if s3_md5 == local_md5 and not self.force_publish:
@@ -115,12 +126,13 @@ in settings.py or provide it with --aws-bucket-name"
             # if the file doesn't exist, create it
             else:
                 six.print_("creating file %s" % file_key)
-                key = self.bucket.new_key(file_key)
+                if not self.dry_run:
+                    key = self.bucket.new_key(file_key)
                 self.upload_s3(key, filename)
 
     def handle(self, *args, **options):
         """
-        Cobble together s3cmd command with all the proper options and run it.
+        Add docs here
         """
         self.gzip_content_types = GZIP_CONTENT_TYPES
         self.acl = ACL
@@ -158,12 +170,16 @@ in settings.py or provide it with --aws-bucket-name"
         # If the user sets the --force option
         if options.get('force'):
             self.force_publish = True
-        else:
-            self.force_publish = False
+
+        # set the --dry-run option
+        if options.get('dry_run'):
+            self.dry_run = True
+            six.print_("Executing with the --dry-run option set.")
 
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
-        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, 
+            settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
         self.keys = dict((key.name, key) for key in self.bucket.list())
 
@@ -174,9 +190,15 @@ in settings.py or provide it with --aws-bucket-name"
         # delete anything that's left in our keys dict
         for key in self.keys:
             six.print_("deleting file %s" % key)
-            self.bucket.delete_key(key)
+            if not self.dry_run:
+                self.bucket.delete_key(key)
             self.deleted_files += 1
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
-        six.print_("publish completed, uploaded %d and deleted %d files in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
+        six.print_("publish completed, uploaded %d and deleted %d \
+files in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
+
+        if self.dry_run:
+            six.print_("publish executed with the --dry-run option. \
+No content was changed on S3.")
