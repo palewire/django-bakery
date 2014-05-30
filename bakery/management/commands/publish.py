@@ -170,11 +170,15 @@ in settings.py or provide it with --aws-bucket-name"
         # If the user sets the --force option
         if options.get('force'):
             self.force_publish = True
+        else:
+            self.force_publish = False
 
         # set the --dry-run option
         if options.get('dry_run'):
             self.dry_run = True
             six.print_("Executing with the --dry-run option set.")
+        else:
+            self.dry_run = False
 
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
