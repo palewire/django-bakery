@@ -28,7 +28,10 @@ class BuildableMixin(object):
         return self.get(self.request).render().content
 
     def build_file(self, path, html):
-        self.write_file(path, html)
+        if getattr(settings, 'BAKERY_GZIP', False):
+            self.gzip_file(path, html)
+        else:
+            self.write_file(path, html)
 
     def write_file(self, path, html):
         """
