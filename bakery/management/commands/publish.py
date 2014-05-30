@@ -178,8 +178,8 @@ in settings.py or provide it with --aws-bucket-name"
         # delete any that have been removed
         for key in self.keys:
             if not key in self.local_files_list:
-                six.print_("deleting file %s" % key.name)
-                self.bucket.delete_key(key.name)
+                six.print_("deleting file %s" % key)
+                self.bucket.delete_key(key)
                 self.deleted_files += 1
 
         # we're finished, print the final output
