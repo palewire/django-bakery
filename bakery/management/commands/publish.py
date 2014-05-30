@@ -1,5 +1,4 @@
 import os
-import six
 import boto
 import time
 import hashlib
@@ -137,18 +136,40 @@ in settings.py or provide it with --aws-bucket-name"
                 key.set_contents_from_file(file_obj, headers, policy=self.acl)
             self.uploaded_files += 1
 
+    def build_local_files_list(self):
+        """
+        Walk the local build directory and create a list relative
+        and absolute paths to files.
+        This will be used to sync against the S3 bucket list.
+        """
+        files_list = []
+        
+        for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
+            for fname in filenames:
+                local_key = {}
+                local_key["relpath"] = os.path.join(os.path.relpath(dirpath, self.build_dir),
+                                         fname)
+                if local_key['relpath'].startswith('./'):
+                    local_key = local_key[2:]
+                local_key['abspath'] = os.path.join(dirpath, fname)
+                files_list.append(local_key)
+
+        return files_list
+
+
     def sync_s3(self, dirname, names):
-        for fname in names:
-            filename = os.path.join(dirname, fname)
+        # for fname in names:
+        #     filename = os.path.join(dirname, fname)
 
-            if os.path.isdir(filename):
-                continue  # don't try to upload directories
+        #     if os.path.isdir(filename):
+        #         continue  # don't try to upload directories
 
-            # get the relpath to the file, which is also the s3 key name
-            file_key = os.path.join(os.path.relpath(dirname, self.build_dir),
-                                    fname)
-            if file_key.startswith('./'):
-                file_key = file_key[2:]
+        #     # get the relpath to the file, which is also the s3 key name
+        #     file_key = os.path.join(os.path.relpath(dirname, self.build_dir),
+        #                             fname)
+        #     if file_key.startswith('./'):
+        #         file_key = file_key[2:]
+        for file_key in self.local_files:
 
             # check if the file exists
             if file_key in self.keys:
@@ -197,9 +218,11 @@ in settings.py or provide it with --aws-bucket-name"
         self.bucket = conn.get_bucket(self.aws_bucket_name)
         self.keys = dict((key.name, key) for key in self.bucket.list())
 
+        self.local_files = self.build_local_files_list()
+
         # walk through the build directory
-        for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
-            self.sync_s3(dirpath, filenames)
+        # for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
+        #     self.sync_s3(dirpath, filenames)
 
         # delete anything that's left in our keys dict
         for key in self.keys:
