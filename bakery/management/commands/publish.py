@@ -177,11 +177,10 @@ in settings.py or provide it with --aws-bucket-name"
         # now look through the keys list and see if it isn't in our local directory
         # delete any that have been removed
         for key in self.keys:
-            print key
-            # if not key.name in self.local_files_list:
-                # six.print_("deleting file %s" % key.name)
-                # self.bucket.delete_key(key.name)
-                # self.deleted_files += 1
+            if not key in self.local_files_list:
+                six.print_("deleting file %s" % key.name)
+                self.bucket.delete_key(key.name)
+                self.deleted_files += 1
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
