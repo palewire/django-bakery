@@ -1,5 +1,4 @@
 import os
-import re
 import six
 import boto
 import time
@@ -62,6 +61,7 @@ GZIP_CONTENT_TYPES = (
 )
 ACL = 'public-read'
 
+
 class Command(BaseCommand):
     help = "Syncs the build directory with Amazon S3 bucket using s3cmd"
     option_list = BaseCommand.option_list + custom_options
@@ -84,7 +84,7 @@ in settings.py or provide it with --aws-bucket-name"
             headers['Content-Encoding'] = 'gzip'
 
         # access and write the contents from the file
-        with open(filename, 'rb') as file_obj: 
+        with open(filename, 'rb') as file_obj:
             if not self.dry_run:
                 key.set_contents_from_file(file_obj, headers, policy=self.acl)
             self.uploaded_files += 1
@@ -92,13 +92,13 @@ in settings.py or provide it with --aws-bucket-name"
     def sync_s3(self, dirname, names):
         for fname in names:
             filename = os.path.join(dirname, fname)
-            
+
             if os.path.isdir(filename):
-                continue # don't try to upload directories
+                continue  # don't try to upload directories
 
             # get the relpath to the file, which is also the s3 key name
-            file_key = os.path.join(os.path.relpath(dirname, self.build_dir), 
-                fname)
+            file_key = os.path.join(os.path.relpath(dirname, self.build_dir),
+                                    fname)
             if file_key.startswith('./'):
                 file_key = file_key[2:]
 
@@ -107,7 +107,7 @@ in settings.py or provide it with --aws-bucket-name"
                 key = self.keys[file_key]
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(
-                        open(filename, "rb").read()
+                    open(filename, "rb").read()
                     ).hexdigest()
 
                 # don't upload if the md5 sums are the same
@@ -115,7 +115,7 @@ in settings.py or provide it with --aws-bucket-name"
                     pass
                 elif self.force_publish:
                     six.print_("forcing update of file %s" % file_key)
-                    self.upload_s3(key, filename)                    
+                    self.upload_s3(key, filename)
                 else:
                     six.print_("updating file %s" % file_key)
                     self.upload_s3(key, filename)
@@ -182,8 +182,8 @@ in settings.py or provide it with --aws-bucket-name"
 
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
-        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, 
-            settings.AWS_SECRET_ACCESS_KEY)
+        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID,
+                               settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
         self.keys = dict((key.name, key) for key in self.bucket.list())
 
@@ -200,8 +200,8 @@ in settings.py or provide it with --aws-bucket-name"
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
-        six.print_("publish completed, uploaded %d and deleted %d \
-files in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
+        six.print_("publish completed, uploaded %d and deleted %d files \
+in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
 
         if self.dry_run:
             six.print_("publish executed with the --dry-run option. \
