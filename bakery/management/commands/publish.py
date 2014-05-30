@@ -1,6 +1,6 @@
 import os
-import re
 import six
+import sys
 import boto
 import time
 import hashlib
@@ -9,6 +9,16 @@ from django.conf import settings
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 
+# import from cStringIO, if possible
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+
+# import gzip library, if needed
+BAKERY_GZIP = getattr(settings, 'BAKERY_GZIP', False)
+if BAKERY_GZIP:
+    from gzip import GzipFile
 
 custom_options = (
     make_option(
@@ -55,6 +65,13 @@ GZIP_CONTENT_TYPES = (
 )
 ACL = 'public-read'
 
+def isPythonVersion(version):
+    if float(sys.version[:3]) >= version:
+        return True
+    else:
+        return False
+
+
 class Command(BaseCommand):
     help = "Syncs the build directory with Amazon S3 bucket using s3cmd"
     option_list = BaseCommand.option_list + custom_options
@@ -65,6 +82,17 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
+    def gzip_content(self, content):
+        """Gzip the contents of a file"""
+        zbuf = StringIO()
+        if isPythonVersion(2.7):
+            zfile = GzipFile('wb', mtime=0, fileobj=zbuf)
+        else:
+            zfile = GzipFile('wb', fileobj=zbuf)
+        zfile.write(content)
+        zfile.close()
+        return zbuf.getvalue()
+
     def upload_s3(self, key, filename):
         headers = {}
 
@@ -73,13 +101,17 @@ in settings.py or provide it with --aws-bucket-name"
         headers['Content-Type'] = content_type
 
         # add the gzip headers, if necessary
-        if content_type in self.gzip_content_types:
+        if content_type in self.gzip_content_types and self.gzip:
+            file_obj = open(filename, 'rb')
+            file_data = file_obj.read()
+            file_data = self.gzip_content(file_data)
             headers['Content-Encoding'] = 'gzip'
-
-        # access and write the contents from the file
-        with open(filename, 'rb') as file_obj: 
-            key.set_contents_from_file(file_obj, headers, policy=self.acl)
-            self.uploaded_files += 1
+            key.set_contents_from_string(file_data, headers, policy=self.acl)
+        else:
+            # access and write the contents from the file
+            with open(filename, 'rb') as file_obj: 
+                key.set_contents_from_file(file_obj, headers, policy=self.acl)
+                self.uploaded_files += 1
 
     def sync_s3(self, dirname, names):
         for fname in names:
@@ -124,6 +156,7 @@ in settings.py or provide it with --aws-bucket-name"
         """
         self.gzip_content_types = GZIP_CONTENT_TYPES
         self.acl = ACL
+        self.gzip = BAKERY_GZIP
         self.uploaded_files = 0
         self.deleted_files = 0
         start_time = time.time()
