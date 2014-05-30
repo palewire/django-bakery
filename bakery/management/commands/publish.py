@@ -86,9 +86,9 @@ in settings.py or provide it with --aws-bucket-name"
         """Gzip the contents of a file"""
         zbuf = StringIO()
         if isPythonVersion(2.7):
-            zfile = GzipFile('wb', mtime=0, fileobj=zbuf)
+            zfile = GzipFile(mode='wb', mtime=0, fileobj=zbuf)
         else:
-            zfile = GzipFile('wb', fileobj=zbuf)
+            zfile = GzipFile(mode='wb', fileobj=zbuf)
         zfile.write(content)
         zfile.close()
         return zbuf.getvalue()
