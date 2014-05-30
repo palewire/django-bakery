@@ -3,10 +3,12 @@ import six
 import boto
 import time
 import hashlib
+import logging
 import mimetypes
 from django.conf import settings
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
+logger = logging.getLogger(__name__)
 
 
 custom_options = (
@@ -57,6 +59,7 @@ GZIP_CONTENT_TYPES = (
     'text/html',
     'application/javascript',
     'application/x-javascript',
+    'application/json',
     'application/xml'
 )
 ACL = 'public-read'
@@ -72,7 +75,52 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
+    def set_options(self, options):
+        # If the user specifies a build directory...
+        if options.get('build_dir'):
+            # ... validate that it is good.
+            if not os.path.exists(options.get('build_dir')):
+                raise CommandError(self.build_missing_msg)
+            # Go ahead and use it
+            self.build_dir = options.get("build_dir")
+        # If the user does not specify a build dir...
+        else:
+            # Check if it is set in settings.py
+            if not hasattr(settings, 'BUILD_DIR'):
+                raise CommandError(self.build_unconfig_msg)
+            # Then make sure it actually exists
+            if not os.path.exists(settings.BUILD_DIR):
+                raise CommandError(self.build_missing_msg)
+            # Go ahead and use it
+            self.build_dir = settings.BUILD_DIR
+
+        # If the user provides a bucket name, use that.
+        if options.get("aws_bucket_name"):
+            self.aws_bucket_name = options.get("aws_bucket_name")
+        else:
+            # Otherwise try to find it the settings
+            if not hasattr(settings, 'AWS_BUCKET_NAME'):
+                raise CommandError(self.bucket_unconfig_msg)
+            self.aws_bucket_name = settings.AWS_BUCKET_NAME
+
+        # If the user sets the --force option
+        if options.get('force'):
+            self.force_publish = True
+        else:
+            self.force_publish = False
+
+        # set the --dry-run option
+        if options.get('dry_run'):
+            self.dry_run = True
+            logger.info("Executing with the --dry-run option set.")
+        else:
+            self.dry_run = False
+
     def upload_s3(self, key, filename):
+        """
+        Set the content type and gzip headers if applicable
+        and upload the item to S3
+        """
         headers = {}
 
         # guess and add the mimetype to header
@@ -114,10 +162,10 @@ in settings.py or provide it with --aws-bucket-name"
                 if s3_md5 == local_md5 and not self.force_publish:
                     pass
                 elif self.force_publish:
-                    six.print_("forcing update of file %s" % file_key)
+                    logger.debug("forcing update of file %s" % file_key)
                     self.upload_s3(key, filename)
                 else:
-                    six.print_("updating file %s" % file_key)
+                    logger.debug("updating file %s" % file_key)
                     self.upload_s3(key, filename)
 
                 # remove the file from the dict, we don't need it anymore
@@ -125,14 +173,14 @@ in settings.py or provide it with --aws-bucket-name"
 
             # if the file doesn't exist, create it
             else:
-                six.print_("creating file %s" % file_key)
+                logger.debug("creating file %s" % file_key)
                 if not self.dry_run:
                     key = self.bucket.new_key(file_key)
                 self.upload_s3(key, filename)
 
     def handle(self, *args, **options):
         """
-        Add docs here
+        Sync files in the build directory to a specified S3 bucket
         """
         self.gzip_content_types = GZIP_CONTENT_TYPES
         self.acl = ACL
@@ -140,45 +188,7 @@ in settings.py or provide it with --aws-bucket-name"
         self.deleted_files = 0
         start_time = time.time()
 
-        # If the user specifies a build directory...
-        if options.get('build_dir'):
-            # ... validate that it is good.
-            if not os.path.exists(options.get('build_dir')):
-                raise CommandError(self.build_missing_msg)
-            # Go ahead and use it
-            self.build_dir = options.get("build_dir")
-        # If the user does not specify a build dir...
-        else:
-            # Check if it is set in settings.py
-            if not hasattr(settings, 'BUILD_DIR'):
-                raise CommandError(self.build_unconfig_msg)
-            # Then make sure it actually exists
-            if not os.path.exists(settings.BUILD_DIR):
-                raise CommandError(self.build_missing_msg)
-            # Go ahead and use it
-            self.build_dir = settings.BUILD_DIR
-
-        # If the user provides a bucket name, use that.
-        if options.get("aws_bucket_name"):
-            self.aws_bucket_name = options.get("aws_bucket_name")
-        else:
-            # Otherwise try to find it the settings
-            if not hasattr(settings, 'AWS_BUCKET_NAME'):
-                raise CommandError(self.bucket_unconfig_msg)
-            self.aws_bucket_name = settings.AWS_BUCKET_NAME
-
-        # If the user sets the --force option
-        if options.get('force'):
-            self.force_publish = True
-        else:
-            self.force_publish = False
-
-        # set the --dry-run option
-        if options.get('dry_run'):
-            self.dry_run = True
-            six.print_("Executing with the --dry-run option set.")
-        else:
-            self.dry_run = False
+        self.set_options(options)
 
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
@@ -193,16 +203,16 @@ in settings.py or provide it with --aws-bucket-name"
 
         # delete anything that's left in our keys dict
         for key in self.keys:
-            six.print_("deleting file %s" % key)
+            logger.debug("deleting file %s" % key)
             if not self.dry_run:
                 self.bucket.delete_key(key)
             self.deleted_files += 1
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
-        six.print_("publish completed, uploaded %d and deleted %d files \
+        logger.info("publish completed, uploaded %d and deleted %d files \
 in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
 
         if self.dry_run:
-            six.print_("publish executed with the --dry-run option. \
+            logger.info("publish executed with the --dry-run option. \
 No content was changed on S3.")
