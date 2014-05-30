@@ -107,6 +107,8 @@ in settings.py or provide it with --aws-bucket-name"
             file_data = self.gzip_content(file_data)
             headers['Content-Encoding'] = 'gzip'
             key.set_contents_from_string(file_data, headers, policy=self.acl)
+            six.print_('gzipping file %s' % key.name)
+            self.uploaded_files += 1
         else:
             # access and write the contents from the file
             with open(filename, 'rb') as file_obj: 
