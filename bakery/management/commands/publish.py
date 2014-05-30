@@ -93,11 +93,6 @@ in settings.py or provide it with --aws-bucket-name"
             if file_key.startswith('./'):
                 file_key = file_key[2:]
 
-            self.local_files_list.append(file_key)
-
-            # test if the filename matches the gzip pattern
-            # gzip_match = re.search(gzip_file_match, filename)
-
             # check if the file exists
             if file_key in self.keys:
                 key = self.keys[file_key]
@@ -114,6 +109,9 @@ in settings.py or provide it with --aws-bucket-name"
                     six.print_("updating file %s" % file_key)
                     self.upload_s3(key, filename)
 
+                # remove the file from the dict, we don't need it anymore
+                del self.keys[file_key]
+
             # if the file doesn't exist, create it
             else:
                 six.print_("creating file %s" % file_key)
@@ -126,7 +124,6 @@ in settings.py or provide it with --aws-bucket-name"
         """
         self.gzip_content_types = GZIP_CONTENT_TYPES
         self.acl = ACL
-        self.local_files_list = []
         self.uploaded_files = 0
         self.deleted_files = 0
         start_time = time.time()
@@ -174,13 +171,11 @@ in settings.py or provide it with --aws-bucket-name"
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
             self.sync_s3(dirpath, filenames)
 
-        # now look through the keys list and see if it isn't in our local directory
-        # delete any that have been removed
+        # delete anything that's left in our keys dict
         for key in self.keys:
-            if not key in self.local_files_list:
-                six.print_("deleting file %s" % key)
-                self.bucket.delete_key(key)
-                self.deleted_files += 1
+            six.print_("deleting file %s" % key)
+            self.bucket.delete_key(key)
+            self.deleted_files += 1
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
