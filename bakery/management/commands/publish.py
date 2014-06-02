@@ -156,7 +156,7 @@ in settings.py or provide it with --aws-bucket-name"
 
         return files_list
 
-    def sync_s3(self, dirname, names):
+    def sync_s3(self):
         """
         Walk through our local file list, and match them wtih the list
         of keys in the S3 bucket.
@@ -216,9 +216,7 @@ in settings.py or provide it with --aws-bucket-name"
 
         self.local_files = self.build_local_files_list()
 
-        # walk through the build directory
-        # for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
-        #     self.sync_s3(dirpath, filenames)
+        self.sync_s3()
 
         # delete anything that's left in our keys dict
         for key in self.keys:
