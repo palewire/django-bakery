@@ -138,45 +138,37 @@ in settings.py or provide it with --aws-bucket-name"
 
     def build_local_files_list(self):
         """
-        Walk the local build directory and create a list relative
-        and absolute paths to files.
+        Walk the local build directory and create a list
+        of relative and absolute paths to files.
         This will be used to sync against the S3 bucket list.
         """
         files_list = []
-        
+
         for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
+
             for fname in filenames:
-                local_key = {}
-                local_key["relpath"] = os.path.join(os.path.relpath(dirpath, self.build_dir),
-                                         fname)
-                if local_key['relpath'].startswith('./'):
+                # relative path, to sync with the S3 key
+                local_key = os.path.join(os.path.relpath(dirpath,
+                                        self.build_dir), fname)
+                if local_key.startswith('./'):
                     local_key = local_key[2:]
-                local_key['abspath'] = os.path.join(dirpath, fname)
                 files_list.append(local_key)
 
         return files_list
 
-
     def sync_s3(self, dirname, names):
-        # for fname in names:
-        #     filename = os.path.join(dirname, fname)
+        """
+        Walk through our local file list, and match them wtih the list
+        of keys in the S3 bucket.
+        """
 
-        #     if os.path.isdir(filename):
-        #         continue  # don't try to upload directories
-
-        #     # get the relpath to the file, which is also the s3 key name
-        #     file_key = os.path.join(os.path.relpath(dirname, self.build_dir),
-        #                             fname)
-        #     if file_key.startswith('./'):
-        #         file_key = file_key[2:]
         for file_key in self.local_files:
-
             # check if the file exists
             if file_key in self.keys:
                 key = self.keys[file_key]
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(
-                    open(filename, "rb").read()
+                    open(file_key, "rb").read()
                     ).hexdigest()
 
                 # don't upload if the md5 sums are the same
@@ -184,10 +176,10 @@ in settings.py or provide it with --aws-bucket-name"
                     pass
                 elif self.force_publish:
                     logger.debug("forcing update of file %s" % file_key)
-                    self.upload_s3(key, filename)
+                    self.upload_s3(key, file_key)
                 else:
                     logger.debug("updating file %s" % file_key)
-                    self.upload_s3(key, filename)
+                    self.upload_s3(key, file_key)
 
                 # remove the file from the dict, we don't need it anymore
                 del self.keys[file_key]
@@ -197,7 +189,7 @@ in settings.py or provide it with --aws-bucket-name"
                 logger.debug("creating file %s" % file_key)
                 if not self.dry_run:
                     key = self.bucket.new_key(file_key)
-                self.upload_s3(key, filename)
+                self.upload_s3(key, file_key)
 
     def handle(self, *args, **options):
         """
@@ -210,6 +202,10 @@ in settings.py or provide it with --aws-bucket-name"
         start_time = time.time()
 
         self.set_options(options)
+
+        # make sure we're in the build directory - necessary for
+        # correct relative paths and syncing
+        os.chdir(self.build_dir)
 
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
