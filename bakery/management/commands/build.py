@@ -1,5 +1,4 @@
 import os
-import re
 import six
 import sys
 import gzip
@@ -49,6 +48,7 @@ GZIP_CONTENT_TYPES = (
     'application/json',
     'application/xml'
 )
+
 
 class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
