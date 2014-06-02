@@ -1,9 +1,4 @@
-import os
 import boto
-import random
-import string
-import shutil
-import subprocess
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -16,6 +11,4 @@ class Command(BaseCommand):
                                settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(settings.AWS_BUCKET_NAME)
         self.keys = list(key.name for key in self.bucket.list())
-        self.bucket.delete_keys(keys)
-
-
+        self.bucket.delete_keys(self.keys)
