@@ -149,7 +149,7 @@ in settings.py or provide it with --aws-bucket-name"
             for fname in filenames:
                 # relative path, to sync with the S3 key
                 local_key = os.path.join(os.path.relpath(dirpath,
-                                        self.build_dir), fname)
+                                         self.build_dir), fname)
                 if local_key.startswith('./'):
                     local_key = local_key[2:]
                 files_list.append(local_key)
@@ -158,7 +158,7 @@ in settings.py or provide it with --aws-bucket-name"
 
     def sync_s3(self):
         """
-        Walk through our local file list, and match them wtih the list
+        Walk through our self.local_files list, and match them with the list
         of keys in the S3 bucket.
         """
 
@@ -227,7 +227,7 @@ in settings.py or provide it with --aws-bucket-name"
 
         # we're finished, print the final output
         elapsed_time = time.time() - start_time
-        logger.info("publish completed, uploaded %d and deleted %d files \
+        logger.info("publish completed, %d uploaded and %d deleted files \
 in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
 
         if self.dry_run:
