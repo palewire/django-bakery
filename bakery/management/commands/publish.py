@@ -165,10 +165,11 @@ in settings.py or provide it with --aws-bucket-name"
         for file_key in self.local_files:
             # check if the file exists
             if file_key in self.keys:
+                abs_file_path = os.path.join(self.build_dir, file_key)
                 key = self.keys[file_key]
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(
-                    open(file_key, "rb").read()
+                    open(abs_file_path, "rb").read()
                     ).hexdigest()
 
                 # don't upload if the md5 sums are the same
@@ -176,10 +177,10 @@ in settings.py or provide it with --aws-bucket-name"
                     pass
                 elif self.force_publish:
                     logger.debug("forcing update of file %s" % file_key)
-                    self.upload_s3(key, file_key)
+                    self.upload_s3(key, abs_file_path)
                 else:
                     logger.debug("updating file %s" % file_key)
-                    self.upload_s3(key, file_key)
+                    self.upload_s3(key, abs_file_path)
 
                 # remove the file from the dict, we don't need it anymore
                 del self.keys[file_key]
@@ -209,10 +210,6 @@ in settings.py or provide it with --aws-bucket-name"
                                settings.AWS_SECRET_ACCESS_KEY)
         self.bucket = conn.get_bucket(self.aws_bucket_name)
         self.keys = dict((key.name, key) for key in self.bucket.list())
-
-        # make sure we're in the build directory - necessary for
-        # correct relative paths and syncing
-        os.chdir(self.build_dir)
 
         self.local_files = self.build_local_files_list()
         self.sync_s3()
