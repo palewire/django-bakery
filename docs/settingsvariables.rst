@@ -57,18 +57,40 @@ BAKERY_GZIP
 
     BAKERY_GZIP = True
 
-GZIP_FILE_MATCH
+GZIP_CONTENT_TYPES
 ---------------
 
-.. envvar:: GZIP_FILE_MATCH
+.. envvar:: GZIP_CONTENT_TYPES
 
-    An uncompiled regular expression used to determine which files to have the
-    'Content-Encoding: gzip' metadata header added when syncing to Amazon S3. 
-    Defaults to include all .html, .xml, .css, .js and .json files.
+    A list of file mime types used to determine which files to add the
+    'Content-Encoding: gzip' metadata header when syncing to Amazon S3. 
+    Defaults to include all 'text/css', 'text/html', 'application/javascript',
+    'application/x-javascript', 'application/json' and 'application/xml' 
+    files.
 
     Only matters if you have set ``BAKERY_GZIP`` to ``True``.
 
 .. code-block:: python
 
-    # defaults to all .html, .xml, .css, .js and .json files
-    GZIP_FILE_MATCH = '(\.html|\.xml|\.css|\.js|\.json)$'
+    # defaults to 'text/css', 'text/html', 'application/javascript',
+    # 'application/x-javascript', 'application/json' and 'application/xml' 
+    # files.
+    GZIP_CONTENT_TYPES = (
+        'text/css',
+        'text/html',
+        'application/javascript',
+        'application/x-javascript',
+        'application/json',
+        'application/xml'
+    )
+
+DEFAULT_ACL
+---------------
+.. envvar:: DEFAULT_ACL
+
+    Set the access control level of the files uploaded. Defaults to 'public-read'
+
+.. code-block:: python
+
+    # defaults to 'public-read',
+    DEFAULT_ACL = 'public-read'

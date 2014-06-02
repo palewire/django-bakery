@@ -119,7 +119,7 @@ in settings.py or provide it with --aws-bucket-name"
         headers['Content-Type'] = content_type
 
         # add the gzip headers, if necessary
-        if content_type in self.gzip_content_types:
+        if self.gzip and content_type in self.gzip_content_types:
             headers['Content-Encoding'] = 'gzip'
 
         # access and write the contents from the file
@@ -190,12 +190,13 @@ in settings.py or provide it with --aws-bucket-name"
         """
         Sync files in the build directory to a specified S3 bucket
         """
+        self.gzip = getattr(settings, 'BAKERY_GZIP', False)
         self.gzip_content_types = getattr(
             settings,
             'GZIP_CONTENT_TYPES',
             GZIP_CONTENT_TYPES
         )
-        self.acl = getattr(settings, 'ACL', DEFAULT_ACL)
+        self.acl = getattr(settings, 'DEFAULT_ACL', DEFAULT_ACL)
         self.uploaded_files = 0
         self.deleted_files = 0
         start_time = time.time()
