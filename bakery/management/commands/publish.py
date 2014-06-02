@@ -155,9 +155,11 @@ in settings.py or provide it with --aws-bucket-name"
         """
 
         for file_key in self.local_files:
+            # store a reference to the absolute path, if we have to open it
+            abs_file_path = os.path.join(self.build_dir, file_key)
+            
             # check if the file exists
             if file_key in self.keys:
-                abs_file_path = os.path.join(self.build_dir, file_key)
                 key = self.keys[file_key]
                 s3_md5 = key.etag.strip('"')
                 local_md5 = hashlib.md5(
