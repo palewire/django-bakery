@@ -182,7 +182,7 @@ in settings.py or provide it with --aws-bucket-name"
                 logger.debug("creating file %s" % file_key)
                 if not self.dry_run:
                     key = self.bucket.new_key(file_key)
-                self.upload_s3(key, file_key)
+                self.upload_s3(key, abs_file_path)
 
     def handle(self, *args, **options):
         """
