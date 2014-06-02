@@ -10,18 +10,11 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
     help = "Empties the Amazon S3 bucket defined in settings.py"
 
-    def get_random_string(self, length=6):
-        """
-        Generate a random string of letters and numbers
-        """
-        return ''.join(
-            random.choice(string.letters + string.digits)
-            for i in range(length)
-        )
-
     def handle(self, *args, **kwds):
-        tmp_path = './tmp-%s' % self.get_random_string()
-        os.mkdir(tmp_path)
-        cmd = "s3cmd sync --delete %s/ s3://%s"
-        subprocess.call(cmd % (tmp_path, settings.AWS_BUCKET_NAME), shell=True)
-        shutil.rmtree(tmp_path)
+        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID,
+                               settings.AWS_SECRET_ACCESS_KEY)
+        self.bucket = conn.get_bucket(settings.AWS_BUCKET_NAME)
+        self.keys = list(key.name for key in self.bucket.list())
+        self.bucket.delete_keys(keys)
+
+
