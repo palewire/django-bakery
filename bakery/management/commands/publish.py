@@ -12,14 +12,6 @@ logger = logging.getLogger(__name__)
 
 custom_options = (
     make_option(
-        "--config",
-        action="store",
-        dest="config",
-        default='',
-        help="Specify the path of an s3cmd configuration file. \
-Will use ~/.s3cfg by default."
-    ),
-    make_option(
         "--build-dir",
         action="store",
         dest="build_dir",

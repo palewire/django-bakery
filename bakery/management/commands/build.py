@@ -5,6 +5,7 @@ import sys
 import gzip
 import shutil
 import logging
+import mimetypes
 from django.conf import settings
 from optparse import make_option
 from django.core import management
@@ -39,6 +40,15 @@ Will use settings.BUILD_DIR by default."
     ),
 )
 
+# Mimetypes of content we want to gzip
+GZIP_CONTENT_TYPES = (
+    'text/css',
+    'text/html',
+    'application/javascript',
+    'application/x-javascript',
+    'application/json',
+    'application/xml'
+)
 
 class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
@@ -56,10 +66,9 @@ settings.py or provide a list as arguments."
         # regex to match against. CSS, JS, JSON, HTML files
         gzip_file_match = getattr(
             settings,
-            'GZIP_FILE_MATCH',
-            '(\.html|\.xml|\.css|\.js|\.json)$'
+            'GZIP_CONTENT_TYPES',
+            GZIP_CONTENT_TYPES
         )
-        pattern = re.compile(gzip_file_match)
 
         # Walk through the source directory...
         for (dirpath, dirnames, filenames) in os.walk(source_dir):
@@ -76,8 +85,11 @@ settings.py or provide a list as arguments."
                 if not os.path.exists(dest_path):
                     os.makedirs(dest_path)
 
+                # determine the mimetype of the file
+                content_type = mimetypes.guess_type(og_file)[0]
+
                 # If it isn't a file want to gzip...
-                if not pattern.search(filename):
+                if not content_type in gzip_file_match:
                     # just copy it to the target.
                     shutil.copy(og_file, dest_path)
 
