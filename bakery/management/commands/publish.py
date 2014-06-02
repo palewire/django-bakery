@@ -53,7 +53,7 @@ GZIP_CONTENT_TYPES = (
     'application/json',
     'application/xml'
 )
-ACL = 'public-read'
+DEFAULT_ACL = 'public-read'
 
 
 class Command(BaseCommand):
@@ -157,7 +157,7 @@ in settings.py or provide it with --aws-bucket-name"
         for file_key in self.local_files:
             # store a reference to the absolute path, if we have to open it
             abs_file_path = os.path.join(self.build_dir, file_key)
-            
+
             # check if the file exists
             if file_key in self.keys:
                 key = self.keys[file_key]
@@ -190,8 +190,12 @@ in settings.py or provide it with --aws-bucket-name"
         """
         Sync files in the build directory to a specified S3 bucket
         """
-        self.gzip_content_types = GZIP_CONTENT_TYPES
-        self.acl = ACL
+        self.gzip_content_types = getattr(
+            settings,
+            'GZIP_CONTENT_TYPES',
+            GZIP_CONTENT_TYPES
+        )
+        self.acl = getattr(settings, 'ACL', DEFAULT_ACL)
         self.uploaded_files = 0
         self.deleted_files = 0
         start_time = time.time()
