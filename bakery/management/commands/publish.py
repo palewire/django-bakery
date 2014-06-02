@@ -203,10 +203,6 @@ in settings.py or provide it with --aws-bucket-name"
 
         self.set_options(options)
 
-        # make sure we're in the build directory - necessary for
-        # correct relative paths and syncing
-        os.chdir(self.build_dir)
-
         # initialize the boto connection, grab the bucket
         # and make a dict out of the results object from bucket.list()
         conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID,
@@ -214,8 +210,11 @@ in settings.py or provide it with --aws-bucket-name"
         self.bucket = conn.get_bucket(self.aws_bucket_name)
         self.keys = dict((key.name, key) for key in self.bucket.list())
 
-        self.local_files = self.build_local_files_list()
+        # make sure we're in the build directory - necessary for
+        # correct relative paths and syncing
+        os.chdir(self.build_dir)
 
+        self.local_files = self.build_local_files_list()
         self.sync_s3()
 
         # delete anything that's left in our keys dict
