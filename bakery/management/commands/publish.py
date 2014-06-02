@@ -17,7 +17,7 @@ custom_options = (
         dest="config",
         default='',
         help="Specify the path of an s3cmd configuration file. \
-Will use ~/.s3cmd by default."
+Will use ~/.s3cfg by default."
     ),
     make_option(
         "--build-dir",
