@@ -101,11 +101,10 @@ in settings.py or provide it with --aws-bucket-name"
         self.sync_with_s3()
 
         # delete anything that's left in our keys dict
-        for key in self.s3_key_dict:
-            logger.debug("deleting file %s" % key)
-            if not self.dry_run:
-                self.bucket.delete_key(key)
-            self.deleted_files += 1
+        if not self.dry_run:
+            self.deleted_files = len(self.s3_key_dict.keys())
+            logger.debug("Deleting %s keys" % self.deleted_files)
+            self.bucket.delete_keys(self.s3_key_dict.keys())
 
         # we're finished, print the final output
         elapsed_time = time.time() - self.start_time
