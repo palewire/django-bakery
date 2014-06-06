@@ -243,7 +243,7 @@ No content was changed on S3.")
         pool.map(self.pooled_upload_to_s3, update_list)
 
     def pooled_upload_to_s3(self, payload):
-        self.update_to_s3(self, *payload)
+        self.upload_to_s3(*payload)
 
     def upload_to_s3(self, key, filename):
         """
@@ -263,5 +263,9 @@ No content was changed on S3.")
         with open(filename, 'rb') as file_obj:
             if not self.dry_run:
                 logger.debug("uploading %s" % filename)
-                key.set_contents_from_file(file_obj, headers, policy=self.acl)
+                key.set_contents_from_file(
+                    file_obj,
+                    headers,
+                    policy=self.acl
+                )
             self.uploaded_files += 1
