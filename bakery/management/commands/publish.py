@@ -89,7 +89,7 @@ in settings.py or provide it with --aws-bucket-name"
         )
 
         # Grab our bucket
-        self.bucket = conn.get_bucket(self.aws_bucket_name)
+        self.bucket = self.conn.get_bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket
         self.s3_key_dict = self.get_s3_key_dict()
@@ -126,11 +126,11 @@ No content was changed on S3.")
         self.gzip_content_types = getattr(
             settings,
             'GZIP_CONTENT_TYPES',
-            GZIP_CONTENT_TYPES
+            self.GZIP_CONTENT_TYPES
         )
 
         # What ACL (i.e. security permissions) will be giving the files on S3?
-        self.acl = getattr(settings, 'DEFAULT_ACL', DEFAULT_ACL)
+        self.acl = getattr(settings, 'DEFAULT_ACL', self.DEFAULT_ACL)
 
         # If the user specifies a build directory...
         if options.get('build_dir'):
