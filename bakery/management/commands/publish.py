@@ -44,21 +44,25 @@ removed, but without actually publishing."
     ),
 )
 
-# Mimetypes of content we want to gzip
-GZIP_CONTENT_TYPES = (
-    'text/css',
-    'text/html',
-    'application/javascript',
-    'application/x-javascript',
-    'application/json',
-    'application/xml'
-)
-DEFAULT_ACL = 'public-read'
-
 
 class Command(BaseCommand):
-    help = "Syncs the build directory with Amazon S3 bucket using s3cmd"
+    help = "Syncs the build directory with Amazon s3 bucket"
     option_list = BaseCommand.option_list + custom_options
+
+    # Default permissions for the files published to s3
+    DEFAULT_ACL = 'public-read'
+
+    # Mimetypes of content we want to gzip
+    GZIP_CONTENT_TYPES = (
+        'text/css',
+        'text/html',
+        'application/javascript',
+        'application/x-javascript',
+        'application/json',
+        'application/xml'
+    )
+
+    # Error messages we might use below
     build_missing_msg = "Build directory does not exist. Cannot publish \
 something before you build it."
     build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in \
@@ -67,6 +71,27 @@ settings.py or provide it with --build-dir"
 in settings.py or provide it with --aws-bucket-name"
 
     def set_options(self, options):
+        """
+        Configure all the many options we'll need to make this happen.
+        """
+        # Counts and such we can use to keep tabs on this as they progress
+        self.uploaded_files = 0
+        self.deleted_files = 0
+        self.start_time = time.time()
+
+        # Will we be gzipping?
+        self.gzip = getattr(settings, 'BAKERY_GZIP', False)
+
+        # And if so what content types will we be gzipping?
+        self.gzip_content_types = getattr(
+            settings,
+            'GZIP_CONTENT_TYPES',
+            GZIP_CONTENT_TYPES
+        )
+
+        # What ACL (i.e. security permissions) will be giving the files on S3?
+        self.acl = getattr(settings, 'DEFAULT_ACL', DEFAULT_ACL)
+
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
@@ -190,17 +215,6 @@ in settings.py or provide it with --aws-bucket-name"
         """
         Sync files in the build directory to a specified S3 bucket
         """
-        self.gzip = getattr(settings, 'BAKERY_GZIP', False)
-        self.gzip_content_types = getattr(
-            settings,
-            'GZIP_CONTENT_TYPES',
-            GZIP_CONTENT_TYPES
-        )
-        self.acl = getattr(settings, 'DEFAULT_ACL', DEFAULT_ACL)
-        self.uploaded_files = 0
-        self.deleted_files = 0
-        start_time = time.time()
-
         self.set_options(options)
 
         # initialize the boto connection, grab the bucket
@@ -221,7 +235,7 @@ in settings.py or provide it with --aws-bucket-name"
             self.deleted_files += 1
 
         # we're finished, print the final output
-        elapsed_time = time.time() - start_time
+        elapsed_time = time.time() - self.start_time
         logger.info("publish completed, %d uploaded and %d deleted files \
 in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
 
