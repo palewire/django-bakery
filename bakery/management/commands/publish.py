@@ -240,7 +240,7 @@ No content was changed on S3.")
 
         # Upload all these files in a multiprocessing pool
         pool = ThreadPool(processes=10)
-        pool.map(self.upload_to_s3, update_list)
+        pool.map(self.upload_to_s3, **update_list)
 
     def upload_to_s3(self, key, filename):
         """
