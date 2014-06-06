@@ -103,8 +103,9 @@ in settings.py or provide it with --aws-bucket-name"
         # delete anything that's left in our keys dict
         if not self.dry_run:
             self.deleted_files = len(self.s3_key_dict.keys())
-            logger.debug("Deleting %s keys" % self.deleted_files)
-            self.bucket.delete_keys(self.s3_key_dict.keys())
+            if self.deleted_files:
+                logger.debug("deleting %s keys" % self.deleted_files)
+                self.bucket.delete_keys(self.s3_key_dict.keys())
 
         # we're finished, print the final output
         elapsed_time = time.time() - self.start_time
@@ -168,7 +169,7 @@ No content was changed on S3.")
         # set the --dry-run option
         if options.get('dry_run'):
             self.dry_run = True
-            logger.info("Executing with the --dry-run option set.")
+            logger.info("executing with the --dry-run option set.")
         else:
             self.dry_run = False
 
