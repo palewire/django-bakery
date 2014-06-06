@@ -225,10 +225,8 @@ No content was changed on S3.")
                 if s3_md5 == local_md5 and not self.force_publish:
                     pass
                 elif self.force_publish:
-                    logger.debug("forcing update of file %s" % file_key)
                     update_list.append((key, abs_file_path))
                 else:
-                    logger.debug("updating file %s" % file_key)
                     update_list.append((key, abs_file_path))
 
                 # remove the file from the dict, we don't need it anymore
@@ -236,7 +234,6 @@ No content was changed on S3.")
 
             # if the file doesn't exist, create it
             else:
-                logger.debug("creating file %s" % file_key)
                 if not self.dry_run:
                     key = self.bucket.new_key(file_key)
                 update_list.append((key or None, abs_file_path))
@@ -263,5 +260,6 @@ No content was changed on S3.")
         # access and write the contents from the file
         with open(filename, 'rb') as file_obj:
             if not self.dry_run:
+                logger.debug("uploading %s" % filename)
                 key.set_contents_from_file(file_obj, headers, policy=self.acl)
             self.uploaded_files += 1
