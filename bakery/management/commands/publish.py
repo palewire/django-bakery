@@ -240,15 +240,15 @@ No content was changed on S3.")
 
         # Upload all these files in a multiprocessing pool
         pool = ThreadPool(processes=10)
-        pool.map(self.upload_to_s3, **update_list)
+        pool.map(self.upload_to_s3, update_list)
 
-    def upload_to_s3(self, key, filename):
+    def upload_to_s3(self, payload):
         """
         Set the content type and gzip headers if applicable
         and upload the item to S3
         """
+        key, filename = payload
         headers = {}
-
         # guess and add the mimetype to header
         content_type = mimetypes.guess_type(filename)[0]
         headers['Content-Type'] = content_type
