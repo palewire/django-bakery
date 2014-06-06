@@ -183,7 +183,7 @@ No content was changed on S3.")
 
     def get_local_file_list(self):
         """
-        Walk the local build directory and create a list of relative and 
+        Walk the local build directory and create a list of relative and
         absolute paths to files.
         """
         file_list = []
