@@ -85,7 +85,10 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3'
     ],
-    install_requires=['six==1.5.2'],
+    install_requires=[
+        'six==1.5.2',
+        'boto==2.28',
+    ],
     cmdclass = cmdclasses,
     data_files=data_files,
 )
