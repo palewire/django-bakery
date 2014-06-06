@@ -243,9 +243,9 @@ No content was changed on S3.")
         pool.map(self.pooled_upload_to_s3, update_list)
 
     def pooled_upload_to_s3(self, payload):
-        self.update_to_s3(*payload)
+        self.update_to_s3(self, *payload)
 
-    def upload_to_s3(key, filename):
+    def upload_to_s3(self, key, filename):
         """
         Set the content type and gzip headers if applicable
         and upload the item to S3
