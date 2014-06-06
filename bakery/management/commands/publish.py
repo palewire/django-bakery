@@ -241,9 +241,9 @@ No content was changed on S3.")
                     key = self.bucket.new_key(file_key)
                 update_list.append((key or None, abs_file_path))
 
-        # Upload all these files
-        [self.upload_to_s3(*t) for t in update_list]
-
+        # Upload all these files in a multiprocessing pool
+        pool = ThreadPool(processes=10)
+        pool.map(self.upload_to_s3, update_list)
 
     def upload_to_s3(self, key, filename):
         """
