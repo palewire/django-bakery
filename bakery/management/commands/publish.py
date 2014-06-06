@@ -70,6 +70,38 @@ settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
 
+    def handle(self, *args, **options):
+        """
+        Sync files in the build directory to a specified S3 bucket
+        """
+        self.set_options(options)
+
+        # initialize the boto connection, grab the bucket
+        # and make a dict out of the results object from bucket.list()
+        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID,
+                               settings.AWS_SECRET_ACCESS_KEY)
+        self.bucket = conn.get_bucket(self.aws_bucket_name)
+        self.keys = dict((key.name, key) for key in self.bucket.list())
+
+        self.local_files = self.build_local_files_list()
+        self.sync_s3()
+
+        # delete anything that's left in our keys dict
+        for key in self.keys:
+            logger.debug("deleting file %s" % key)
+            if not self.dry_run:
+                self.bucket.delete_key(key)
+            self.deleted_files += 1
+
+        # we're finished, print the final output
+        elapsed_time = time.time() - self.start_time
+        logger.info("publish completed, %d uploaded and %d deleted files \
+in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
+
+        if self.dry_run:
+            logger.info("publish executed with the --dry-run option. \
+No content was changed on S3.")
+
     def set_options(self, options):
         """
         Configure all the many options we'll need to make this happen.
@@ -210,35 +242,3 @@ in settings.py or provide it with --aws-bucket-name"
                 if not self.dry_run:
                     key = self.bucket.new_key(file_key)
                 self.upload_s3(key, abs_file_path)
-
-    def handle(self, *args, **options):
-        """
-        Sync files in the build directory to a specified S3 bucket
-        """
-        self.set_options(options)
-
-        # initialize the boto connection, grab the bucket
-        # and make a dict out of the results object from bucket.list()
-        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID,
-                               settings.AWS_SECRET_ACCESS_KEY)
-        self.bucket = conn.get_bucket(self.aws_bucket_name)
-        self.keys = dict((key.name, key) for key in self.bucket.list())
-
-        self.local_files = self.build_local_files_list()
-        self.sync_s3()
-
-        # delete anything that's left in our keys dict
-        for key in self.keys:
-            logger.debug("deleting file %s" % key)
-            if not self.dry_run:
-                self.bucket.delete_key(key)
-            self.deleted_files += 1
-
-        # we're finished, print the final output
-        elapsed_time = time.time() - self.start_time
-        logger.info("publish completed, %d uploaded and %d deleted files \
-in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
-
-        if self.dry_run:
-            logger.info("publish executed with the --dry-run option. \
-No content was changed on S3.")
