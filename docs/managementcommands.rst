@@ -38,7 +38,7 @@ in the build directory.
 publish
 -------
 
-Syncs the build directory with your Amazon S3 bucket using ``s3cmd``.
+Syncs the build directory with your Amazon S3 bucket.
 
 .. cmdoption:: --aws-bucket-name <name>
 

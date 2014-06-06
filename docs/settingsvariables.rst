@@ -45,8 +45,30 @@ AWS_BUCKET_NAME
 
     AWS_BUCK­ET_­NAME = 'your-buck­et'
 
+AWS_ACCESS_KEY_ID
+-----------------
+
+.. envvar:: AWS_ACCESS_KEY_ID
+
+    A part of your secret Amazon Web Services credentials. Necessary to upload files to S3.
+
+.. code-block:: python
+
+    AWS_ACCESS_KEY_ID = 'your-key'
+
+AWS_SECRET_ACCESS_KEY
+---------------------
+
+.. envvar:: AWS_SECRET_ACCESS_KEY
+
+    A part of your secret Amazon Web Services credentials. Necessary to upload files to S3.
+
+.. code-block:: python
+
+    AWS_SECRET_ACCESS_KEY = 'your-secret-key'
+
 BAKERY_GZIP
----------------
+-----------
 
 .. envvar:: BAKERY_GZIP
 
@@ -58,7 +80,7 @@ BAKERY_GZIP
     BAKERY_GZIP = True
 
 GZIP_CONTENT_TYPES
----------------
+------------------
 
 .. envvar:: GZIP_CONTENT_TYPES
 

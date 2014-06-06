@@ -88,7 +88,7 @@ in the build directory.</p>
 </div>
 <div class="section" id="publish">
 <h2>publish<a class="headerlink" href="#publish" title="Permalink to this headline">¶</a></h2>
-<p>Syncs the build directory with your Amazon S3 bucket using <tt class="docutils literal"><span class="pre">s3cmd</span></tt>.</p>
+<p>Syncs the build directory with your Amazon S3 bucket.</p>
 <dl class="cmdoption">
 <dt id="cmdoption--aws-bucket-name">
 <tt class="descname">--aws-bucket-name</tt><tt class="descclassname"> &lt;name&gt;</tt><a class="headerlink" href="#cmdoption--aws-bucket-name" title="Permalink to this definition">¶</a></dt>
@@ -102,9 +102,15 @@ in the build directory.</p>
 </dd></dl>
 
 <dl class="cmdoption">
-<dt id="cmdoption--config">
-<tt class="descname">--config</tt><tt class="descclassname"> &lt;path&gt;</tt><a class="headerlink" href="#cmdoption--config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Specify the path of an s3cmd configuration file. Will use <tt class="docutils literal"><span class="pre">~/.s3cmd</span></tt> by default.</p>
+<dt id="cmdoption--force">
+<tt class="descname">--force</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force a re-upload of all files in the build directory to the AWS bucket.</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--dry-run">
+<tt class="descname">--dry-run</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--dry-run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide output of what the command would perform, but without changing anything.</p>
 </dd></dl>
 
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py publish

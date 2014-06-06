@@ -97,6 +97,30 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="aws-access-key-id">
+<h2>AWS_ACCESS_KEY_ID<a class="headerlink" href="#aws-access-key-id" title="Permalink to this headline">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-AWS_ACCESS_KEY_ID">
+<tt class="descname">AWS_ACCESS_KEY_ID</tt><a class="headerlink" href="#envvar-AWS_ACCESS_KEY_ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>A part of your secret Amazon Web Services credentials. Necessary to upload files to S3.</p>
+</dd></dl>
+
+<div class="highlight-python"><div class="highlight"><pre><span class="n">AWS_ACCESS_KEY_ID</span> <span class="o">=</span> <span class="s">&#39;your-key&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="aws-secret-access-key">
+<h2>AWS_SECRET_ACCESS_KEY<a class="headerlink" href="#aws-secret-access-key" title="Permalink to this headline">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-AWS_SECRET_ACCESS_KEY">
+<tt class="descname">AWS_SECRET_ACCESS_KEY</tt><a class="headerlink" href="#envvar-AWS_SECRET_ACCESS_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>A part of your secret Amazon Web Services credentials. Necessary to upload files to S3.</p>
+</dd></dl>
+
+<div class="highlight-python"><div class="highlight"><pre><span class="n">AWS_SECRET_ACCESS_KEY</span> <span class="o">=</span> <span class="s">&#39;your-secret-key&#39;</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="bakery-gzip">
 <h2>BAKERY_GZIP<a class="headerlink" href="#bakery-gzip" title="Permalink to this headline">¶</a></h2>
 <dl class="envvar">
@@ -110,19 +134,43 @@ the required headers when deploying to Amazon S3. Defaults to <tt class="docutil
 </pre></div>
 </div>
 </div>
-<div class="section" id="gzip-file-match">
-<h2>GZIP_FILE_MATCH<a class="headerlink" href="#gzip-file-match" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="gzip-content-types">
+<h2>GZIP_CONTENT_TYPES<a class="headerlink" href="#gzip-content-types" title="Permalink to this headline">¶</a></h2>
 <dl class="envvar">
-<dt id="envvar-GZIP_FILE_MATCH">
-<tt class="descname">GZIP_FILE_MATCH</tt><a class="headerlink" href="#envvar-GZIP_FILE_MATCH" title="Permalink to this definition">¶</a></dt>
-<dd><p>An uncompiled regular expression used to determine which files to have the
-&#8216;Content-Encoding: gzip&#8217; metadata header added when syncing to Amazon S3.
-Defaults to include all .html, .xml, .css, .js and .json files.</p>
+<dt id="envvar-GZIP_CONTENT_TYPES">
+<tt class="descname">GZIP_CONTENT_TYPES</tt><a class="headerlink" href="#envvar-GZIP_CONTENT_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of file mime types used to determine which files to add the
+&#8216;Content-Encoding: gzip&#8217; metadata header when syncing to Amazon S3.
+Defaults to include all &#8216;text/css&#8217;, &#8216;text/html&#8217;, &#8216;application/javascript&#8217;,
+&#8216;application/x-javascript&#8217;, &#8216;application/json&#8217; and &#8216;application/xml&#8217;
+files.</p>
 <p>Only matters if you have set <tt class="docutils literal"><span class="pre">BAKERY_GZIP</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
 </dd></dl>
 
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># defaults to all .html, .xml, .css, .js and .json files</span>
-<span class="n">GZIP_FILE_MATCH</span> <span class="o">=</span> <span class="s">&#39;(\.html|\.xml|\.css|\.js|\.json)$&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># defaults to &#39;text/css&#39;, &#39;text/html&#39;, &#39;application/javascript&#39;,</span>
+<span class="c"># &#39;application/x-javascript&#39;, &#39;application/json&#39; and &#39;application/xml&#39;</span>
+<span class="c"># files.</span>
+<span class="n">GZIP_CONTENT_TYPES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&#39;text/css&#39;</span><span class="p">,</span>
+    <span class="s">&#39;text/html&#39;</span><span class="p">,</span>
+    <span class="s">&#39;application/javascript&#39;</span><span class="p">,</span>
+    <span class="s">&#39;application/x-javascript&#39;</span><span class="p">,</span>
+    <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+    <span class="s">&#39;application/xml&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-acl">
+<h2>DEFAULT_ACL<a class="headerlink" href="#default-acl" title="Permalink to this headline">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-DEFAULT_ACL">
+<tt class="descname">DEFAULT_ACL</tt><a class="headerlink" href="#envvar-DEFAULT_ACL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the access control level of the files uploaded. Defaults to &#8216;public-read&#8217;</p>
+</dd></dl>
+
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># defaults to &#39;public-read&#39;,</span>
+<span class="n">DEFAULT_ACL</span> <span class="o">=</span> <span class="s">&#39;public-read&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -140,8 +188,11 @@ Defaults to include all .html, .xml, .css, .js and .json files.</p>
 <li><a class="reference internal" href="#build-dir">BUILD_DIR</a></li>
 <li><a class="reference internal" href="#bakery-views">BAKERY_VIEWS</a></li>
 <li><a class="reference internal" href="#aws-bucket-name">AWS_BUCKET_NAME</a></li>
+<li><a class="reference internal" href="#aws-access-key-id">AWS_ACCESS_KEY_ID</a></li>
+<li><a class="reference internal" href="#aws-secret-access-key">AWS_SECRET_ACCESS_KEY</a></li>
 <li><a class="reference internal" href="#bakery-gzip">BAKERY_GZIP</a></li>
-<li><a class="reference internal" href="#gzip-file-match">GZIP_FILE_MATCH</a></li>
+<li><a class="reference internal" href="#gzip-content-types">GZIP_CONTENT_TYPES</a></li>
+<li><a class="reference internal" href="#default-acl">DEFAULT_ACL</a></li>
 </ul>
 </li>
 </ul>

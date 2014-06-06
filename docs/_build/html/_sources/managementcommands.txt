@@ -38,7 +38,7 @@ in the build directory.
 publish
 -------
 
-Syncs the build directory with your Amazon S3 bucket using ``s3cmd``.
+Syncs the build directory with your Amazon S3 bucket.
 
 .. cmdoption:: --aws-bucket-name <name>
 
@@ -48,9 +48,13 @@ Syncs the build directory with your Amazon S3 bucket using ``s3cmd``.
 
     Specify the path of the build directory. Will use settings.BUILD_DIR by default.
 
-.. cmdoption:: --config <path>
+.. cmdoption:: --force
 
-    Specify the path of an s3cmd configuration file. Will use ``~/.s3cmd`` by default.
+    Force a re-upload of all files in the build directory to the AWS bucket.
+
+.. cmdoption:: --dry-run
+
+    Provide output of what the command would perform, but without changing anything.
 
 .. code-block:: bash
 

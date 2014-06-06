@@ -117,13 +117,9 @@ class DummyDe­tailView(Build­able­De­tailView):
 <div class="highlight-python"><div class="highlight"><pre>AWS_BUCK­ET_­NAME = &#39;your-buck­et&#39;
 </pre></div>
 </div>
-<p>Next, in­stall <a class="reference external" href="http://s3tools.org/s3cmd">s3cmd</a>, a util­ity we’ll use to move files back and forth between your desktop and S3. In Ubuntu, that’s as simple as:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>sudo apt-get install s3cmd
-</pre></div>
-</div>
-<p>If you’re us­ing Mac or Win­dows, you’ll need to down­load <a class="reference external" href="http://s3tools.org/download">this file</a> and fol­low the in­stall­a­tion in­struc­tions you find there.</p>
-<p>Once it’s in­stalled, we need to con­fig­ure s3cmd with your Amazon lo­gin cre­den­tials. Go to Amazon’s <a class="reference external" href="http://aws-portal.amazon.com/gp/aws/developer/account/index.html?action=access-key">se­cur­ity cre­den­tials page</a> and get your ac­cess key and secret ac­cess key. Then, from your ter­min­al, run:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>s3cmd --configure
+<p>While you&#8217;re in there, you also need to set your credentials.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">AWS_ACCESS_KEY_ID</span> <span class="o">=</span> <span class="s">&#39;your-key&#39;</span>
+<span class="n">AWS_SECRET_ACCESS_KEY</span> <span class="o">=</span> <span class="s">&#39;your-secret-key&#39;</span>
 </pre></div>
 </div>
 <p>Fi­nally, now that everything is set up, pub­lish­ing your files to S3 is as simple as:</p>

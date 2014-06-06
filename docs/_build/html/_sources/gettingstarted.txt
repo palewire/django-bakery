@@ -87,19 +87,12 @@ To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­at
 
     AWS_BUCK­ET_­NAME = 'your-buck­et'
 
-Next, in­stall `s3cmd <http://s3tools.org/s3cmd>`_, a util­ity we’ll use to move files back and forth between your desktop and S3. In Ubuntu, that’s as simple as:
+While you're in there, you also need to set your credentials.
 
-.. code-block:: bash
+.. code-block:: python
 
-    $ sudo apt-get install s3cmd
-
-If you’re us­ing Mac or Win­dows, you’ll need to down­load `this file <http://s3tools.org/download>`_ and fol­low the in­stall­a­tion in­struc­tions you find there.
-
-Once it’s in­stalled, we need to con­fig­ure s3cmd with your Amazon lo­gin cre­den­tials. Go to Amazon’s `se­cur­ity cre­den­tials page <http://aws-portal.amazon.com/gp/aws/developer/account/index.html?action=access-key>`_ and get your ac­cess key and secret ac­cess key. Then, from your ter­min­al, run:
-
-.. code-block:: bash
-
-    $ s3cmd --configure
+    AWS_ACCESS_KEY_ID = 'your-key'
+    AWS_SECRET_ACCESS_KEY = 'your-secret-key'
 
 Fi­nally, now that everything is set up, pub­lish­ing your files to S3 is as simple as:
 
