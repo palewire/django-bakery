@@ -6,6 +6,7 @@ import logging
 import mimetypes
 from django.conf import settings
 from optparse import make_option
+from multiprocessing.pool import ThreadPool
 from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
 
@@ -205,6 +206,9 @@ No content was changed on S3.")
         Walk through our self.local_files list, and match them with the list
         of keys in the S3 bucket.
         """
+        # Create a list to put all the files we're going to update
+        update_list = []
+
         for file_key in self.local_file_list:
             # store a reference to the absolute path, if we have to open it
             abs_file_path = os.path.join(self.build_dir, file_key)
@@ -222,10 +226,10 @@ No content was changed on S3.")
                     pass
                 elif self.force_publish:
                     logger.debug("forcing update of file %s" % file_key)
-                    self.upload_to_s3(key, abs_file_path)
+                    update_list.append((key, abs_file_path))
                 else:
                     logger.debug("updating file %s" % file_key)
-                    self.upload_to_s3(key, abs_file_path)
+                    update_list.append((key, abs_file_path))
 
                 # remove the file from the dict, we don't need it anymore
                 del self.s3_key_dict[file_key]
@@ -235,7 +239,11 @@ No content was changed on S3.")
                 logger.debug("creating file %s" % file_key)
                 if not self.dry_run:
                     key = self.bucket.new_key(file_key)
-                self.upload_to_s3(key, abs_file_path)
+                update_list.append((key or None, abs_file_path))
+
+        # Upload all these files
+        [self.upload_to_s3(*t) for t in update_list]
+
 
     def upload_to_s3(self, key, filename):
         """
