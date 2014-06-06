@@ -74,20 +74,34 @@ in settings.py or provide it with --aws-bucket-name"
         """
         Sync files in the build directory to a specified S3 bucket
         """
+        # Counts and such we can use to keep tabs on this as they progress
+        self.uploaded_files = 0
+        self.deleted_files = 0
+        self.start_time = time.time()
+
+        # Configure all the options we're going to use
         self.set_options(options)
 
-        # initialize the boto connection, grab the bucket
-        # and make a dict out of the results object from bucket.list()
-        conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID,
-                               settings.AWS_SECRET_ACCESS_KEY)
-        self.bucket = conn.get_bucket(self.aws_bucket_name)
-        self.keys = dict((key.name, key) for key in self.bucket.list())
+        # Initialize the boto connection
+        self.conn = boto.connect_s3(
+            settings.AWS_ACCESS_KEY_ID,
+            settings.AWS_SECRET_ACCESS_KEY
+        )
 
-        self.local_files = self.build_local_files_list()
-        self.sync_s3()
+        # Grab our bucket
+        self.bucket = conn.get_bucket(self.aws_bucket_name)
+
+        # Get a list of all keys in our s3 bucket
+        self.s3_key_dict = self.get_s3_key_dict()
+
+        # Get a list of all the local files in our build directory
+        self.local_file_list = self.get_local_file_list()
+
+        # Sync the two
+        self.sync_with_s3()
 
         # delete anything that's left in our keys dict
-        for key in self.keys:
+        for key in self.s3_key_dict:
             logger.debug("deleting file %s" % key)
             if not self.dry_run:
                 self.bucket.delete_key(key)
@@ -106,11 +120,6 @@ No content was changed on S3.")
         """
         Configure all the many options we'll need to make this happen.
         """
-        # Counts and such we can use to keep tabs on this as they progress
-        self.uploaded_files = 0
-        self.deleted_files = 0
-        self.start_time = time.time()
-
         # Will we be gzipping?
         self.gzip = getattr(settings, 'BAKERY_GZIP', False)
 
@@ -164,7 +173,71 @@ No content was changed on S3.")
         else:
             self.dry_run = False
 
-    def upload_s3(self, key, filename):
+    def get_s3_key_dict(self):
+        """
+        Retrieves and returns a dictionary of keys in our s3 bucket.
+
+        The keys will be the name (or path) of the key and the value
+        will be the Key object from boto.
+        """
+        return dict((key.name, key) for key in self.bucket.list())
+
+    def get_local_file_list(self):
+        """
+        Walk the local build directory and create a list of relative and 
+        absolute paths to files.
+        """
+        file_list = []
+        for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
+            for fname in filenames:
+                # relative path, to sync with the S3 key
+                local_key = os.path.join(
+                    os.path.relpath(dirpath, self.build_dir),
+                    fname
+                )
+                if local_key.startswith('./'):
+                    local_key = local_key[2:]
+                file_list.append(local_key)
+        return file_list
+
+    def sync_with_s3(self):
+        """
+        Walk through our self.local_files list, and match them with the list
+        of keys in the S3 bucket.
+        """
+        for file_key in self.local_file_list:
+            # store a reference to the absolute path, if we have to open it
+            abs_file_path = os.path.join(self.build_dir, file_key)
+
+            # check if the file exists
+            if file_key in self.s3_key_dict:
+                key = self.s3_key_dict[file_key]
+                s3_md5 = key.etag.strip('"')
+                local_md5 = hashlib.md5(
+                    open(abs_file_path, "rb").read()
+                ).hexdigest()
+
+                # don't upload if the md5 sums are the same
+                if s3_md5 == local_md5 and not self.force_publish:
+                    pass
+                elif self.force_publish:
+                    logger.debug("forcing update of file %s" % file_key)
+                    self.upload_to_s3(key, abs_file_path)
+                else:
+                    logger.debug("updating file %s" % file_key)
+                    self.upload_to_s3(key, abs_file_path)
+
+                # remove the file from the dict, we don't need it anymore
+                del self.s3_key_dict[file_key]
+
+            # if the file doesn't exist, create it
+            else:
+                logger.debug("creating file %s" % file_key)
+                if not self.dry_run:
+                    key = self.bucket.new_key(file_key)
+                self.upload_to_s3(key, abs_file_path)
+
+    def upload_to_s3(self, key, filename):
         """
         Set the content type and gzip headers if applicable
         and upload the item to S3
@@ -184,61 +257,3 @@ No content was changed on S3.")
             if not self.dry_run:
                 key.set_contents_from_file(file_obj, headers, policy=self.acl)
             self.uploaded_files += 1
-
-    def build_local_files_list(self):
-        """
-        Walk the local build directory and create a list
-        of relative and absolute paths to files.
-        This will be used to sync against the S3 bucket list.
-        """
-        files_list = []
-
-        for (dirpath, dirnames, filenames) in os.walk(self.build_dir):
-
-            for fname in filenames:
-                # relative path, to sync with the S3 key
-                local_key = os.path.join(os.path.relpath(dirpath,
-                                         self.build_dir), fname)
-                if local_key.startswith('./'):
-                    local_key = local_key[2:]
-                files_list.append(local_key)
-
-        return files_list
-
-    def sync_s3(self):
-        """
-        Walk through our self.local_files list, and match them with the list
-        of keys in the S3 bucket.
-        """
-
-        for file_key in self.local_files:
-            # store a reference to the absolute path, if we have to open it
-            abs_file_path = os.path.join(self.build_dir, file_key)
-
-            # check if the file exists
-            if file_key in self.keys:
-                key = self.keys[file_key]
-                s3_md5 = key.etag.strip('"')
-                local_md5 = hashlib.md5(
-                    open(abs_file_path, "rb").read()
-                    ).hexdigest()
-
-                # don't upload if the md5 sums are the same
-                if s3_md5 == local_md5 and not self.force_publish:
-                    pass
-                elif self.force_publish:
-                    logger.debug("forcing update of file %s" % file_key)
-                    self.upload_s3(key, abs_file_path)
-                else:
-                    logger.debug("updating file %s" % file_key)
-                    self.upload_s3(key, abs_file_path)
-
-                # remove the file from the dict, we don't need it anymore
-                del self.keys[file_key]
-
-            # if the file doesn't exist, create it
-            else:
-                logger.debug("creating file %s" % file_key)
-                if not self.dry_run:
-                    key = self.bucket.new_key(file_key)
-                self.upload_s3(key, abs_file_path)
