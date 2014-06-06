@@ -243,6 +243,12 @@ No content was changed on S3.")
         pool.map(self.pooled_upload_to_s3, update_list)
 
     def pooled_upload_to_s3(self, payload):
+        """
+        A passthrough for our ThreadPool because it can't take two arguments.
+
+        So all we're doing here is split the list into args for the real
+        upload function.
+        """
         self.upload_to_s3(*payload)
 
     def upload_to_s3(self, key, filename):
