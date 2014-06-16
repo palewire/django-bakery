@@ -81,6 +81,9 @@ settings.py or provide a list as arguments."
         # Build views
         self.build_views()
 
+        # Close out
+        logger.info("Build finished")
+
     def set_options(self, *args, **options):
         """
         Configure a few global options before things get going.
