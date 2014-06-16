@@ -85,24 +85,8 @@ settings.py or provide a list as arguments."
         if not options.get("skip_media"):
             self.build_media()
 
-        # Figure out what views we'll be using
-        if args:
-            view_list = args
-        else:
-            if not hasattr(settings, 'BAKERY_VIEWS'):
-                raise CommandError(self.views_unconfig_msg)
-            view_list = settings.BAKERY_VIEWS
-
-        # Then loop through and run them all
-        for view_str in view_list:
-            logger.debug("Building %s" % view_str)
-            if self.verbosity > 1:
-                six.print_("Building %s" % view_str)
-            try:
-                view = get_callable(view_str)
-                view().build_method()
-            except (TypeError, ViewDoesNotExist):
-                raise CommandError("View %s does not work." % view_str)
+        # Build views
+        self.build_views()
 
     def set_options(self, *args, **options):
         """
@@ -118,6 +102,14 @@ settings.py or provide a list as arguments."
             if not hasattr(settings, 'BUILD_DIR'):
                 raise CommandError(self.build_unconfig_msg)
             self.build_dir = settings.BUILD_DIR
+
+        # Figure out what views we'll be using
+        if args:
+            self.view_list = args
+        else:
+            if not hasattr(settings, 'BAKERY_VIEWS'):
+                raise CommandError(self.views_unconfig_msg)
+            self.view_list = settings.BAKERY_VIEWS
 
     def build_static(self, *args, **options):
         """
@@ -172,6 +164,21 @@ settings.py or provide a list as arguments."
                 settings.MEDIA_ROOT,
                 os.path.join(self.build_dir, settings.MEDIA_URL[1:])
             )
+
+    def build_views(self):
+        """
+        Bake out specified buildable views.
+        """
+        # Then loop through and run them all
+        for view_str in self.view_list:
+            logger.debug("Building %s" % view_str)
+            if self.verbosity > 1:
+                six.print_("Building %s" % view_str)
+            try:
+                view = get_callable(view_str)
+                view().build_method()
+            except (TypeError, ViewDoesNotExist):
+                raise CommandError("View %s does not work." % view_str)
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
