@@ -62,17 +62,10 @@ settings.py or provide a list as arguments."
         """
         Making it happen.
         """
-        self.verbosity = int(options.get('verbosity'))
         logger.info("Build started")
 
-        # Figure out what build directory to use
-        if options.get("build_dir"):
-            self.build_dir = options.get("build_dir")
-            settings.BUILD_DIR = self.build_dir
-        else:
-            if not hasattr(settings, 'BUILD_DIR'):
-                raise CommandError(self.build_unconfig_msg)
-            self.build_dir = settings.BUILD_DIR
+        # Set options
+        self.set_options(*args, **options)
 
         # Destroy the build directory, if it exists
         logger.debug("Creating %s" % self.build_dir)
@@ -151,6 +144,21 @@ settings.py or provide a list as arguments."
                 view().build_method()
             except (TypeError, ViewDoesNotExist):
                 raise CommandError("View %s does not work." % view_str)
+
+    def set_options(self, *args, **options):
+        """
+        Configure a few global options before things get going.
+        """
+        self.verbosity = int(options.get('verbosity'))
+
+        # Figure out what build directory to use
+        if options.get("build_dir"):
+            self.build_dir = options.get("build_dir")
+            settings.BUILD_DIR = self.build_dir
+        else:
+            if not hasattr(settings, 'BUILD_DIR'):
+                raise CommandError(self.build_unconfig_msg)
+            self.build_dir = settings.BUILD_DIR
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
