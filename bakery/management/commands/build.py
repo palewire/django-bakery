@@ -83,14 +83,7 @@ settings.py or provide a list as arguments."
 
         # Build the media directory
         if not options.get("skip_media"):
-            logger.debug("Building static directory")
-            if self.verbosity > 1:
-                six.print_("Building media directory")
-            if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
-                shutil.copytree(
-                    settings.MEDIA_ROOT,
-                    os.path.join(self.build_dir, settings.MEDIA_URL[1:])
-                )
+            self.build_media()
 
         # Figure out what views we'll be using
         if args:
@@ -165,6 +158,20 @@ settings.py or provide a list as arguments."
                 settings.BUILD_DIR,
                 'favicon.ico',
                 )
+            )
+
+    def build_media(self):
+        """
+        Build the media files.
+        """
+        logger.debug("Building static directory")
+        if self.verbosity > 1:
+            six.print_("Building media directory")
+        if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
+            shutil.copytree(
+                settings.MEDIA_ROOT,
+                os.path.join(self.build_dir, settings.MEDIA_URL[1:])
+            )
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
