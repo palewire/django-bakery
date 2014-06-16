@@ -67,15 +67,8 @@ settings.py or provide a list as arguments."
         # Set options
         self.set_options(*args, **options)
 
-        # Destroy the build directory, if it exists
-        logger.debug("Creating %s" % self.build_dir)
-        if self.verbosity > 1:
-            six.print_("Creating build directory")
-        if os.path.exists(self.build_dir):
-            shutil.rmtree(self.build_dir)
-
-        # Then recreate it from scratch
-        os.makedirs(self.build_dir)
+        # Get the build directory ready
+        self.init_build_dir()
 
         # Build up static files
         if not options.get("skip_static"):
@@ -110,6 +103,20 @@ settings.py or provide a list as arguments."
             if not hasattr(settings, 'BAKERY_VIEWS'):
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
+
+    def init_build_dir(self):
+        """
+        Clear out the build directory and create a new one.
+        """
+        # Destroy the build directory, if it exists
+        logger.debug("Creating %s" % self.build_dir)
+        if self.verbosity > 1:
+            six.print_("Creating build directory")
+        if os.path.exists(self.build_dir):
+            shutil.rmtree(self.build_dir)
+
+        # Then recreate it from scratch
+        os.makedirs(self.build_dir)
 
     def build_static(self, *args, **options):
         """
