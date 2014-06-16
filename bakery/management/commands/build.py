@@ -58,63 +58,6 @@ settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
 settings.py or provide a list as arguments."
 
-    def copytree_and_gzip(self, source_dir, target_dir):
-        """
-        Copies the provided source directory to the provided target directory
-        and gzips JavaScript, CSS and HTML files along the way.
-        """
-        # regex to match against. CSS, JS, JSON, HTML files
-        gzip_file_match = getattr(
-            settings,
-            'GZIP_CONTENT_TYPES',
-            GZIP_CONTENT_TYPES
-        )
-
-        # Walk through the source directory...
-        for (dirpath, dirnames, filenames) in os.walk(source_dir):
-
-            # And for each file...
-            for filename in filenames:
-
-                # ... figure out the path to the file...
-                og_file = os.path.join(dirpath, filename)
-
-                # And then where we want to copy it to.
-                rel_path = os.path.relpath(dirpath, source_dir)
-                dest_path = os.path.join(target_dir, rel_path)
-                if not os.path.exists(dest_path):
-                    os.makedirs(dest_path)
-
-                # determine the mimetype of the file
-                content_type = mimetypes.guess_type(og_file)[0]
-
-                # If it isn't a file want to gzip...
-                if not content_type in gzip_file_match:
-                    # just copy it to the target.
-                    shutil.copy(og_file, dest_path)
-
-                # If it is one we want to gzip...
-                else:
-                    # ... let the world know...
-                    logger.debug("Gzipping %s" % filename)
-                    if self.verbosity > 1:
-                        six.print_("Gzipping %s" % filename)
-
-                    # ... create the new file in the build directory ...
-                    f_in = open(og_file, 'rb')
-                    f_name = os.path.join(dest_path, filename)
-
-                    # ... copy the file to gzip compressed output ...
-                    if float(sys.version[:3]) >= 2.7:
-                        f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
-                    else:
-                        f_out = gzip.GzipFile(f_name, 'wb')
-
-                    # ... and shut it down.
-                    f_out.writelines(f_in)
-                    f_out.close()
-                    f_in.close()
-
     def handle(self, *args, **options):
         """
         Making it happen.
@@ -208,3 +151,60 @@ settings.py or provide a list as arguments."
                 view().build_method()
             except (TypeError, ViewDoesNotExist):
                 raise CommandError("View %s does not work." % view_str)
+
+    def copytree_and_gzip(self, source_dir, target_dir):
+        """
+        Copies the provided source directory to the provided target directory
+        and gzips JavaScript, CSS and HTML files along the way.
+        """
+        # regex to match against. CSS, JS, JSON, HTML files
+        gzip_file_match = getattr(
+            settings,
+            'GZIP_CONTENT_TYPES',
+            GZIP_CONTENT_TYPES
+        )
+
+        # Walk through the source directory...
+        for (dirpath, dirnames, filenames) in os.walk(source_dir):
+
+            # And for each file...
+            for filename in filenames:
+
+                # ... figure out the path to the file...
+                og_file = os.path.join(dirpath, filename)
+
+                # And then where we want to copy it to.
+                rel_path = os.path.relpath(dirpath, source_dir)
+                dest_path = os.path.join(target_dir, rel_path)
+                if not os.path.exists(dest_path):
+                    os.makedirs(dest_path)
+
+                # determine the mimetype of the file
+                content_type = mimetypes.guess_type(og_file)[0]
+
+                # If it isn't a file want to gzip...
+                if not content_type in gzip_file_match:
+                    # just copy it to the target.
+                    shutil.copy(og_file, dest_path)
+
+                # If it is one we want to gzip...
+                else:
+                    # ... let the world know...
+                    logger.debug("Gzipping %s" % filename)
+                    if self.verbosity > 1:
+                        six.print_("Gzipping %s" % filename)
+
+                    # ... create the new file in the build directory ...
+                    f_in = open(og_file, 'rb')
+                    f_name = os.path.join(dest_path, filename)
+
+                    # ... copy the file to gzip compressed output ...
+                    if float(sys.version[:3]) >= 2.7:
+                        f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
+                    else:
+                        f_out = gzip.GzipFile(f_name, 'wb')
+
+                    # ... and shut it down.
+                    f_out.writelines(f_in)
+                    f_out.close()
+                    f_in.close()

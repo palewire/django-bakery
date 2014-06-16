@@ -57,6 +57,7 @@
 <li>Refactored the <tt class="docutils literal"><span class="pre">publish</span></tt> and <tt class="docutils literal"><span class="pre">unpublish</span></tt> management commands to use boto instead of s3cmd.</li>
 <li><tt class="docutils literal"><span class="pre">build</span></tt> and <tt class="docutils literal"><span class="pre">publish</span></tt> management commands use file mimetypes instead of a regex on the filename to decide if a file will be gzipped.</li>
 <li><tt class="docutils literal"><span class="pre">publish</span></tt> management command includes &#8211;force and &#8211;dry-run uploads to force an upload of all file, regardless of changes, and to print output without uploading files, respectively.</li>
+<li><tt class="docutils literal"><span class="pre">publish</span></tt> management command now pools uploads to increase speed</li>
 </ul>
 </div>
 <div class="section" id="id2">

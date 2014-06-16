@@ -6,6 +6,7 @@ Changelog
 * Refactored the ``publish`` and ``unpublish`` management commands to use boto instead of s3cmd. 
 * ``build`` and ``publish`` management commands use file mimetypes instead of a regex on the filename to decide if a file will be gzipped. 
 * ``publish`` management command includes --force and --dry-run uploads to force an upload of all file, regardless of changes, and to print output without uploading files, respectively. 
+* ``publish`` management command now pools uploads to increase speed
 
 0.4.2
 -----
