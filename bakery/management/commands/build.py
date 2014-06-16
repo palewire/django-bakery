@@ -79,41 +79,7 @@ settings.py or provide a list as arguments."
 
         # Build up static files
         if not options.get("skip_static"):
-            logger.debug("Building static directory")
-            if self.verbosity > 1:
-                six.print_("Building static directory")
-
-            management.call_command(
-                "collectstatic",
-                interactive=False,
-                verbosity=0
-            )
-            target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
-
-            if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
-                if getattr(settings, 'BAKERY_GZIP', False):
-                    self.copytree_and_gzip(settings.STATIC_ROOT, target_dir)
-                # if gzip isn't enabled, just copy the tree straight over
-                else:
-                    shutil.copytree(settings.STATIC_ROOT, target_dir)
-
-            # If they exist in the static directory, copy the robots.txt
-            # and favicon.ico files down to the root so they will work
-            # on the live website.
-            robot_src = os.path.join(target_dir, 'robots.txt')
-            favicon_src = os.path.join(target_dir, 'favicon.ico')
-            if os.path.exists(robot_src):
-                shutil.copy(robot_src, os.path.join(
-                    settings.BUILD_DIR,
-                    'robots.txt'
-                    )
-                )
-            if os.path.exists(favicon_src):
-                shutil.copy(favicon_src, os.path.join(
-                    settings.BUILD_DIR,
-                    'favicon.ico',
-                    )
-                )
+            self.build_static()
 
         # Build the media directory
         if not options.get("skip_media"):
@@ -144,6 +110,47 @@ settings.py or provide a list as arguments."
                 view().build_method()
             except (TypeError, ViewDoesNotExist):
                 raise CommandError("View %s does not work." % view_str)
+
+    def build_static(self, *args, **options):
+        """
+        Builds the static files directory as well as robots.txt and favicon.ico
+        """
+        logger.debug("Building static directory")
+        if self.verbosity > 1:
+            six.print_("Building static directory")
+
+        management.call_command(
+            "collectstatic",
+            interactive=False,
+            verbosity=0
+        )
+        target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
+
+        if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
+            if getattr(settings, 'BAKERY_GZIP', False):
+                self.copytree_and_gzip(settings.STATIC_ROOT, target_dir)
+            # if gzip isn't enabled, just copy the tree straight over
+            else:
+                shutil.copytree(settings.STATIC_ROOT, target_dir)
+
+        # If they exist in the static directory, copy the robots.txt
+        # and favicon.ico files down to the root so they will work
+        # on the live website.
+        robot_src = os.path.join(target_dir, 'robots.txt')
+        if os.path.exists(robot_src):
+            shutil.copy(robot_src, os.path.join(
+                settings.BUILD_DIR,
+                'robots.txt'
+                )
+            )
+
+        favicon_src = os.path.join(target_dir, 'favicon.ico')
+        if os.path.exists(favicon_src):
+            shutil.copy(favicon_src, os.path.join(
+                settings.BUILD_DIR,
+                'favicon.ico',
+                )
+            )
 
     def set_options(self, *args, **options):
         """
