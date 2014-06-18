@@ -198,3 +198,9 @@ class BakeryTest(TestCase):
 
     def test_unpublish_cmd(self):
         pass
+
+    def test_tasks(self):
+        try:
+            from bakery import tasks
+        except ImportError:
+            pass
