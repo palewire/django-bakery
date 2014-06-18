@@ -3,7 +3,6 @@ from django.conf import settings
 from django.core import management
 logger = logging.getLogger(__name__)
 try:
-    from celery.task import task
     from celery.decorators import task
 except ImportError:
     raise ImportError("celery must be installed to use django-bakery's tasks")
@@ -17,11 +16,14 @@ def publish_object(obj):
     Accepts a model object that inherits bakery's BuildableModel class.
     """
     try:
-        # Build the object 
+        # Build the object
+        logger.info("publish_object task has received %s" % obj)
         obj.build()
         # Run the `publish` management command unless the
         # ALLOW_BAKERY_PUBLISHING variable is explictly set to False.
         if getattr(settings, 'ALLOW_BAKERY_PUBLISHING', True):
+            logger.info("Not running publish command because \
+ALLOW_BAKERY_PUBLISHING is False")
             management.call_command("publish")
     except Exception:
         # Log the error if this crashes
@@ -37,10 +39,13 @@ def unpublish_object(obj):
     """
     try:
         # Unbuild the object
+        logger.info("unpublish_object task has received %s" % obj)
         obj.unbuild()
         # Run the `publish` management command unless the
         # ALLOW_BAKERY_PUBLISHING variable is explictly set to False.
         if getattr(settings, 'ALLOW_BAKERY_PUBLISHING', True):
+            logger.info("Not running publish command because \
+ALLOW_BAKERY_PUBLISHING is False")
             management.call_command("publish")
     except Exception:
         # Log the error if this crashes

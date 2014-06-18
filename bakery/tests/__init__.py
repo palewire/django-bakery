@@ -202,5 +202,6 @@ class BakeryTest(TestCase):
     def test_tasks(self):
         try:
             from bakery import tasks
+            tasks
         except ImportError:
             pass
