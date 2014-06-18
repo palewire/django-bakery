@@ -24,6 +24,13 @@ custom_options = (
 Will use settings.BUILD_DIR by default."
     ),
     make_option(
+        "--keep-build-dir",
+        action="store_true",
+        dest="keep_build_dir",
+        default=False,
+        help="Skip initializing the build directory before building files."
+    ),
+    make_option(
         "--skip-static",
         action="store_true",
         dest="skip_static",
@@ -68,7 +75,8 @@ settings.py or provide a list as arguments."
         self.set_options(*args, **options)
 
         # Get the build directory ready
-        self.init_build_dir()
+        if not options.get("keep_build_dir"):
+            self.init_build_dir()
 
         # Build up static files
         if not options.get("skip_static"):
@@ -112,9 +120,9 @@ settings.py or provide a list as arguments."
         Clear out the build directory and create a new one.
         """
         # Destroy the build directory, if it exists
-        logger.debug("Creating %s" % self.build_dir)
+        logger.debug("Initializing %s" % self.build_dir)
         if self.verbosity > 1:
-            six.print_("Creating build directory")
+            six.print_("Initializing build directory")
         if os.path.exists(self.build_dir):
             shutil.rmtree(self.build_dir)
 

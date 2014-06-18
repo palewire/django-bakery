@@ -23,6 +23,11 @@ Defaults can be modified with the following command options.
 
    Specify the path of the build directory. Will use ``settings.BUILD_DIR`` by default.
 
+.. cmdoption:: --keep-build-dir
+
+    Skip deleting and recreating the build directory before building files. By
+    default the entire directory is wiped out.
+
 .. cmdoption:: --skip-static
 
     Skip collecting the static files when building.
