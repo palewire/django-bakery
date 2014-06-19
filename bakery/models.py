@@ -6,7 +6,6 @@ The magic relies on your view being class-based and having a build_object
 method, like the BuildableDetailView included in this app.
 """
 from django.db import models
-from django.db import transaction
 
 
 class BuildableModel(models.Model):
@@ -111,7 +110,6 @@ class AutoPublishingBuildableModel(BuildableModel):
         """
         return getattr(self, self.publication_status_field)
 
-    @transaction.atomic
     def save(self, *args, **kwargs):
         """
         A custom save that publishes or unpublishes the object where
