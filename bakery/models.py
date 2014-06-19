@@ -78,7 +78,7 @@ class BuildableModel(models.Model):
 
 class AutoPublishingBuildableModel(BuildableModel):
     """
-    Integrates with Celery tasks to automatically build or unbuild
+    Integrates with Celery tasks to automatically publish or unpublish
     objects when they are saved.
 
     This is done using an override on the save method that inspects
