@@ -106,7 +106,7 @@ class AutoPublishingBuildableModel(BuildableModel):
 
         If your model uses a CHOICES list of strings or other more complex
         means to indicate publication status you need to override this method
-        to and have it negotiate your object to return either True or False.
+        and have it negotiate your object to return either True or False.
         """
         return getattr(self, self.publication_status_field)
 
