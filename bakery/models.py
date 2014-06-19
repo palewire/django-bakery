@@ -159,5 +159,21 @@ class AutoPublishingBuildableModel(BuildableModel):
             elif action == 'unpublish':
                 tasks.unpublish_object.delay(self)
 
+    def delete(self, *args, **kwargs):
+        """
+        Triggers a task that will unpublish the object after it is deleted.
+
+        Save with keyword argument obj.delete(unpublish=False) to skip it.
+        """
+        from bakery import tasks
+        # if obj.save(unpublish=False) has been passed, we skip the task.
+        unpublish = kwargs.pop('unpublish', True)
+        # Delete it from the database
+        super(AutoPublishingBuildableModel, self).delete(*args, **kwargs)
+        if not unpublish:
+            pass
+        else:
+            tasks.unpublish_object.delay(self)
+
     class Meta:
         abstract = True
