@@ -4,7 +4,7 @@ Buildable models
 Models that build themselves
 ----------------------------
 
-If your site pub­lishes a large data­base, the build-and-pub­lish routine can take 
+If your site pub­lishes numerous pages built from a large data­base, the build-and-pub­lish routine can take 
 a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally 
 mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire 
 data­base to re­build every time there’s a minor edit.

@@ -13,7 +13,8 @@ ALLOW_BAKERY_AUTO_PUBLISHING
 
 .. code-block:: python
 
-    # So if you are in your dev environment and want to prevent the task from publishing to s3, do this.
+    # So if you are in your dev environment and want to prevent
+    # the task from publishing to s3, do this.
     ALLOW_BAKERY_AUTO_PUBLISHING = False
 
 BUILD_DIR
