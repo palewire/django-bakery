@@ -21,9 +21,10 @@ def publish_object(obj):
         obj.build()
         # Run the `publish` management command unless the
         # ALLOW_BAKERY_PUBLISHING variable is explictly set to False.
-        if getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
+        if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
             logger.info("Not running publish command because \
-ALLOW_BAKERY_PUBLISHING is False")
+ALLOW_BAKERY_AUTO_PUBLISHING is False")
+        else:
             management.call_command("publish")
     except Exception:
         # Log the error if this crashes
@@ -43,9 +44,10 @@ def unpublish_object(obj):
         obj.unbuild()
         # Run the `publish` management command unless the
         # ALLOW_BAKERY_PUBLISHING variable is explictly set to False.
-        if getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
+        if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
             logger.info("Not running publish command because \
-ALLOW_BAKERY_PUBLISHING is False")
+ALLOW_BAKERY_AUTO_PUBLISHING is False")
+        else:
             management.call_command("publish")
     except Exception:
         # Log the error if this crashes
