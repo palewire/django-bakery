@@ -61,7 +61,7 @@ BuildableModel
         from bakery.mod­els im­port Build­ableMod­el
 
 
-        class My­Mod­el(Build­ableMod­el)
+        class My­Mod­el(Build­ableMod­el):
             de­tail_views = ('myapp.views.ExampleDetailView',)
             title = mod­els.Char­Field(max_length=100)
             de­scrip­tion = mod­els.Text­Field()
@@ -148,7 +148,7 @@ AutoPublishingBuildableModel
         from bakery.mod­els im­port AutoPublishingBuildableModel
 
 
-        class My­Mod­el(AutoPublishingBuildableModel)
+        class My­Mod­el(AutoPublishingBuildableModel):
             de­tail_views = ('myapp.views.ExampleDetailView',)
             title = mod­els.Char­Field(max_length=100)
             de­scrip­tion = mod­els.Text­Field()
