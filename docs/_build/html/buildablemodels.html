@@ -51,13 +51,22 @@
             
   <div class="section" id="buildable-models">
 <h1>Buildable models<a class="headerlink" href="#buildable-models" title="Permalink to this headline">¶</a></h1>
-<p>If your site pub­lishes a large data­base, the build-and-pub­lish routine can take a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire data­base to re­build every time there’s a minor edit.</p>
-<p>We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els. When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that ob­ject is con­nec­ted to. We ac­com­plish this with a <tt class="docutils literal"><span class="pre">BuildableModel</span></tt> class you can in­her­it. It works the same as a standard Django model, except that you are asked define a list of the de­tail views con­nec­ted to each ob­ject.</p>
+<div class="section" id="models-that-build-themselves">
+<h2>Models that build themselves<a class="headerlink" href="#models-that-build-themselves" title="Permalink to this headline">¶</a></h2>
+<p>If your site pub­lishes a large data­base, the build-and-pub­lish routine can take
+a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally
+mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire
+data­base to re­build every time there’s a minor edit.</p>
+<p>We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els.
+When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that
+ob­ject is con­nec­ted to. We ac­com­plish this with a <tt class="docutils literal"><span class="pre">BuildableModel</span></tt> class
+you can in­her­it. It works the same as a standard Django model, except that
+you are asked define a list of the de­tail views con­nec­ted to each ob­ject.</p>
 <div class="section" id="buildablemodel">
-<h2>BuildableModel<a class="headerlink" href="#buildablemodel" title="Permalink to this headline">¶</a></h2>
+<h3>BuildableModel<a class="headerlink" href="#buildablemodel" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="BuildableModel">
-<em class="property">class </em><tt class="descname">BuildableModel</tt><a class="headerlink" href="#BuildableModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">BuildableModel</tt><big>(</big><em>models.Model</em><big>)</big><a class="headerlink" href="#BuildableModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>An abstract base model that creates an object that can builds out its own detail pages.</p>
 <dl class="attribute">
 <dt id="BuildableModel.detail_views">
@@ -123,125 +132,85 @@ Empty by default.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="celery-task-queue-integration">
-<h2>Celery task-queue integration<a class="headerlink" href="#celery-task-queue-integration" title="Permalink to this headline">¶</a></h2>
-<p>With a buildable model in place, a up­date pos­ted to the data­base by an entrant us­ing the <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/">Django ad­min</a> can set in­to mo­tion a small build that is then synced with your live site on Amazon S3. We use that sys­tem to host ap­plic­a­tions with in-house Django ad­min­is­tra­tion pan­els that, for the entrant, walk and talk like a live data­base, but behind the scenes auto­mat­ic­ally fig­ure out how to serve them­selves on the Web as flat files. That’s how a site like <a class="reference external" href="http://graphics.latimes.com">graphics.latimes.com</a> is man­aged.</p>
-<p>This is accomplished by handing off the build from the user’s save re­quest in the ad­min to a job serv­er that does the work in the back­ground. This pre­vents a push-but­ton save in the ad­min from hav­ing to wait for the en­tire build to com­plete be­fore re­turn­ing a re­sponse. Here is the save over­ride that as­sesses wheth­er the pub­lic­a­tion status of an ob­ject has changed, and then passes off build in­struc­tions to <a class="reference external" href="http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html">a Cel­ery job serv­er</a>.</p>
-<p>The key is figuring out what build or unbuild actions to trigger in <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/db/models/#overriding-predefined-model-methods">an override of the Django model&#8217;s default save method</a>.</p>
-<p><strong>example myapp/models.py</strong></p>
-<div class="highlight-django"><div class="highlight"><pre><span class="x">from myapp import tasks</span>
-<span class="x">from django.db im­port mod­els</span>
-<span class="x">from django.db import transaction</span>
-<span class="x">from bakery.mod­els im­port Build­ableMod­el</span>
+</div>
+<div class="section" id="models-that-publish-themselves">
+<h2>Models that publish themselves<a class="headerlink" href="#models-that-publish-themselves" title="Permalink to this headline">¶</a></h2>
+<p>With a buildable model in place, you can take things a step further with the
+<tt class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></tt> so that a up­date pos­ted to the data­base by an entrant
+us­ing the <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/">Django ad­min</a>
+can set in­to mo­tion a small build that is then synced with your live site on Amazon S3.</p>
+<p>At the Los Angeles Times Data Desk, we use that sys­tem to host ap­plic­a­tions
+with in-house Django ad­min­is­tra­tion pan­els that, for the entrant, walk and
+talk like a live website, but behind the scenes auto­mat­ic­ally fig­ure out how
+to serve them­selves on the Web as flat files. That’s how a site like
+<a class="reference external" href="http://graphics.latimes.com">graphics.latimes.com</a> is man­aged.</p>
+<p>This is accomplished by handing off the build from the user’s save re­quest in the ad­min to a
+job serv­er that does the work in the back­ground. This pre­vents a user who makes a push-but­ton save
+in the ad­min from hav­ing to wait for the full process to com­plete be­fore receiving a re­sponse.</p>
+<p>This is done by passing off build in­struc­tions to <a class="reference external" href="http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html">a Cel­ery job serv­er</a>.
+<strong>You need to install Celery and have it fully configured before this model will work.</strong></p>
+<div class="section" id="autopublishingbuildablemodel">
+<h3>AutoPublishingBuildableModel<a class="headerlink" href="#autopublishingbuildablemodel" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="AutoPublishingBuildableModel">
+<em class="property">class </em><tt class="descname">AutoPublishingBuildableModel</tt><big>(</big><em>BuildableModel</em><big>)</big><a class="headerlink" href="#AutoPublishingBuildableModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrates with Celery tasks to automatically publish or unpublish
+objects when they are saved.</p>
+<p>This is done using an override on the save method that inspects
+if the object ought to be published, republished or unpublished.</p>
+<p>Requires an indicator of whether the object should been
+published or unpublished. By default it looks to a BooleanField
+called <tt class="docutils literal"><span class="pre">is_published</span></tt> for the answer, but other methods could
+be employed by overriding the <tt class="docutils literal"><span class="pre">get_publication_status</span></tt> method.</p>
+<dl class="attribute">
+<dt id="AutoPublishingBuildableModel.publication_status_field">
+<tt class="descname">publication_status_field</tt><a class="headerlink" href="#AutoPublishingBuildableModel.publication_status_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field that this model will inspect to determine
+the object&#8217;s publication status. By default it is &#8220;is_published&#8221;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AutoPublishingBuildableModel.get_publication_status">
+<tt class="descname">get_publication_status</tt><big>(</big><big>)</big><a class="headerlink" href="#AutoPublishingBuildableModel.get_publication_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a boolean (True or False) indicating whether the object
+is &#8220;live&#8221; and ought to be published or not.</p>
+<p>Used to determine whether the save method should seek to publish,
+republish or unpublish the object when it is saved.</p>
+<p>By default, it looks for a BooleanField with the name defined in
+the model&#8217;s &#8216;publication_status_field&#8217;.</p>
+<p>If your model uses a list of strings or other more complex
+means to indicate publication status you need to override this method
+and have it negotiate your object to return either True or False.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AutoPublishingBuildableModel.save">
+<tt class="descname">save</tt><big>(</big><em>publish=True</em><big>)</big><a class="headerlink" href="#AutoPublishingBuildableModel.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom save that uses Celery tasks to publish or unpublish the
+object where appropriate.</p>
+<p>Save with keyword argument obj.save(publish=False) to skip the process.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AutoPublishingBuildableModel.delete">
+<tt class="descname">delete</tt><big>(</big><em>unpublish=True</em><big>)</big><a class="headerlink" href="#AutoPublishingBuildableModel.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggers a task that will unpublish the object after it is deleted.</p>
+<p>Save with keyword argument obj.delete(unpublish=False) to skip it.</p>
+</dd></dl>
+
+<div class="highlight-django"><div class="highlight"><pre><span class="x">from django.db im­port mod­els</span>
+<span class="x">from bakery.mod­els im­port AutoPublishingBuildableModel</span>
 
 
-<span class="x">class My­Mod­el(Build­ableMod­el)</span>
+<span class="x">class My­Mod­el(AutoPublishingBuildableModel)</span>
 <span class="x">    de­tail_views = (&#39;myapp.views.ExampleDetailView&#39;,)</span>
 <span class="x">    title = mod­els.Char­Field(max_length=100)</span>
 <span class="x">    de­scrip­tion = mod­els.Text­Field()</span>
 <span class="x">    is_published = models.BooleanField(default=False)</span>
-
-<span class="x">    def _build_re­lated(self):</span>
-<span class="x">        from myapp import views</span>
-<span class="x">        views.MySitem­apView().build_queryset()</span>
-<span class="x">        views.MyRSS­Feed().build_queryset()</span>
-
-<span class="x">    @transaction.atomic</span>
-<span class="x">    def save(self, *args, **kwargs):</span>
-<span class="x">        &quot;&quot;&quot;</span>
-<span class="x">        A custom save that builds or unbuilds when necessary.</span>
-<span class="x">        &quot;&quot;&quot;</span>
-<span class="x">        # if obj.save(build=False) has been passed, we skip everything.</span>
-<span class="x">        if not kwargs.pop(&#39;build&#39;, True):</span>
-<span class="x">            super(My­Mod­el, self).save(*args, **kwargs)</span>
-<span class="x">        # Otherwise, for the standard obj.save(), here we go...</span>
-<span class="x">        else:</span>
-<span class="x">            # First figure out if the record is an addition, or an edit of</span>
-<span class="x">            # a preexisting record.</span>
-<span class="x">            try:</span>
-<span class="x">                preexisting = My­Mod­el.objects.get(id=self.id)</span>
-<span class="x">            except My­Mod­el.DoesNotExist:</span>
-<span class="x">                preexisting = None</span>
-<span class="x">            # If this is an addition...</span>
-<span class="x">            if not preexisting:</span>
-<span class="x">                # We will publish if that&#39;s the boolean</span>
-<span class="x">                if self.is_published:</span>
-<span class="x">                    action = &#39;publish&#39;</span>
-<span class="x">                # Otherwise we will do nothing do nothing</span>
-<span class="x">                else:</span>
-<span class="x">                    action = None</span>
-<span class="x">            # If this is an edit...</span>
-<span class="x">            else:</span>
-<span class="x">                # If it&#39;s being unpublished...</span>
-<span class="x">                if not self.is_published and preexisting.is_published:</span>
-<span class="x">                    action = &#39;unpublish&#39;</span>
-<span class="x">                # If it&#39;s being published...</span>
-<span class="x">                elif self.is_published:</span>
-<span class="x">                    action = &#39;publish&#39;</span>
-<span class="x">                # If it&#39;s remaining unpublished...</span>
-<span class="x">                else:</span>
-<span class="x">                    action = None</span>
-<span class="x">            # Now, no matter what, save it normally</span>
-<span class="x">            super(My­Mod­el, self).save(*args, **kwargs)</span>
-<span class="x">            # Finally, depending on the action, fire off a task</span>
-<span class="x">            if action == &#39;publish&#39;:</span>
-<span class="x">                tasks.publish.delay(self)</span>
-<span class="x">            elif action == &#39;unpublish&#39;:</span>
-<span class="x">                tasks.unpublish.delay(self)</span>
 </pre></div>
 </div>
-<p>The tasks don’t have to be com­plic­ated. Ours are as simple as this.</p>
-<p><strong>example myapp/tasks.py</strong></p>
-<div class="highlight-python"><div class="highlight"><pre>im­port sys
-im­port log­ging
-from celery.task import task
-from django.conf im­port set­tings
-from django.core im­port man­age­ment
-log­ger = log­ging.get­Log­ger(__name__)
+</dd></dl>
 
-
-@task()
-def publish(obj):
-    &quot;&quot;&quot;
-    Build all the pages and then sync with S3.
-    &quot;&quot;&quot;
-    try:
-        # Here the object is built
-        obj.build()
-        # And if the set­tings al­low pub­lic­a­tion from this en­vir­on­ment...
-        if settings.PUBLISH:
-            # ... the pub­lish com­mand is called to sync with S3.
-            management.call_command(&quot;publish&quot;)
-    except Exception, exc:
-        logger.error(
-            &quot;Task Error: publish&quot;,
-            exc_info=sys.exc_info(),
-            extra={
-                &#39;status_code&#39;: 500,
-                &#39;request&#39;: None
-            }
-        )
-
-
-@task()
-def unpublish(obj):
-    &quot;&quot;&quot;
-    Unbuild all the pages and then sync with S3.
-    &quot;&quot;&quot;
-    try:
-        obj.unbuild()
-        if settings.PUBLISH:
-            management.call_command(&quot;publish&quot;)
-    except Exception, exc:
-        logger.error(
-            &quot;Task Error: unpublish&quot;,
-            exc_info=sys.exc_info(),
-            extra={
-                &#39;status_code&#39;: 500,
-                &#39;request&#39;: None
-            }
-        )
-</pre></div>
 </div>
 </div>
 </div>
@@ -255,8 +224,14 @@ def unpublish(obj):
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Buildable models</a><ul>
+<li><a class="reference internal" href="#models-that-build-themselves">Models that build themselves</a><ul>
 <li><a class="reference internal" href="#buildablemodel">BuildableModel</a></li>
-<li><a class="reference internal" href="#celery-task-queue-integration">Celery task-queue integration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#models-that-publish-themselves">Models that publish themselves</a><ul>
+<li><a class="reference internal" href="#autopublishingbuildablemodel">AutoPublishingBuildableModel</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

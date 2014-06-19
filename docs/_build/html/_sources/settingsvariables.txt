@@ -3,6 +3,19 @@ Settings variables
 
 Configuration options for your ``settings.py``.
 
+ALLOW_BAKERY_AUTO_PUBLISHING
+----------------------------
+
+.. envvar:: ALLOW_BAKERY_AUTO_PUBLISHING
+
+    Decides whether the `AutoPublishingBuildableModel` is allowed to run the 
+    `publish` management command as part of its background task. True by default.
+
+.. code-block:: python
+
+    # So if you are in your dev environment and want to prevent the task from publishing to s3, do this.
+    ALLOW_BAKERY_AUTO_PUBLISHING = False
+
 BUILD_DIR
 ---------
 
