@@ -75,7 +75,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
 
 setup(
     name='django-bakery',
-    version='0.5.0',
+    version='0.6.0',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',

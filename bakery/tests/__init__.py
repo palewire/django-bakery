@@ -21,6 +21,15 @@ class MockObject(bmodels.BuildableModel):
         return '/%s/' % self.id
 
 
+class AutoMockObject(bmodels.AutoPublishingBuildableModel):
+    detail_views = ['bakery.tests.MockDetailView']
+    name = models.CharField(max_length=500)
+    is_published = models.BooleanField(default=False)
+
+    def get_absolute_url(self):
+        return '/%s/' % self.id
+
+
 class MockDetailView(views.BuildableDetailView):
     model = MockObject
     template_name = 'detailview.html'
@@ -52,15 +61,17 @@ class MockJSONView(JSONResponseMixin, views.BuildableTemplateView):
 class BakeryTest(TestCase):
 
     def setUp(self):
-        MockObject.objects.create(name=1)
-        MockObject.objects.create(name=2)
-        MockObject.objects.create(name=3)
+        for m in [MockObject, AutoMockObject]:
+            m.objects.create(name=1)
+            m.objects.create(name=2)
+            m.objects.create(name=3)
 
     def test_models(self):
-        obj = MockObject.objects.all()[0]
-        obj.build()
-        obj.unbuild()
-        bmodels.BuildableModel().get_absolute_url()
+        for m in [MockObject, AutoMockObject]:
+            obj = m.objects.all()[0]
+            obj.build()
+            obj.unbuild()
+            obj.get_absolute_url()
 
     def test_template_view(self):
         v = views.BuildableTemplateView(
@@ -200,8 +211,7 @@ class BakeryTest(TestCase):
         pass
 
     def test_tasks(self):
-        try:
-            from bakery import tasks
-            tasks
-        except ImportError:
-            pass
+        from bakery import tasks
+        obj = AutoMockObject.objects.all()[0]
+        tasks.publish_object(obj)
+        tasks.unpublish_object(obj)

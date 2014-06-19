@@ -22,6 +22,7 @@ class QuickDjangoTest(object):
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.staticfiles',
+        'celery',
     )
     TEMPLATE_DIRS = (
         os.path.abspath(
@@ -89,6 +90,7 @@ class QuickDjangoTest(object):
            STATIC_URL = self.STATIC_URL,
            MEDIA_ROOT = self.MEDIA_ROOT,
            MEDIA_URL = self.MEDIA_URL,
+           ALLOW_BAKERY_AUTO_PUBLISHING = False,
         )
         from django.test.simple import run_tests
         failures = run_tests(self.apps, verbosity=1)
@@ -119,6 +121,7 @@ class QuickDjangoTest(object):
             STATIC_URL = self.STATIC_URL,
             MEDIA_ROOT = self.MEDIA_ROOT,
             MEDIA_URL = self.MEDIA_URL,
+            ALLOW_BAKERY_AUTO_PUBLISHING = False,
         )
         from django.test.simple import DjangoTestSuiteRunner
         failures = DjangoTestSuiteRunner().run_tests(self.apps, verbosity=1)

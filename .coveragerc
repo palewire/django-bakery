@@ -4,6 +4,7 @@ include =
   bakery/models.py
   bakery/static_urls.py
   bakery/static_views.py
+  bakery/tasks.py
   bakery/views.py
   bakery/management/__init__.py
   bakery/management/commands/__init__.py
