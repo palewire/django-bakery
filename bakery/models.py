@@ -112,7 +112,10 @@ class AutoPublishingBuildableModel(BuildableModel):
 
     def save(self, *args, **kwargs):
         """
-        A custom save that builds or unbuilds when necessary.
+        A custom save that publishes or unpublishes the object where
+        appropriate.
+
+        Save with keyword argument obj.save(publish=False) to skip the process.
         """
         from bakery import tasks
         # if obj.save(publish=False) has been passed, we skip everything.
@@ -141,7 +144,7 @@ class AutoPublishingBuildableModel(BuildableModel):
                         preexisting.get_publication_status():
                     action = 'unpublish'
                 # If it's being published...
-                elif self.is_published:
+                elif self.get_publication_status():
                     action = 'publish'
                 # If it's remaining unpublished...
                 else:
