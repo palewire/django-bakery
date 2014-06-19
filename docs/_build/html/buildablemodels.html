@@ -166,7 +166,7 @@ be employed by overriding the <tt class="docutils literal"><span class="pre">get
 <dt id="AutoPublishingBuildableModel.publication_status_field">
 <tt class="descname">publication_status_field</tt><a class="headerlink" href="#AutoPublishingBuildableModel.publication_status_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the field that this model will inspect to determine
-the object&#8217;s publication status. By default it is &#8220;is_published&#8221;.</p>
+the object&#8217;s publication status. By default it is <tt class="docutils literal"><span class="pre">is_published</span></tt>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -177,7 +177,7 @@ is &#8220;live&#8221; and ought to be published or not.</p>
 <p>Used to determine whether the save method should seek to publish,
 republish or unpublish the object when it is saved.</p>
 <p>By default, it looks for a BooleanField with the name defined in
-the model&#8217;s &#8216;publication_status_field&#8217;.</p>
+the model&#8217;s <tt class="docutils literal"><span class="pre">publication_status_field</span></tt>.</p>
 <p>If your model uses a list of strings or other more complex
 means to indicate publication status you need to override this method
 and have it negotiate your object to return either True or False.</p>

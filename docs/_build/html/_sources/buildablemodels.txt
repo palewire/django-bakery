@@ -112,7 +112,7 @@ AutoPublishingBuildableModel
     .. attribute:: publication_status_field
 
         The name of the field that this model will inspect to determine
-        the object's publication status. By default it is "is_published".
+        the object's publication status. By default it is ``is_published``.
 
     .. method:: get_publication_status()
 
@@ -123,7 +123,7 @@ AutoPublishingBuildableModel
         republish or unpublish the object when it is saved.
 
         By default, it looks for a BooleanField with the name defined in
-        the model's 'publication_status_field'.
+        the model's ``publication_status_field``.
 
         If your model uses a list of strings or other more complex
         means to indicate publication status you need to override this method
