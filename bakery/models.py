@@ -122,7 +122,7 @@ class AutoPublishingBuildableModel(BuildableModel):
         from bakery import tasks
         # if obj.save(publish=False) has been passed, we skip everything.
         if not kwargs.pop('publish', True):
-            super(self.__class__, self).save(*args, **kwargs)
+            super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
         # Otherwise, for the standard obj.save(), here we go...
         else:
             # First figure out if the record is an addition, or an edit of
@@ -152,7 +152,7 @@ class AutoPublishingBuildableModel(BuildableModel):
                 else:
                     action = None
             # Now, no matter what, save it normally
-            super(self.__class__, self).save(*args, **kwargs)
+            super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
             # Finally, depending on the action, fire off a task
             if action == 'publish':
                 tasks.publish_object.delay(self)
