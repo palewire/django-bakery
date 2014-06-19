@@ -1,6 +1,6 @@
 """
-Models that inherit from Django's and add methods that make it convenient for
-building out flat files.
+Models that inherit from Django's default and add methods to make it
+convenient for building out flat files.
 
 The magic relies on your view being class-based and having a build_object
 method, like the BuildableDetailView included in this app.
@@ -71,6 +71,88 @@ class BuildableModel(models.Model):
 
     def get_absolute_url(self):
         pass
+
+    class Meta:
+        abstract = True
+
+
+class AutoPublishingBuildableModel(BuildableModel):
+    """
+    Integrates with Celery tasks to automatically build or unbuild
+    objects when they are saved.
+
+    This is done using an override on the save method that inspects
+    if the object ought to be published, republished or unpublished.
+
+    Requires an indicator of whether the object should been
+    published or unpublished. By default it looks to a BooleanField
+    called ``is_published`` for the answer, but other methods could
+    be employed by overriding the ``get_publication_status`` method.
+    """
+    # The name of the field that this model will inspect to determine
+    # the object's publication status by default.
+    publication_status_field = 'is_published'
+
+    def get_publication_status(self):
+        """
+        Returns a boolean (True or False) indicating whether the object
+        is "live" and ought to be published or not.
+
+        Used to determine whether the save method should seek to publish,
+        republish or unpublish the object when it is saved.
+
+        By default, it looks for a BooleanField with the name defined in
+        the model's 'publication_status_field'.
+
+        If your model uses a CHOICES list of strings or other more complex
+        means to indicate publication status you need to override this method
+        to and have it negotiate your object to return either True or False.
+        """
+        return getattr(self, self.publication_status_field)
+
+    def save(self, *args, **kwargs):
+        """
+        A custom save that builds or unbuilds when necessary.
+        """
+        from bakery import tasks
+        # if obj.save(publish=False) has been passed, we skip everything.
+        if not kwargs.pop('publish', True):
+            super(self.__class__, self).save(*args, **kwargs)
+        # Otherwise, for the standard obj.save(), here we go...
+        else:
+            # First figure out if the record is an addition, or an edit of
+            # a preexisting record.
+            try:
+                preexisting = self.__class__.objects.get(pk=self.pk)
+            except self.__class__.DoesNotExist:
+                preexisting = None
+            # If this is an addition...
+            if not preexisting:
+                # We will publish if that's the boolean
+                if self.get_publication_status():
+                    action = 'publish'
+                # Otherwise we will do nothing do nothing
+                else:
+                    action = None
+            # If this is an edit...
+            else:
+                # If it's being unpublished...
+                if not self.get_publication_status() and \
+                        preexisting.get_publication_status():
+                    action = 'unpublish'
+                # If it's being published...
+                elif self.is_published:
+                    action = 'publish'
+                # If it's remaining unpublished...
+                else:
+                    action = None
+            # Now, no matter what, save it normally
+            super(self.__class__, self).save(*args, **kwargs)
+            # Finally, depending on the action, fire off a task
+            if action == 'publish':
+                tasks.publish_object.delay(self)
+            elif action == 'unpublish':
+                tasks.unpublish_object.delay(self)
 
     class Meta:
         abstract = True
