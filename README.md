@@ -28,6 +28,7 @@ Features
 
 * Models, views and management commands that will build your site as flat files.
 * Management commands to sync your flat files with a bucket on Amazon S3.
+* Optional integration of a Celery job queue to automatically build and publish model objects when they are saved
 
 
 Credits

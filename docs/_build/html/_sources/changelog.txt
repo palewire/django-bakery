@@ -4,7 +4,7 @@ Changelog
 0.6.0
 -----
 
-* An ``AutoPublishingBuildableModel`` that is able to use a Celery job queue to automatically build and publish objects when they are saved.
+* An ``AutoPublishingBuildableModel`` that is able to use a Celery job queue to automatically build and publish objects when they are saved
 * Refactored ``build`` management command to allow for its different tasks to be more easily overridden
 * Added a ``--keep-build-dir`` option to the ``build`` command.
 
