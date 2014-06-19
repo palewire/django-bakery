@@ -168,9 +168,7 @@ class AutoPublishingBuildableModel(BuildableModel):
         unpublish = kwargs.pop('unpublish', True)
         # Delete it from the database
         super(AutoPublishingBuildableModel, self).delete(*args, **kwargs)
-        if not unpublish:
-            pass
-        else:
+        if unpublish:
             tasks.unpublish_object.delay(self)
 
     class Meta:
