@@ -171,7 +171,8 @@ class AutoPublishingBuildableModel(BuildableModel):
         # Delete it from the database
         super(AutoPublishingBuildableModel, self).delete(*args, **kwargs)
         if unpublish:
-            tasks.unpublish_object.delay(self)
+            ct = ContentType.objects.get_for_model(self.__class__)
+            tasks.unpublish_object.delay(ct.pk, self.pk)
 
     class Meta:
         abstract = True
