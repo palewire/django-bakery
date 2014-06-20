@@ -32,6 +32,7 @@ Documentation
    :maxdepth: 3
 
    gettingstarted
+   commonchallenges
    buildableviews
    buildablemodels
    settingsvariables

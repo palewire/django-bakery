@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Common challenges &mdash; django-bakery 0.6.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-bakery 0.6.1 documentation" href="index.html" />
+    <link rel="next" title="Buildable views" href="buildableviews.html" />
+    <link rel="prev" title="Getting started" href="gettingstarted.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="buildableviews.html" title="Buildable views"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gettingstarted.html" title="Getting started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="common-challenges">
+<h1>Common challenges<a class="headerlink" href="#common-challenges" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="baking-out-json-instead-of-html">
+<h2>Baking out JSON instead of HTML<a class="headerlink" href="#baking-out-json-instead-of-html" title="Permalink to this headline">¶</a></h2>
+<p>Suppose you have a view the acts like an API, generating a small snippet
+of JSON. In this case,
+<a class="reference external" href="https://docs.djangoproject.com/en/1.6/topics/class-based-views/mixins/#more-than-just-html">the official Django documentation recommends the following</a>
+usage of class-based views to render the page in a dynamic website.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="kn">import</span> <span class="n">TemplateView</span>
+
+
+<span class="k">class</span> <span class="nc">JSONResponseMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A mixin that can be used to render a JSON response.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">render_to_json_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a JSON response, transforming &#39;context&#39; to make the payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_context_to_json</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">response_kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convert_context_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="s">&quot;Convert the context dictionary into a JSON object&quot;</span>
+        <span class="c"># Note: This is *EXTREMELY* naive; in reality, you&#39;ll need</span>
+        <span class="c"># to do much more complex handling to ensure that arbitrary</span>
+        <span class="c"># objects -- such as Django model instances or querysets</span>
+        <span class="c"># -- can be serialized as JSON.</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">JSONView</span><span class="p">(</span><span class="n">JSONResponseMixin</span><span class="p">,</span> <span class="n">TemplateView</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">render_to_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_json_response</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;this-is&#39;</span><span class="p">:</span> <span class="s">&#39;dummy-data&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The same design pattern can work with django-bakery to build a flat version of
+the JSON response. All that&#8217;s necessary is to substitute a buildable view with some
+additional configuration.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>
+</span>
+
+<span class="k">class</span> <span class="nc">JSONResponseMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A mixin that can be used to render a JSON response.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">render_to_json_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a JSON response, transforming &#39;context&#39; to make the payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_context_to_json</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">response_kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convert_context_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="s">&quot;Convert the context dictionary into a JSON object&quot;</span>
+        <span class="c"># Note: This is *EXTREMELY* naive; in reality, you&#39;ll need</span>
+        <span class="c"># to do much more complex handling to ensure that arbitrary</span>
+        <span class="c"># objects -- such as Django model instances or querysets</span>
+        <span class="c"># -- can be serialized as JSON.</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+
+<span class="hll"><span class="k">class</span> <span class="nc">BuildableJSONView</span><span class="p">(</span><span class="n">JSONResponseMixin</span><span class="p">,</span> <span class="n">BuildableTemplateView</span><span class="p">):</span>
+</span><span class="hll">    <span class="c"># Nothing more than standard bakery configuration here</span>
+</span><span class="hll">    <span class="n">build_path</span> <span class="o">=</span> <span class="s">&#39;jsonview.json&#39;</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="k">def</span> <span class="nf">render_to_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+</span><span class="hll">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_json_response</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span class="hll">        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;this-is&#39;</span><span class="p">:</span> <span class="s">&#39;dummy-data&#39;</span><span class="p">}</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="k">def</span> <span class="nf">get_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="sd">        Overrides an internal trick of buildable views so that bakery</span>
+</span><span class="hll"><span class="sd">        can render the HttpResponse substituted above for the typical Django</span>
+</span><span class="hll"><span class="sd">        template by the JSONResponseMixin</span>
+</span><span class="hll"><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class="hll">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+</span></pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Common challenges</a><ul>
+<li><a class="reference internal" href="#baking-out-json-instead-of-html">Baking out JSON instead of HTML</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gettingstarted.html"
+                        title="previous chapter">Getting started</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="buildableviews.html"
+                        title="next chapter">Buildable views</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/commonchallenges.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="buildableviews.html" title="Buildable views"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gettingstarted.html" title="Getting started"
+             >previous</a> |</li>
+        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Los Angeles Times Data Desk.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
