@@ -6,7 +6,7 @@ Django's `class-based views <https://docs.djangoproject.com/en/dev/topics/class-
 BuildableTemplateView
 ---------------------
 
-.. py:class:: BuildableTemplateView
+.. py:class:: BuildableTemplateView(TemplateView, BuildableMixin)
 
     Renders and builds a simple template as a flat file. Extended from Django's 
     generic `TemplateView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView>`_.
@@ -42,7 +42,7 @@ BuildableTemplateView
 BuildableListView
 -----------------
 
-.. class:: BuildableListView
+.. class:: BuildableListView(ListView, BuildableMixin)
 
     Render and builds a page about a list of objects. Extended from Django's 
     generic `ListView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView>`_.
@@ -103,7 +103,7 @@ BuildableListView
 BuildableDetailView
 -------------------
 
-.. class:: BuildableDetailView
+.. class:: BuildableDetailView(DetailView, BuildableMixin)
 
     Render and build a "detail" page about an object or a series of pages
     about a list of objects. Extended from Django's generic `DetailView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview>`_.
@@ -175,7 +175,7 @@ BuildableDetailView
 Buildable404View
 ----------------
 
-.. class:: Buildable404View
+.. class:: Buildable404View(BuildableTemplateView)
 
     Renders and builds a simple 404 error page template as a flat file. Extended from the ``BuildableTemplateView`` above.
 

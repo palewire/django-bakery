@@ -56,7 +56,7 @@
 <h2>BuildableTemplateView<a class="headerlink" href="#buildabletemplateview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableTemplateView">
-<em class="property">class </em><tt class="descname">BuildableTemplateView</tt><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">BuildableTemplateView</tt><big>(</big><em>TemplateView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Renders and builds a simple template as a flat file. Extended from Django&#8217;s
 generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView">TemplateView</a>.</p>
 <dl class="attribute">
@@ -100,7 +100,7 @@ generic <a class="reference external" href="https://docs.djangoproject.com/en/de
 <h2>BuildableListView<a class="headerlink" href="#buildablelistview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableListView">
-<em class="property">class </em><tt class="descname">BuildableListView</tt><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">BuildableListView</tt><big>(</big><em>ListView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Render and builds a page about a list of objects. Extended from Django&#8217;s
 generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView">ListView</a>.</p>
 <dl class="attribute">
@@ -172,7 +172,7 @@ defaults.</p>
 <h2>BuildableDetailView<a class="headerlink" href="#buildabledetailview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableDetailView">
-<em class="property">class </em><tt class="descname">BuildableDetailView</tt><a class="headerlink" href="#BuildableDetailView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">BuildableDetailView</tt><big>(</big><em>DetailView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableDetailView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Render and build a &#8220;detail&#8221; page about an object or a series of pages
 about a list of objects. Extended from Django&#8217;s generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview">DetailView</a>.</p>
 <dl class="attribute">
@@ -264,7 +264,7 @@ object&#8217;s flat file should be placed. By default is it <tt class="docutils 
 <h2>Buildable404View<a class="headerlink" href="#buildable404view" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="Buildable404View">
-<em class="property">class </em><tt class="descname">Buildable404View</tt><a class="headerlink" href="#Buildable404View" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Buildable404View</tt><big>(</big><em>BuildableTemplateView</em><big>)</big><a class="headerlink" href="#Buildable404View" title="Permalink to this definition">¶</a></dt>
 <dd><p>Renders and builds a simple 404 error page template as a flat file. Extended from the <tt class="docutils literal"><span class="pre">BuildableTemplateView</span></tt> above.</p>
 <p><strong>All it does</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>

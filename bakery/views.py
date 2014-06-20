@@ -8,7 +8,9 @@ import sys
 import gzip
 import shutil
 import logging
+import mimetypes
 from django.conf import settings
+from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
 from django.views.generic import TemplateView, DetailView, ListView
 logger = logging.getLogger(__name__)
@@ -28,7 +30,7 @@ class BuildableMixin(object):
         return self.get(self.request).render().content
 
     def build_file(self, path, html):
-        if getattr(settings, 'BAKERY_GZIP', False):
+        if self.is_gzippable(path):
             self.gzip_file(path, html)
         else:
             self.write_file(path, html)
@@ -41,6 +43,22 @@ class BuildableMixin(object):
         outfile = open(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
+
+    def is_gzippable(self, path):
+        """
+        Returns a boolean indicating if the provided file path is a candidate
+        for gzipping.
+        """
+        # First check if gzipping is allowed by the global setting
+        if not getattr(settings, 'BAKERY_GZIP', False):
+            return False
+        # Then check if the content type of this particular file is gzippable
+        whitelist = getattr(
+            settings,
+            'GZIP_CONTENT_TYPES',
+            DEFAULT_GZIP_CONTENT_TYPES
+        )
+        return mimetypes.guess_type(path)[0] in whitelist
 
     def gzip_file(self, path, html):
         """

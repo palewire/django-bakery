@@ -8,6 +8,7 @@ import mimetypes
 from django.conf import settings
 from optparse import make_option
 from django.core import management
+from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.core.urlresolvers import get_callable
 from django.core.exceptions import ViewDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
@@ -44,16 +45,6 @@ Will use settings.BUILD_DIR by default."
         default=False,
         help="Skip collecting the media files when building."
     ),
-)
-
-# Mimetypes of content we want to gzip
-GZIP_CONTENT_TYPES = (
-    'text/css',
-    'text/html',
-    'application/javascript',
-    'application/x-javascript',
-    'application/json',
-    'application/xml'
 )
 
 
@@ -207,7 +198,7 @@ settings.py or provide a list as arguments."
         gzip_file_match = getattr(
             settings,
             'GZIP_CONTENT_TYPES',
-            GZIP_CONTENT_TYPES
+            DEFAULT_GZIP_CONTENT_TYPES
         )
 
         # Walk through the source directory...
