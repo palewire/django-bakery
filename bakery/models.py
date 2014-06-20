@@ -154,11 +154,12 @@ class AutoPublishingBuildableModel(BuildableModel):
             # Now, no matter what, save it normally inside of a dedicated
             # database transaction so that we are sure that the save will
             # be complete before we trigger any task
-            transaction_manager = getattr(
-                transaction,
-                'atomic',  # For >= Django 1.6
-                'commit_on_success'  # For < Django 1.6
-            )
+            if hasattr(transaction, 'atomic'):
+                # For >= Django 1.6
+                transaction_manager = getattr(transaction, 'atomic')
+            else: 
+                # For < Django 1.6
+                transaction_manager = getattr(transaction, 'commit_on_success')
             with transaction_manager():
                 super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
             # Finally, depending on the action, fire off a task
