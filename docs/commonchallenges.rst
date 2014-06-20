@@ -99,3 +99,42 @@ additional configuration.
             template by the JSONResponseMixin
             """
             return self.get(self.request).content
+
+Building a single view on demand
+--------------------------------
+
+The ``build`` management command can regenerate all pages for all views in the
+``BAKERY_VIEWS`` settings variable. A :doc:`buildable model </buildablemodels>`
+can recreate all pages related to a single object. But can you rebuild all pages
+created by just one view? Yes, and all it takes is importing the view and invoking
+its ``build_method``.
+
+.. code-block:: python
+
+    >>> from yourapp.views import DummyDe­tailView
+    >>> DummyDe­tailView().build_method()
+
+A simple way to automate that kind of targeted build might be to create a 
+`custom management command <https://docs.djangoproject.com/en/dev/howto/custom-management-commands/>`_
+and connect it to a `cron job <http://en.wikipedia.org/wiki/Cron>`_.
+
+.. code-block:: python
+
+    from django.core.management.base import BaseCommand, CommandError
+    from yourapp.views import DummyDetailView
+
+    class Command(BaseCommand):
+        help = 'Rebuilds all pages created by the DummyDetailView'
+
+        def handle(self, *args, **options):
+            DummyDe­tailView().build_method()
+
+Or, if you wanted to rebuild the view without deleting everything else in the existing
+build directory, you could pass it as an argument to the standard ``build`` command
+with instructions to skip everything else it normally does.
+
+.. code-block:: python
+
+    $ python manage.py build yourapp.views.DummyDetailView --keep-build-dir --skip-static --skip-media
+
+

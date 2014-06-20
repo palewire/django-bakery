@@ -144,6 +144,37 @@ additional configuration.</p>
 </span></pre></div>
 </div>
 </div>
+<div class="section" id="building-a-single-view-on-demand">
+<h2>Building a single view on demand<a class="headerlink" href="#building-a-single-view-on-demand" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">build</span></tt> management command can regenerate all pages for all views in the
+<tt class="docutils literal"><span class="pre">BAKERY_VIEWS</span></tt> settings variable. A <a class="reference internal" href="buildablemodels.html"><em>buildable model</em></a>
+can recreate all pages related to a single object. But can you rebuild all pages
+created by just one view? Yes, and all it takes is importing the view and invoking
+its <tt class="docutils literal"><span class="pre">build_method</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre>&gt;&gt;&gt; from yourapp.views import DummyDe­tailView
+&gt;&gt;&gt; DummyDe­tailView().build_method()
+</pre></div>
+</div>
+<p>A simple way to automate that kind of targeted build might be to create a
+<a class="reference external" href="https://docs.djangoproject.com/en/dev/howto/custom-management-commands/">custom management command</a>
+and connect it to a <a class="reference external" href="http://en.wikipedia.org/wiki/Cron">cron job</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre>from django.core.management.base import BaseCommand, CommandError
+from yourapp.views import DummyDetailView
+
+class Command(BaseCommand):
+    help = &#39;Rebuilds all pages created by the DummyDetailView&#39;
+
+    def handle(self, *args, **options):
+        DummyDe­tailView().build_method()
+</pre></div>
+</div>
+<p>Or, if you wanted to rebuild the view without deleting everything else in the existing
+build directory, you could pass it as an argument to the standard <tt class="docutils literal"><span class="pre">build</span></tt> command
+with instructions to skip everything else it normally does.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python manage.py build yourapp.views.DummyDetailView --keep-build-dir --skip-static --skip-media
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -156,6 +187,7 @@ additional configuration.</p>
   <ul>
 <li><a class="reference internal" href="#">Common challenges</a><ul>
 <li><a class="reference internal" href="#baking-out-json-instead-of-html">Baking out JSON instead of HTML</a></li>
+<li><a class="reference internal" href="#building-a-single-view-on-demand">Building a single view on demand</a></li>
 </ul>
 </li>
 </ul>
