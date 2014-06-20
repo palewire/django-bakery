@@ -6,6 +6,7 @@ The magic relies on your view being class-based and having a build_object
 method, like the BuildableDetailView included in this app.
 """
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 
 
 class BuildableModel(models.Model):
@@ -152,10 +153,11 @@ class AutoPublishingBuildableModel(BuildableModel):
             # Now, no matter what, save it normally
             super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
             # Finally, depending on the action, fire off a task
+            ct = ContentType.objects.get_for_model(self.__class__)
             if action == 'publish':
-                tasks.publish_object.delay(self)
+                tasks.publish_object.delay(ct.pk, self.pk)
             elif action == 'unpublish':
-                tasks.unpublish_object.delay(self)
+                tasks.unpublish_object.delay(ct.pk, self.pk)
 
     def delete(self, *args, **kwargs):
         """

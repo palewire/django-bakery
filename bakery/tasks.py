@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
 from django.core import management
+from django.contrib.contenttypes.models import ContentType
 logger = logging.getLogger(__name__)
 try:
     from celery.decorators import task
@@ -9,12 +10,15 @@ except ImportError:
 
 
 @task()
-def publish_object(obj):
+def publish_object(content_type_pk, obj_pk):
     """
     Build all views related to an object, and then sync with S3.
 
-    Accepts a model object that inherits bakery's BuildableModel class.
+    Accepts primary keys to retrieve a model object that
+    inherits bakery's BuildableModel class.
     """
+    ct = ContentType.objects.get_for_id(content_type_pk)
+    obj = ct.get_object_for_this_type(obj_pk)
     try:
         # Build the object
         logger.info("publish_object task has received %s" % obj)
@@ -32,12 +36,15 @@ ALLOW_BAKERY_AUTO_PUBLISHING is False")
 
 
 @task()
-def unpublish_object(obj):
+def unpublish_object(content_type_pk, obj_pk):
     """
     Unbuild all views related to a object and then sync to S3.
 
-    Accepts a model object that inherits bakery's BuildableModel class.
+    Accepts primary keys to retrieve a model object that
+    inherits bakery's BuildableModel class.
     """
+    ct = ContentType.objects.get_for_id(content_type_pk)
+    obj = ct.get_object_for_this_type(obj_pk)
     try:
         # Unbuild the object
         logger.info("unpublish_object task has received %s" % obj)
