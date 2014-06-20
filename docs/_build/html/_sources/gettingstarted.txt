@@ -32,9 +32,12 @@ Also in ``settings.py``, add a build directory where the site will be built as f
 
     BUILD_DIR = '/home/you/code/your-site/build/'
 
-The trickest step is to re­fact­or your views to in­her­it our :doc:`buildable class-based views </buildableviews>`. They are similar to Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, except extended to know how to auto­mat­ic­ally build them­selves as flat files. Here is a list view and a de­tail view us­ing our sys­tem. 
+The trickest step is to re­fact­or your views to in­her­it our 
+:doc:`buildable class-based views </buildableviews>`. They are similar to 
+Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, 
+except extended to know how to auto­mat­ic­ally build them­selves as flat files. 
 
-If you've never seen class-based views before, you should study up in `the Django docs <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_ because we don't aren't going to rewrite their documentation here. If you've already seen class-based views and decided you dislike them, `you're not alone <http://lukeplant.me.uk/blog/posts/djangos-cbvs-were-a-mistake/>`_ but you'll have to take our word that they're worth the trouble in this case. You'll see why soon enough. 
+Here is a list view and a de­tail view us­ing our sys­tem. 
 
 .. code-block:: python
 
@@ -56,8 +59,16 @@ If you've never seen class-based views before, you should study up in `the Djang
         """
         queryset = Dummy­Mod­el.live.all()
 
+If you've never seen class-based views before, you should study up in 
+`the Django docs <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_ 
+because we aren't going to rewrite their documentation here. 
 
-After you’ve con­ver­ted your views, add them to a list in ``settings.py`` where all build­able views will be collected.
+If you've already seen class-based views and decided you dislike them, 
+`you're not alone <http://lukeplant.me.uk/blog/posts/djangos-cbvs-were-a-mistake/>`_ 
+but you'll have to take our word that they're worth the trouble in this case. You'll see why soon enough.
+
+After you’ve con­ver­ted your views, add them to a list in ``settings.py`` where 
+all build­able views should be recorded as in the ``BAKERY_VIEWS`` variable.
 
 .. code-block:: python
 
@@ -75,13 +86,20 @@ Then run the man­age­ment com­mand that will bake them out.
 
     $ python manage.py build
 
-This will create a copy of every page that your views support in the ``BUILD_DIR``. You can re­view its work by fir­ing up the ``buildserver``, which will loc­ally host your flat files in the same way the Django’s ``runserver`` hosts your dynamic data­base-driv­en pages.
+This will create a copy of every page that your views support in the ``BUILD_DIR``. 
+You can re­view its work by fir­ing up the ``buildserver``, which will loc­ally 
+host your flat files in the same way the Django’s ``runserver`` hosts your 
+dynamic data­base-driv­en pages.
 
 .. code-block:: bash
 
     $ python manage.py buildserver
 
-To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­ate a "buck­et" inside Amazon's service. You can go to `aws.amazon.com/s3/ <http://aws.amazon.com/s3/>`_ to set up an ac­count. If you need some ba­sic in­struc­tions you can find them `here <http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703>`_. Then set your buck­et name in ``settings.py``.
+To pub­lish the site on Amazon S3, all that’s ne­ces­sary yet is to cre­ate a 
+"buck­et" inside Amazon's service. You can go to `aws.amazon.com/s3/ <http://aws.amazon.com/s3/>`_ 
+to set up an ac­count. If you need some ba­sic in­struc­tions you can find 
+them `here <http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703>`_. 
+Then set your buck­et name in ``settings.py``.
 
 .. code-block:: python
 
@@ -100,12 +118,15 @@ Fi­nally, now that everything is set up, pub­lish­ing your files to S3 is as 
 
     $ python manage.py publish
 
-Now you should be able to vist your bucket's live URLs and see the site in action. To make your bucket act more like a normal website or connect it to a domain you control `follow these instructions <http://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html>`_.
+You should be able to vist your bucket's live URLs and see the site in action. 
+To make your bucket act more like a normal website or connect it to a domain you 
+control `follow these instructions <http://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html>`_.
 
 Optimization
 ------------
 
-If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files by having bakery compress them by using `gzip <http://en.wikipedia.org/wiki/Gzip>`_ as they are uploaded. Read more about this feature `here <http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/>`_, `here <http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html>`_ or `here <http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3>`_.
+If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files 
+by having bakery compress them using `gzip <http://en.wikipedia.org/wiki/Gzip>`_ as they are uploaded. Read more about this feature `here <http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/>`_, `here <http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html>`_ or `here <http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3>`_.
 
 Getting started is as simple as returning to ``settings.py`` and adding the following:
 
