@@ -4,12 +4,12 @@ from django.core import management
 from django.contrib.contenttypes.models import ContentType
 logger = logging.getLogger(__name__)
 try:
-    from celery.decorators import task
+    from celery import shared_task
 except ImportError:
     raise ImportError("celery must be installed to use django-bakery's tasks")
 
 
-@task()
+@shared_task()
 def publish_object(content_type_pk, obj_pk):
     """
     Build all views related to an object, and then sync with S3.
@@ -35,7 +35,7 @@ ALLOW_BAKERY_AUTO_PUBLISHING is False")
         logger.error("Task Error: publish_object", exc_info=True)
 
 
-@task()
+@shared_task()
 def unpublish_object(content_type_pk, obj_pk):
     """
     Unbuild all views related to a object and then sync to S3.

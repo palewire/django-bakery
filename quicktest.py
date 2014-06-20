@@ -22,7 +22,7 @@ class QuickDjangoTest(object):
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.staticfiles',
-        'celery',
+        'djcelery',
     )
     TEMPLATE_DIRS = (
         os.path.abspath(

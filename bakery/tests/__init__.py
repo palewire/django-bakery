@@ -19,6 +19,7 @@ class MockObject(bmodels.BuildableModel):
     name = models.CharField(max_length=500)
 
     def get_absolute_url(self):
+        super(MockObject, self).get_absolute_url()  # Just for test coverage
         return '/%s/' % self.id
 
 
@@ -217,3 +218,9 @@ class BakeryTest(TestCase):
         ct = ContentType.objects.get_for_model(obj)
         tasks.publish_object(ct.id, obj.id)
         tasks.unpublish_object(ct.id, obj.id)
+        # Some save overrides tests
+        obj = AutoMockObject.objects.all()[0]
+        obj.save(publish=False)
+        #obj.is_published = True
+        #obj.save()
+        obj.delete(unpublish=False)
