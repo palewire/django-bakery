@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.3
+-----
+
+* Changed ``AutoPublishingBuildableModel`` to commit to the database before triggering a task
+* Changed celery tasks to accept primary keys instead of model objects
+
 0.6.0
 -----
 
