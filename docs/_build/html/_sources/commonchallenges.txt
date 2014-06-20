@@ -133,7 +133,7 @@ Or, if you wanted to rebuild the view without deleting everything else in the ex
 build directory, you could pass it as an argument to the standard ``build`` command
 with instructions to skip everything else it normally does.
 
-.. code-block:: python
+.. code-block:: bash
 
     $ python manage.py build yourapp.views.DummyDetailView --keep-build-dir --skip-static --skip-media
 
