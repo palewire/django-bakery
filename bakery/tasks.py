@@ -18,13 +18,13 @@ def publish_object(content_type_pk, obj_pk):
     inherits bakery's BuildableModel class.
     """
     ct = ContentType.objects.get_for_id(content_type_pk)
-    obj = ct.get_object_for_this_type(obj_pk)
+    obj = ct.get_object_for_this_type(pk=obj_pk)
     try:
         # Build the object
         logger.info("publish_object task has received %s" % obj)
         obj.build()
         # Run the `publish` management command unless the
-        # LLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
+        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
         if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
             logger.info("Not running publish command because \
 ALLOW_BAKERY_AUTO_PUBLISHING is False")
@@ -44,13 +44,13 @@ def unpublish_object(content_type_pk, obj_pk):
     inherits bakery's BuildableModel class.
     """
     ct = ContentType.objects.get_for_id(content_type_pk)
-    obj = ct.get_object_for_this_type(obj_pk)
+    obj = ct.get_object_for_this_type(pk=obj_pk)
     try:
         # Unbuild the object
         logger.info("unpublish_object task has received %s" % obj)
         obj.unbuild()
         # Run the `publish` management command unless the
-        # LLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
+        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
         if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
             logger.info("Not running publish command because \
 ALLOW_BAKERY_AUTO_PUBLISHING is False")
