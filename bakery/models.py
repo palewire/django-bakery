@@ -157,7 +157,7 @@ class AutoPublishingBuildableModel(BuildableModel):
             if hasattr(transaction, 'atomic'):
                 # For >= Django 1.6
                 transaction_manager = getattr(transaction, 'atomic')
-            else: 
+            else:
                 # For < Django 1.6
                 transaction_manager = getattr(transaction, 'commit_on_success')
             with transaction_manager():
