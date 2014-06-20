@@ -11,6 +11,7 @@ from django.test import TestCase
 from django.http import HttpResponse
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.contrib.contenttypes.models import ContentType
 
 
 class MockObject(bmodels.BuildableModel):
@@ -213,5 +214,6 @@ class BakeryTest(TestCase):
     def test_tasks(self):
         from bakery import tasks
         obj = AutoMockObject.objects.all()[0]
-        tasks.publish_object(obj)
-        tasks.unpublish_object(obj)
+        ct = ContentType.objects.get_for_model(obj)
+        tasks.publish_object(ct.id, obj.id)
+        tasks.unpublish_object(ct.id, obj.id)

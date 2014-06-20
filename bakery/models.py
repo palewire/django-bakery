@@ -6,6 +6,7 @@ The magic relies on your view being class-based and having a build_object
 method, like the BuildableDetailView included in this app.
 """
 from django.db import models
+from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -150,8 +151,16 @@ class AutoPublishingBuildableModel(BuildableModel):
                 # If it's remaining unpublished...
                 else:
                     action = None
-            # Now, no matter what, save it normally
-            super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
+            # Now, no matter what, save it normally inside of a dedicated
+            # database transaction so that we are sure that the save will
+            # be complete before we trigger any task
+            transaction_manager = getattr(
+                transaction,
+                'atomic',  # For >= Django 1.6
+                'commit_on_success'  # For < Django 1.6
+            )
+            with transaction_manager():
+                super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
             # Finally, depending on the action, fire off a task
             ct = ContentType.objects.get_for_model(self.__class__)
             if action == 'publish':
