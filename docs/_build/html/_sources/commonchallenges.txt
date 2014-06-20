@@ -1,8 +1,8 @@
 Common challenges
 =================
 
-Baking out JSON instead of HTML
--------------------------------
+Building JSON instead of HTML
+-----------------------------
 
 Suppose you have a view the acts like an API, generating a small snippet
 of JSON. In this case,
