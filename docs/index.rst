@@ -35,6 +35,7 @@ Documentation
    commonchallenges
    buildableviews
    buildablemodels
+   buildablefeeds
    settingsvariables
    managementcommands
    changelog

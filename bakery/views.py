@@ -29,6 +29,16 @@ class BuildableMixin(object):
         """
         return self.get(self.request).render().content
 
+    def prep_directory(self, path):
+        """
+        Prepares a new directory to store the file at the provided path,
+        if needed.
+        """
+        dirname = os.path.dirname(path)
+        if dirname:
+            dirname = os.path.join(settings.BUILD_DIR, dirname)
+            os.path.exists(dirname) or os.makedirs(dirname)
+
     def build_file(self, path, html):
         if self.is_gzippable(path):
             self.gzip_file(path, html)
@@ -102,12 +112,7 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
         logger.debug("Building %s" % self.template_name)
         self.request = RequestFactory().get(self.build_path)
         path = os.path.join(settings.BUILD_DIR, self.build_path)
-        # Make sure the directory exists
-        dirname = os.path.dirname(self.build_path)
-        if dirname:
-            dirname = os.path.join(settings.BUILD_DIR, dirname)
-            os.path.exists(dirname) or os.makedirs(dirname)
-        # Write out the data
+        self.prep_directory(self.build_path)
         self.build_file(path, self.get_content())
 
 
@@ -139,14 +144,8 @@ class BuildableListView(ListView, BuildableMixin):
 
     def build_queryset(self):
         logger.debug("Building %s" % self.build_path)
-        # Make a fake request
         self.request = RequestFactory().get(self.build_path)
-        # Make sure the directory exists
-        dirname = os.path.dirname(self.build_path)
-        if dirname:
-            dirname = os.path.join(settings.BUILD_DIR, dirname)
-            os.path.exists(dirname) or os.makedirs(dirname)
-        # Write it out to the appointed flat file
+        self.prep_directory(self.build_path)
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         self.build_file(path, self.get_content())
 

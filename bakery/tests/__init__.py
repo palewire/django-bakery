@@ -3,7 +3,7 @@ import os
 import six
 import json
 import django
-from .. import views
+from .. import views, feeds
 from django.db import models
 from .. import models as bmodels
 from django.conf import settings
@@ -35,6 +35,13 @@ class AutoMockObject(bmodels.AutoPublishingBuildableModel):
 class MockDetailView(views.BuildableDetailView):
     model = MockObject
     template_name = 'detailview.html'
+
+
+class MockRSSFeed(feeds.BuildableFeed):
+    link = '/latest.xml'
+
+    def items(self):
+        return MockObject.objects.all()
 
 
 class JSONResponseMixin(object):
@@ -150,6 +157,14 @@ class BakeryTest(TestCase):
             json.loads(open(build_path, 'rb').read().decode()),
             {"hello": "tests"}
         )
+        os.remove(build_path)
+
+    def test_rss_feed(self):
+        f = MockRSSFeed()
+        f.build_method
+        f.build_queryset()
+        build_path = os.path.join(settings.BUILD_DIR, 'feed.xml')
+        self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
     def test_build_cmd(self):
