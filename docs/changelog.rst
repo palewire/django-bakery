@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.6.4
+-----
+
+* Added ``BuildableFeed`` for RSS support
+
 0.6.3
 -----
 

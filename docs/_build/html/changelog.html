@@ -52,22 +52,28 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>0.6.3<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>0.6.4<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added <tt class="docutils literal"><span class="pre">BuildableFeed</span></tt> for RSS support</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>0.6.3<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Changed <tt class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></tt> to commit to the database before triggering a task</li>
 <li>Changed celery tasks to accept primary keys instead of model objects</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>0.6.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>0.6.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>An <tt class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></tt> that is able to use a Celery job queue to automatically build and publish objects when they are saved</li>
 <li>Refactored <tt class="docutils literal"><span class="pre">build</span></tt> management command to allow for its different tasks to be more easily overridden</li>
 <li>Added a <tt class="docutils literal"><span class="pre">--keep-build-dir</span></tt> option to the <tt class="docutils literal"><span class="pre">build</span></tt> command.</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>0.5.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>0.5.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Refactored the <tt class="docutils literal"><span class="pre">publish</span></tt> and <tt class="docutils literal"><span class="pre">unpublish</span></tt> management commands to use boto instead of s3cmd.</li>
 <li><tt class="docutils literal"><span class="pre">build</span></tt> and <tt class="docutils literal"><span class="pre">publish</span></tt> management commands use file mimetypes instead of a regex on the filename to decide if a file will be gzipped.</li>
@@ -75,27 +81,27 @@
 <li><tt class="docutils literal"><span class="pre">publish</span></tt> management command now pools uploads to increase speed</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>0.4.2<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>0.4.2<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added a <tt class="docutils literal"><span class="pre">get_content</span></tt> method to all of the buildable views to make it easier to build pages that don&#8217;t require a template, like JSON outputs</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>0.4.1<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>0.4.1<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Bug fix with calculating Python version in the views in v0.4.0</li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>0.4.0<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>0.4.0<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added optional gzip support to build routine for Amazon S3 publishing (via <a class="reference external" href="https://twitter.com/emamd">&#64;emamd</a>)</li>
 <li>Mixin buildable view with common methods</li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h2>0.3.0<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>0.3.0<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Python 3 support</li>
 <li>Unit tests</li>
@@ -106,14 +112,14 @@
 <li>Refactored <tt class="docutils literal"><span class="pre">buildserver</span></tt> management command to work with latest versions of Django</li>
 </ul>
 </div>
-<div class="section" id="id8">
-<h2>0.2.0<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>0.2.0<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Numerous bug fixes</li>
 </ul>
 </div>
-<div class="section" id="id9">
-<h2>0.1.0<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h2>0.1.0<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="http://datadesk.latimes.com/posts/2012/03/introducing-django-bakery/">Initial release</a></li>
 </ul>
@@ -129,15 +135,16 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">0.6.3</a></li>
-<li><a class="reference internal" href="#id2">0.6.0</a></li>
-<li><a class="reference internal" href="#id3">0.5.0</a></li>
-<li><a class="reference internal" href="#id4">0.4.2</a></li>
-<li><a class="reference internal" href="#id5">0.4.1</a></li>
-<li><a class="reference internal" href="#id6">0.4.0</a></li>
-<li><a class="reference internal" href="#id7">0.3.0</a></li>
-<li><a class="reference internal" href="#id8">0.2.0</a></li>
-<li><a class="reference internal" href="#id9">0.1.0</a></li>
+<li><a class="reference internal" href="#id1">0.6.4</a></li>
+<li><a class="reference internal" href="#id2">0.6.3</a></li>
+<li><a class="reference internal" href="#id3">0.6.0</a></li>
+<li><a class="reference internal" href="#id4">0.5.0</a></li>
+<li><a class="reference internal" href="#id5">0.4.2</a></li>
+<li><a class="reference internal" href="#id6">0.4.1</a></li>
+<li><a class="reference internal" href="#id7">0.4.0</a></li>
+<li><a class="reference internal" href="#id8">0.3.0</a></li>
+<li><a class="reference internal" href="#id9">0.2.0</a></li>
+<li><a class="reference internal" href="#id10">0.1.0</a></li>
 </ul>
 </li>
 </ul>
