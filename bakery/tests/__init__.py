@@ -37,6 +37,11 @@ class MockDetailView(views.BuildableDetailView):
     template_name = 'detailview.html'
 
 
+class MockRedirectView(views.BuildableRedirectView):
+    build_path = "detail/badurl.html"
+    url = "/detail/"
+
+
 class MockRSSFeed(feeds.BuildableFeed):
     link = '/latest.xml'
 
@@ -139,6 +144,20 @@ class BakeryTest(TestCase):
             )
             self.assertTrue(os.path.exists(build_path))
             v.unbuild_object(o)
+
+    def test_redirect_view(self):
+        v = views.BuildableRedirectView(
+            build_path="detail/badurl.html",
+            url="/detail/"
+        )
+        v.build_method
+        v.build()
+        MockRedirectView().build()
+        build_path = os.path.join(
+            settings.BUILD_DIR,
+            "detail/badurl.html"
+        )
+        self.assertTrue(os.path.exists(build_path))
 
     def test_404_view(self):
         v = views.Buildable404View()

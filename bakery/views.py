@@ -12,7 +12,8 @@ import mimetypes
 from django.conf import settings
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
-from django.views.generic import TemplateView, DetailView, ListView
+from django.views.generic import TemplateView, DetailView
+from django.views.generic import ListView, RedirectView
 logger = logging.getLogger(__name__)
 
 
@@ -88,6 +89,9 @@ class BuildableMixin(object):
             outfile = gzip.GzipFile(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
+
+    def post_publish(self):
+        pass
 
 
 class BuildableTemplateView(TemplateView, BuildableMixin):
@@ -215,3 +219,69 @@ class Buildable404View(BuildableTemplateView):
     """
     build_path = '404.html'
     template_name = '404.html'
+
+
+class BuildableRedirectView(RedirectView, BuildableMixin):
+    """
+    Render and build a redirect.
+
+    Required attributes:
+
+        build_path:
+            The URL being requested, which will be published as a flatfile
+            with a redirect away from it.
+
+        url:
+            The URL that the redirect will be send the user. Operates
+            in the same way as the standard generic RedirectView.
+    """
+    def get_content(self):
+        html = """
+        <html>
+            <head>
+            <meta http-equiv="Refresh" content="1;url=%s" />
+            </head>
+            <body></body>
+        </html>
+        """
+        return html % self.get_redirect_url()
+
+    @property
+    def build_method(self):
+        return self.build
+
+    def build(self):
+        logger.debug("Building redirect from %s to %s" % (
+            self.build_path,
+            self.get_redirect_url()
+        ))
+        self.request = RequestFactory().get(self.build_path)
+        path = os.path.join(settings.BUILD_DIR, self.build_path)
+        self.prep_directory(self.build_path)
+        self.build_file(path, self.get_content())
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Return the URL redirect to. Keyword arguments from the
+        URL pattern match generating the redirect request
+        are provided as kwargs to this method.
+        """
+        if self.url:
+            url = self.url % kwargs
+        elif self.pattern_name:
+            try:
+                url = reverse(self.pattern_name, args=args, kwargs=kwargs)
+            except NoReverseMatch:
+                return None
+        else:
+            return None
+        return url
+
+    def post_publish(self, bucket):
+        logger.debug("Adding S3 redirect header from %s to %s" % (
+            self.build_path,
+            self.get_redirect_url()
+        ))
+        key = bucket.get_key(self.build_path)
+        key.set_redirect(self.get_redirect_url())
+        key.make_public()

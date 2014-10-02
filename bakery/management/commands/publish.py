@@ -70,6 +70,8 @@ something before you build it."
 settings.py or provide it with --build-dir"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
+    views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
+settings.py or provide a list as arguments."
 
     def handle(self, *args, **options):
         """
@@ -101,14 +103,21 @@ in settings.py or provide it with --aws-bucket-name"
         # Sync the two
         self.sync_with_s3()
 
-        # delete anything that's left in our keys dict
+        # Delete anything that's left in our keys dict
         if not self.dry_run:
             self.deleted_files = len(self.s3_key_dict.keys())
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
                 self.bucket.delete_keys(self.s3_key_dict.keys())
 
-        # we're finished, print the final output
+        # Run any post publish hooks on the views
+        if not hasattr(settings, 'BAKERY_VIEWS'):
+            raise CommandError(self.views_unconfig_msg)
+        for view in settings.BAKERY_VIEWS:
+            if hasattr(view, 'post_publish'):
+                getattr(view, 'post_publish')(self.bucket)
+
+        # We're finished, print the final output
         elapsed_time = time.time() - self.start_time
         logger.info("publish completed, %d uploaded and %d deleted files \
 in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
