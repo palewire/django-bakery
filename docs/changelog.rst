@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.1
+-----
+
+* Added ``BuildableRedirectView``
+
 0.6.4
 -----
 

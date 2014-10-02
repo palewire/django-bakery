@@ -189,3 +189,33 @@ Buildable404View
         class Buildable404View(BuildableTemplateView):
             build_path = '404.html'
             template_name = '404.html'
+
+
+BuildableRedirectView
+---------------------
+
+.. class:: BuildableRedirectView(RedirectView, BuildableMixin)
+
+    Render and build a redirect. Extended from Django's generic
+    `RedirectView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#redirectview>`_.
+
+    .. py:attribute:: build_path
+
+        The URL being requested, which will be published as a flatfile
+        with a redirect away from it.
+
+    .. py:attribute:: url
+
+        The URL that the redirect will be send the user. Operates
+        in the same way as the standard generic RedirectView.
+
+    **Example myapp/views.py**
+
+    .. code-block:: python
+
+        from bakery.views import BuildableRedirectView
+
+
+        class ExampleRedirectView(BuildableRedirectView):
+            build_path = "mymodel/oldurl.html"
+            url = '/mymodel/'
