@@ -114,7 +114,7 @@ settings.py or provide a list as arguments."
         # Run any post publish hooks on the views
         if not hasattr(settings, 'BAKERY_VIEWS'):
             raise CommandError(self.views_unconfig_msg)
-        for str_name in settings.BAKERY_VIEWS:
+        for view_str in settings.BAKERY_VIEWS:
             view = get_callable(view_str)()
             if hasattr(view, 'post_publish'):
                 getattr(view, 'post_publish')(self.bucket)
