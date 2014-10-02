@@ -230,7 +230,7 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             with a redirect away from it.
 
         url:
-            The URL that the redirect will be send the user. Operates
+            The URL where redirect will send the user. Operates
             in the same way as the standard generic RedirectView.
     """
     def get_content(self):
