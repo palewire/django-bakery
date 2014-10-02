@@ -7,6 +7,7 @@ import mimetypes
 from django.conf import settings
 from optparse import make_option
 from multiprocessing.pool import ThreadPool
+from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
 
@@ -113,7 +114,8 @@ settings.py or provide a list as arguments."
         # Run any post publish hooks on the views
         if not hasattr(settings, 'BAKERY_VIEWS'):
             raise CommandError(self.views_unconfig_msg)
-        for view in settings.BAKERY_VIEWS:
+        for str_name in settings.BAKERY_VIEWS:
+            view = get_callable(view_str)()
             if hasattr(view, 'post_publish'):
                 getattr(view, 'post_publish')(self.bucket)
 

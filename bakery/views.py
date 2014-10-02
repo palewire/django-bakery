@@ -90,9 +90,6 @@ class BuildableMixin(object):
         outfile.write(six.binary_type(html))
         outfile.close()
 
-    def post_publish(self):
-        pass
-
 
 class BuildableTemplateView(TemplateView, BuildableMixin):
     """
