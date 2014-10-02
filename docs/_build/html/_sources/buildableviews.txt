@@ -206,7 +206,7 @@ BuildableRedirectView
 
     .. py:attribute:: url
 
-        The URL that the redirect will be send the user. Operates
+        The URL where redirect will send the user. Operates
         in the same way as the standard generic RedirectView.
 
     **Example myapp/views.py**
