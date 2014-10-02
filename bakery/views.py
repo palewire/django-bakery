@@ -12,8 +12,9 @@ import mimetypes
 from django.conf import settings
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
-from django.views.generic import TemplateView, DetailView
 from django.views.generic import ListView, RedirectView
+from django.views.generic import TemplateView, DetailView
+from django.core.urlresolvers import reverse, NoReverseMatch
 logger = logging.getLogger(__name__)
 
 
