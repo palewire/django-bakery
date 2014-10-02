@@ -280,5 +280,11 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             self.get_redirect_url()
         ))
         key = bucket.get_key(self.build_path)
+        key.copy(
+            key.bucket,
+            key.name,
+            preserve_acl=True,
+            metadata={'Content-Type': 'text/html'}
+        )
         key.set_redirect(self.get_redirect_url())
         key.make_public()
