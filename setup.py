@@ -21,7 +21,11 @@ class TestCommand(Command):
                     'ENGINE': 'django.db.backends.sqlite3'
                 }
             },
-            INSTALLED_APPS=('bakery',)
+            INSTALLED_APPS=(
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'bakery',
+            )
         )
         from django.core.management import call_command
         import django
