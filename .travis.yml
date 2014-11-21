@@ -13,6 +13,12 @@ matrix:
   exclude:
     - python: "2.6"
       env: "DJANGO_VERSION=1.7.1"
+    - python: "3.2"
+      env: "DJANGO_VERSION=1.5.4"
+    - python: "3.3"
+      env: "DJANGO_VERSION=1.5.4"
+    - python: "3.4"
+      env: "DJANGO_VERSION=1.5.4"
 install:
  - pip install pyflakes pep8 coverage python-coveralls
  - pip install django-celery
