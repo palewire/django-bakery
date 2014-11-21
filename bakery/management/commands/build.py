@@ -220,7 +220,7 @@ settings.py or provide a list as arguments."
                 content_type = mimetypes.guess_type(og_file)[0]
 
                 # If it isn't a file want to gzip...
-                if not content_type in gzip_file_match:
+                if content_type not in gzip_file_match:
                     # just copy it to the target.
                     shutil.copy(og_file, dest_path)
 

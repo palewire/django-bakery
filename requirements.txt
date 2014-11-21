@@ -17,7 +17,7 @@ docutils==0.11
 kombu==3.0.19
 livereload==2.0.0
 pathtools==0.1.2
-pep8==1.4.6
+pep8>=1.4.6
 py==1.4.20
 pyflakes
 python-coveralls==2.4.2
