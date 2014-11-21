@@ -1,3 +1,5 @@
+import os
+import tempfile
 from setuptools import setup
 from distutils.core import Command
 
@@ -21,12 +23,43 @@ class TestCommand(Command):
                     'ENGINE': 'django.db.backends.sqlite3'
                 }
             },
-            INSTALLED_APPS=(
+            INSTALLED_APPS = (
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.staticfiles',
                 'bakery',
             ),
-            BUILD_DIR="./build/"
+            TEMPLATE_DIRS = (
+                os.path.abspath(
+                     os.path.join(
+                         os.path.dirname(__file__),
+                         'bakery',
+                         'tests',
+                         'templates',
+                     ),
+                ),
+            ),
+            BUILD_DIR = tempfile.mkdtemp(),
+            STATIC_ROOT = os.path.abspath(
+                 os.path.join(
+                     os.path.dirname(__file__),
+                     'bakery',
+                     'tests',
+                     'static',
+                 ),
+            ),
+            STATIC_URL = '/static/',
+            MEDIA_ROOT = os.path.abspath(
+                 os.path.join(
+                     os.path.dirname(__file__),
+                     'bakery',
+                     'tests',
+                     'media',
+                 ),
+            ),
+            MEDIA_URL = '/media/',
+            BAKERY_VIEWS = ('bakery.tests.MockDetailView',),
         )
         from django.core.management import call_command
         import django
