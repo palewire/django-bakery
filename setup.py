@@ -17,6 +17,7 @@ class TestCommand(Command):
             DATABASES={
                 'default': {
                     'NAME': 'test.db',
+                    'TEST_NAME': 'test.db',
                     'ENGINE': 'django.db.backends.sqlite3'
                 }
             },
