@@ -16,7 +16,7 @@ class TestCommand(Command):
         settings.configure(
             DATABASES={
                 'default': {
-                    'NAME': ':memory:',
+                    'NAME': 'test.db',
                     'ENGINE': 'django.db.backends.sqlite3'
                 }
             },
