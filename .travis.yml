@@ -9,11 +9,12 @@ env:
  - DJANGO_VERSION=1.6.2
  - DJANGO_VERSION=1.7.1
 install:
- - pip install -r requirements.txt
+ - pip install pyflakes pep8 coverage python-coveralls
  - pip install -q Django==$DJANGO_VERSION
 script:
  - pep8 bakery
  - pyflakes bakery
+ - python setup.py install
  - coverage run setup.py test
 after_success:
  - coveralls
