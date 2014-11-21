@@ -11,6 +11,7 @@ env:
  - DJANGO_VERSION=1.7.1
 install:
  - pip install pyflakes pep8 coverage python-coveralls
+ - pip install django-celery
  - pip install -q Django==$DJANGO_VERSION
 script:
  - pep8 bakery
