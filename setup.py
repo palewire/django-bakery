@@ -26,6 +26,7 @@ class TestCommand(Command):
                 'django.contrib.contenttypes',
                 'bakery',
             )
+            BUILD_DIR="./build/"
         )
         from django.core.management import call_command
         import django
