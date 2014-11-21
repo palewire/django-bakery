@@ -25,7 +25,7 @@ class TestCommand(Command):
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
                 'bakery',
-            )
+            ),
             BUILD_DIR="./build/"
         )
         from django.core.management import call_command
@@ -42,6 +42,15 @@ setup(
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
     url='http://www.github.com/datadesk/django-bakery/',
+    packages=(
+        'bakery',
+        'bakery.management',
+        'bakery.management.commands',
+        'bakery.tests',
+        'bakery.tests.static',
+        'bakery.tests.media',
+        'bakery.tests.templates',
+    ),
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',

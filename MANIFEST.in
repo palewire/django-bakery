@@ -1,0 +1,4 @@
+include README.md
+recursive-include bakery/tests/media *
+recursive-include bakery/tests/static *
+recursive-include bakery/tests/templates *
