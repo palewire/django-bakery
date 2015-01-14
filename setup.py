@@ -20,6 +20,11 @@ class TestCommand(Command):
         pass
 
     def run(self):
+        if self.distribution.install_requires:
+            self.distribution.fetch_build_eggs(self.distribution.install_requires)
+        if self.distribution.tests_require:
+            self.distribution.fetch_build_eggs(self.distribution.tests_require)
+
         from django.conf import settings
         settings.configure(
             DATABASES={
