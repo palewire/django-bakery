@@ -275,7 +275,7 @@ class BakeryTest(TestCase):
         call_command("build", 'bakery.tests.MockDetailView')
 
         # HACK: Running the publish command causes this exception to be raised:
-        # S3DataError: BotoClientError: ETag from S3 did not match computed 
+        # S3DataError: BotoClientError: ETag from S3 did not match computed
         # MD5.
         # I suspect, but haven't confirmed that this is due to the combination
         # of mocking S3 and threading.  We don't really care about that part
