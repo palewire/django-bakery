@@ -3,6 +3,12 @@ import tempfile
 from setuptools import setup
 from distutils.core import Command
 
+test_requires = ['moto']
+try:
+    import unittest.mock
+except ImportError:
+    test_requires.append('mock')
+
 
 class TestCommand(Command):
     user_options = []
@@ -97,5 +103,6 @@ setup(
         'six>=1.5.2',
         'boto>=2.28',
     ],
+    tests_require=test_requires,
     cmdclass={'test': TestCommand}
 )
