@@ -71,6 +71,10 @@ class TestCommand(Command):
             ),
             MEDIA_URL = '/media/',
             BAKERY_VIEWS = ('bakery.tests.MockDetailView',),
+            # The publish management command needs these to exit, but
+            # we're mocking boto, so we can put nonesense in here
+            AWS_ACCESS_KEY_ID = 'MOCK_ACCESS_KEY_ID',
+            AWS_SECRET_ACCESS_KEY = 'MOCK_SECRET_ACCESS_KEY',
         )
         from django.core.management import call_command
         import django
