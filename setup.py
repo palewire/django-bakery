@@ -65,7 +65,16 @@ class TestCommand(Command):
         import django
         if django.VERSION[:2] >= (1, 7):
             django.setup()
-        call_command('test', 'bakery')
+
+        # With Django 1.6, the way tests were discovered changed (see
+        # https://docs.djangoproject.com/en/1.7/releases/1.6/#new-test-runner)
+        # Set the argument to the test management command appropriately
+        # depending on the Django version
+        test_module = 'bakery.tests'
+        if django.VERSION[:2] < (1, 6):
+            test_module = 'bakery'
+
+        call_command('test', test_module)
 
 
 setup(
