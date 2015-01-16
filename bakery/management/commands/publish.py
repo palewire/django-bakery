@@ -44,6 +44,15 @@ Will use settings.AWS_BUCKET_NAME by default."
         help="Display the output of what would have been uploaded \
 removed, but without actually publishing."
     ),
+    make_option(
+        "--no-delete",
+        action="store_true",
+        dest="no_delete",
+        default=False,
+        help=("Keep files in S3, even if they do not exist in the build "
+              "directory. The default behavior is to delete files in the "
+              "bucket that are not in the build directory.")
+    ),
 )
 
 
@@ -105,7 +114,7 @@ settings.py or provide a list as arguments."
         self.sync_with_s3()
 
         # Delete anything that's left in our keys dict
-        if not self.dry_run:
+        if not self.dry_run and not self.no_delete:
             self.deleted_files = len(self.s3_key_dict.keys())
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
@@ -184,6 +193,9 @@ No content was changed on S3.")
             logger.info("executing with the --dry-run option set.")
         else:
             self.dry_run = False
+
+        # set the --keep-files option
+        self.no_delete = options.get('no_delete')
 
     def get_s3_key_dict(self):
         """
