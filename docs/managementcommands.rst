@@ -59,7 +59,8 @@ in the build directory.
 publish
 -------
 
-Syncs the build directory with your Amazon S3 bucket.
+Syncs your Amazon S3 bucket to be identical to the local build directory. New files are uploaded,
+changed files are updated and absent files are deleted.
 
 .. cmdoption:: --aws-bucket-name <name>
 
@@ -76,6 +77,12 @@ Syncs the build directory with your Amazon S3 bucket.
 .. cmdoption:: --dry-run
 
     Provide output of what the command would perform, but without changing anything.
+
+.. cmdoption:: --no-delete
+
+    Keep files in S3, even if they do not exist in the build directory. The
+    default behavior is to delete files in the bucket that are not in the
+    build directory.
 
 .. code-block:: bash
 
