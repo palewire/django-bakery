@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.7.3
+-----
+
+* Added a ``--no-delete`` option to the ``publish`` management command.
+* Fixed testing in Django 1.7
+
 0.7.1
 -----
 
