@@ -3,9 +3,6 @@ import os
 import six
 import json
 import django
-import boto
-from boto.s3.key import Key
-from moto import mock_s3
 from .. import views, feeds
 from django.db import models
 from .. import models as bmodels
@@ -15,11 +12,6 @@ from django.http import HttpResponse
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.contrib.contenttypes.models import ContentType
-
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
 
 
 class MockObject(bmodels.BuildableModel):
@@ -250,47 +242,6 @@ class BakeryTest(TestCase):
 
     def test_publish_cmd(self):
         pass
-
-    @mock_s3
-    def test_publish_cmd_keep_files(self):
-        """
-        Test that running the publish management command with the
-        --keep-files option does not delete remote files that
-        don't exist in the build directory
-        """
-        aws_bucket_name = 'fake.s3.example.com'
-
-        # Since we're mocking S3, we need to create the mock bucket
-        conn = boto.connect_s3()
-        bucket = conn.create_bucket(aws_bucket_name)
-
-        # Create an item in S3 that isn't in our build directory
-        contents = 'This is a file not in the Django Bakery build'
-        key = 'not_in_build/test.html'
-        k = Key(bucket)
-        k.key = key
-        k.set_contents_from_string(contents)
-
-        # Build our mock site via the build management command
-        call_command("build", 'bakery.tests.MockDetailView')
-
-        # HACK: Running the publish command causes this exception to be raised:
-        # S3DataError: BotoClientError: ETag from S3 did not match computed
-        # MD5.
-        # I suspect, but haven't confirmed that this is due to the combination
-        # of mocking S3 and threading.  We don't really care about that part
-        # of the code, so just mock the offending method
-        with patch.object(Key, 'should_retry', return_value=True):
-            # Publish the built site
-            cmd_kwargs = {
-                'keep_files': True,
-                'aws_bucket_name': aws_bucket_name,
-            }
-            call_command('publish', **cmd_kwargs)
-
-            # The key we created should still be in the bucket after publishing
-            k = bucket.get_key(key)
-            self.assertEqual(k.get_contents_as_string(), contents)
 
     def test_unpublish_cmd(self):
         pass

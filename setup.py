@@ -3,12 +3,6 @@ import tempfile
 from setuptools import setup
 from distutils.core import Command
 
-test_requires = ['moto']
-try:
-    import unittest.mock
-except ImportError:
-    test_requires.append('mock')
-
 
 class TestCommand(Command):
     user_options = []
@@ -20,11 +14,6 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        if self.distribution.install_requires:
-            self.distribution.fetch_build_eggs(self.distribution.install_requires)
-        if self.distribution.tests_require:
-            self.distribution.fetch_build_eggs(self.distribution.tests_require)
-
         from django.conf import settings
         settings.configure(
             DATABASES={
@@ -122,6 +111,5 @@ setup(
         'six>=1.5.2',
         'boto>=2.28',
     ],
-    tests_require=test_requires,
     cmdclass={'test': TestCommand}
 )
