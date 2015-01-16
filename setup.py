@@ -3,6 +3,12 @@ import tempfile
 from setuptools import setup
 from distutils.core import Command
 
+test_requires = ['moto']
+try:
+    import unittest.mock
+except ImportError:
+    test_requires.append('mock')
+
 
 class TestCommand(Command):
     user_options = []
@@ -14,6 +20,11 @@ class TestCommand(Command):
         pass
 
     def run(self):
+        if self.distribution.install_requires:
+            self.distribution.fetch_build_eggs(self.distribution.install_requires)
+        if self.distribution.tests_require:
+            self.distribution.fetch_build_eggs(self.distribution.tests_require)
+
         from django.conf import settings
         settings.configure(
             DATABASES={
@@ -61,6 +72,10 @@ class TestCommand(Command):
             ),
             MEDIA_URL = '/media/',
             BAKERY_VIEWS = ('bakery.tests.MockDetailView',),
+            # The publish management command needs these to exit, but
+            # we're mocking boto, so we can put nonesense in here
+            AWS_ACCESS_KEY_ID = 'MOCK_ACCESS_KEY_ID',
+            AWS_SECRET_ACCESS_KEY = 'MOCK_SECRET_ACCESS_KEY',
         )
         from django.core.management import call_command
         import django
@@ -107,5 +122,6 @@ setup(
         'six>=1.5.2',
         'boto>=2.28',
     ],
+    tests_require=test_requires,
     cmdclass={'test': TestCommand}
 )
