@@ -242,7 +242,8 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             <body></body>
         </html>
         """
-        return html % self.get_redirect_url()
+        html = html % self.get_redirect_url()
+        return html.encode("utf-8")
 
     @property
     def build_method(self):
