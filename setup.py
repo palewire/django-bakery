@@ -30,6 +30,7 @@ class TestCommand(Command):
                 'django.contrib.staticfiles',
                 'bakery',
             ),
+            MIDDLEWARE_CLASSES=(),
             TEMPLATE_DIRS = (
                 os.path.abspath(
                      os.path.join(
