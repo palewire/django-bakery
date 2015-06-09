@@ -186,7 +186,7 @@ settings.py or provide a list as arguments."
             try:
                 view = get_callable(view_str)
                 view().build_method()
-            except (TypeError, ViewDoesNotExist):
+            except (TypeError, ViewDoesNotExist, ImportError):
                 raise CommandError("View %s does not work." % view_str)
 
     def copytree_and_gzip(self, source_dir, target_dir):

@@ -215,13 +215,14 @@ class BakeryTest(TestCase):
         self.assertTrue(os.path.exists(robots_path))
         favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
         self.assertTrue(os.path.exists(favicon_path))
-        if django.VERSION >= (1, 5):
-            self.assertRaises(
-                CommandError,
-                call_command,
-                'build',
-                'FooView',
-            )
+        # If the view you attempt to build does not exist,
+        # the build command should throw a CommandError.
+        self.assertRaises(
+            CommandError,
+            call_command,
+            'build',
+            'FooView',
+        )
 
     def test_unbuild_cmd(self):
         call_command("unbuild")
