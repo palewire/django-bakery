@@ -2,6 +2,7 @@
 Views and functions for serving static files. These are only to be used
 during development, and SHOULD NOT be used in a production setting.
 """
+import django
 import mimetypes
 import os
 import posixpath
@@ -53,6 +54,7 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
         newpath = os.path.join(newpath, part).replace('\\', '/')
     if newpath and path != newpath:
         return HttpResponseRedirect(newpath)
+    print document_root, newpath
     fullpath = os.path.join(document_root, newpath)
     if os.path.isdir(fullpath) and default:
         defaultpath = os.path.join(fullpath, default)
@@ -69,9 +71,15 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
     mimetype = mimetypes.guess_type(fullpath)[0] or 'application/octet-stream'
     if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
                               statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
-        return HttpResponseNotModified(mimetype=mimetype)
+        if django.VERSION > (1,6):
+            return HttpResponseNotModified(content_type=mimetype)
+        else:
+            return HttpResponseNotModified(mimetype=mimetype)
     contents = open(fullpath, 'rb').read()
-    response = HttpResponse(contents, mimetype=mimetype)
+    if django.VERSION > (1,6):
+        response = HttpResponse(contents, content_type=mimetype)
+    else:
+        response = HttpResponse(contents, mimetype=mimetype)
     response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
     response["Content-Length"] = len(contents)
     return response

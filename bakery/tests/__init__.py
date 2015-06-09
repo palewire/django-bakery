@@ -6,10 +6,11 @@ import django
 from .. import views, feeds
 from django.db import models
 from .. import models as bmodels
+from .. import static_views
 from django.conf import settings
-from django.test import TestCase
 from django.http import HttpResponse
 from django.core.management import call_command
+from django.test import TestCase, RequestFactory
 from django.core.management.base import CommandError
 from django.contrib.contenttypes.models import ContentType
 
@@ -75,6 +76,7 @@ class MockJSONView(JSONResponseMixin, views.BuildableTemplateView):
 class BakeryTest(TestCase):
 
     def setUp(self):
+        self.factory = RequestFactory()
         for m in [MockObject, AutoMockObject]:
             m.objects.create(name=1)
             m.objects.create(name=2)
@@ -228,15 +230,14 @@ class BakeryTest(TestCase):
         call_command("unbuild")
 
     def test_gzipped(self):
-        if django.VERSION >= (1, 4):
-            with self.settings(BAKERY_GZIP=True):
-                six.print_("testing gzipped files")
-                self.test_models()
-                self.test_template_view()
-                self.test_list_view()
-                self.test_detail_view()
-                self.test_404_view()
-                self.test_build_cmd()
+        with self.settings(BAKERY_GZIP=True):
+            six.print_("testing gzipped files")
+            self.test_models()
+            self.test_template_view()
+            self.test_list_view()
+            self.test_detail_view()
+            self.test_404_view()
+            self.test_build_cmd()
 
     def test_buildserver_cmd(self):
         pass
@@ -259,3 +260,10 @@ class BakeryTest(TestCase):
         # obj.is_published = True
         # obj.save()
         obj.delete(unpublish=False)
+
+    def test_static_views(self):
+        print static_views.serve(
+            self.factory.get("/static/robots.txt"),
+            'robots.txt',
+            document_root=os.path.join(os.path.dirname(__file__), 'static')
+        )
