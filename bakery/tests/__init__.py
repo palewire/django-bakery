@@ -2,7 +2,6 @@ from __future__ import absolute_import
 import os
 import six
 import json
-import django
 from .. import views, feeds
 from django.db import models
 from .. import models as bmodels

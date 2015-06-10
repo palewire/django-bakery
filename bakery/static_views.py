@@ -71,12 +71,12 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
     mimetype = mimetypes.guess_type(fullpath)[0] or 'application/octet-stream'
     if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
                               statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
-        if django.VERSION > (1,6):
+        if django.VERSION > (1, 6):
             return HttpResponseNotModified(content_type=mimetype)
         else:
             return HttpResponseNotModified(mimetype=mimetype)
     contents = open(fullpath, 'rb').read()
-    if django.VERSION > (1,6):
+    if django.VERSION > (1, 6):
         response = HttpResponse(contents, content_type=mimetype)
     else:
         response = HttpResponse(contents, mimetype=mimetype)
