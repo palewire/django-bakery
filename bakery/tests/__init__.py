@@ -261,7 +261,7 @@ class BakeryTest(TestCase):
         obj.delete(unpublish=False)
 
     def test_static_views(self):
-        print static_views.serve(
+        static_views.serve(
             self.factory.get("/static/robots.txt"),
             'robots.txt',
             document_root=os.path.join(os.path.dirname(__file__), 'static')
