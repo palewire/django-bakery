@@ -54,7 +54,6 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
         newpath = os.path.join(newpath, part).replace('\\', '/')
     if newpath and path != newpath:
         return HttpResponseRedirect(newpath)
-    print document_root, newpath
     fullpath = os.path.join(document_root, newpath)
     if os.path.isdir(fullpath) and default:
         defaultpath = os.path.join(fullpath, default)
