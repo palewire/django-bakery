@@ -293,7 +293,10 @@ No content was changed on S3.")
 
         # add the cache-control heaers if necessary
         if content_type in self.cache_control:
-            headers['Cache-Control'] = 'max-age=%s' % self.cache_control[content_type]
+            headers['Cache-Control'] = ''.join((
+                'max-age=',
+                str(self.cache_control[content_type])
+            ))
 
         # access and write the contents from the file
         with open(filename, 'rb') as file_obj:
