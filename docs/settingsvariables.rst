@@ -8,7 +8,7 @@ ALLOW_BAKERY_AUTO_PUBLISHING
 
 .. envvar:: ALLOW_BAKERY_AUTO_PUBLISHING
 
-    Decides whether the `AutoPublishingBuildableModel` is allowed to run the 
+    Decides whether the `AutoPublishingBuildableModel` is allowed to run the
     `publish` management command as part of its background task. True by default.
 
 .. code-block:: python
@@ -99,9 +99,9 @@ GZIP_CONTENT_TYPES
 .. envvar:: GZIP_CONTENT_TYPES
 
     A list of file mime types used to determine which files to add the
-    'Content-Encoding: gzip' metadata header when syncing to Amazon S3. 
+    'Content-Encoding: gzip' metadata header when syncing to Amazon S3.
     Defaults to include all 'text/css', 'text/html', 'application/javascript',
-    'application/x-javascript', 'application/json' and 'application/xml' 
+    'application/x-javascript', 'application/json' and 'application/xml'
     files.
 
     Only matters if you have set ``BAKERY_GZIP`` to ``True``.
@@ -109,7 +109,7 @@ GZIP_CONTENT_TYPES
 .. code-block:: python
 
     # defaults to 'text/css', 'text/html', 'application/javascript',
-    # 'application/x-javascript', 'application/json' and 'application/xml' 
+    # 'application/x-javascript', 'application/json' and 'application/xml'
     # files.
     GZIP_CONTENT_TYPES = (
         'text/css',
@@ -130,3 +130,17 @@ DEFAULT_ACL
 
     # defaults to 'public-read',
     DEFAULT_ACL = 'public-read'
+
+BAKERY_CACHE_CONTROL
+-----------
+
+.. envvar:: BAKERY_CACHE_CONTROL
+
+    Set cache-control headers based on content type. Headers are set using the ``max-age=`` format so the passed values should be in seconds (``'text/html': 900`` would result in a ``Cache-Control: max-age=900`` header for all ``text/html`` files). By default, none are set.
+
+.. code-block:: python
+
+    BAKERY_CACHE_CONTROL = {
+        'text/html': 900,
+        'application/javascript': 86400
+    }
