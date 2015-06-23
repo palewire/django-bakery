@@ -49,9 +49,17 @@ removed, but without actually publishing."
         action="store_true",
         dest="no_delete",
         default=False,
-        help=("Keep files in S3, even if they do not exist in the build "
-              "directory. The default behavior is to delete files in the "
-              "bucket that are not in the build directory.")
+        help=("Keep files in S3, even if they do not exist in the build \
+directory. The default behavior is to delete files in the \
+bucket that are not in the build directory.")
+    ),
+    make_option(
+        "--no-pooling",
+        action="store_true",
+        dest="no_pooling",
+        default=False,
+        help=("Run uploads one by one rather than pooling them to \
+run concurrently.")
     ),
 )
 
@@ -137,7 +145,7 @@ settings.py or provide a list as arguments."
 in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
 
         if self.verbosity > 2:
-            for f in self.updated_file_list:
+            for f in self.uploaded_file_list:
                 logger.info("updated file: %s" % f)
             for f in self.deleted_file_list:
                 logger.info("deleted file: %s" % f)
@@ -205,8 +213,8 @@ No content was changed on S3.")
         else:
             self.dry_run = False
 
-        # set the --keep-files option
         self.no_delete = options.get('no_delete')
+        self.no_pooling = options.get('no_pooling')
 
     def get_s3_key_dict(self):
         """
@@ -272,9 +280,12 @@ No content was changed on S3.")
                     key = self.bucket.new_key(file_key)
                 update_list.append((key or None, abs_file_path))
 
-        # Upload all these files in a multiprocessing pool
-        pool = ThreadPool(processes=10)
-        pool.map(self.pooled_upload_to_s3, update_list)
+        # Upload all these files
+        if self.no_pooling:
+            [self.upload_to_s3(*u) for u in update_list]
+        else:
+            pool = ThreadPool(processes=10)
+            pool.map(self.pooled_upload_to_s3, update_list)
 
     def pooled_upload_to_s3(self, payload):
         """
@@ -309,4 +320,4 @@ No content was changed on S3.")
                     policy=self.acl
                 )
             self.uploaded_files += 1
-            self.uploaded_file_list = file_obj
+            self.uploaded_file_list.append(file_obj)

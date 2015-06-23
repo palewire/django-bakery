@@ -65,6 +65,7 @@ class TestCommand(Command):
             # we're mocking boto, so we can put nonesense in here
             AWS_ACCESS_KEY_ID = 'MOCK_ACCESS_KEY_ID',
             AWS_SECRET_ACCESS_KEY = 'MOCK_SECRET_ACCESS_KEY',
+            AWS_BUCKET_NAME = 'mock_bucket'
         )
         from django.core.management import call_command
         import django
