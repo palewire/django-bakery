@@ -89,7 +89,9 @@ settings.py or provide a list as arguments."
         """
         # Counts and such we can use to keep tabs on this as they progress
         self.uploaded_files = 0
+        self.uploaded_file_list = []
         self.deleted_files = 0
+        self.deleted_file_list = []
         self.start_time = time.time()
 
         # Configure all the options we're going to use
@@ -115,7 +117,8 @@ settings.py or provide a list as arguments."
 
         # Delete anything that's left in our keys dict
         if not self.dry_run and not self.no_delete:
-            self.deleted_files = len(self.s3_key_dict.keys())
+            self.deleted_file_list = self.s3_key_dict.keys()
+            self.deleted_files = len(deleted_file_list)
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
                 self.bucket.delete_keys(self.s3_key_dict.keys())
@@ -133,6 +136,12 @@ settings.py or provide a list as arguments."
         logger.info("publish completed, %d uploaded and %d deleted files \
 in %.2f seconds" % (self.uploaded_files, self.deleted_files, elapsed_time))
 
+        if self.verbosity > 2:
+            for f in self.updated_file_list:
+                logger.info("updated file: %s" % f)
+            for f in self.deleted_file_list:
+                logger.info("deleted file: %s" % f)
+
         if self.dry_run:
             logger.info("publish executed with the --dry-run option. \
 No content was changed on S3.")
@@ -141,6 +150,8 @@ No content was changed on S3.")
         """
         Configure all the many options we'll need to make this happen.
         """
+        self.verbosity = int(options.get('verbosity'))
+
         # Will we be gzipping?
         self.gzip = getattr(settings, 'BAKERY_GZIP', False)
 
@@ -298,3 +309,4 @@ No content was changed on S3.")
                     policy=self.acl
                 )
             self.uploaded_files += 1
+            self.uploaded_file_list = file_obj
