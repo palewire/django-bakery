@@ -89,6 +89,7 @@ setup(
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
     url='http://www.github.com/datadesk/django-bakery/',
+    license="MIT",
     packages=(
         'bakery',
         'bakery.management',
