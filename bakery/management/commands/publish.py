@@ -118,7 +118,7 @@ settings.py or provide a list as arguments."
         # Delete anything that's left in our keys dict
         if not self.dry_run and not self.no_delete:
             self.deleted_file_list = self.s3_key_dict.keys()
-            self.deleted_files = len(deleted_file_list)
+            self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
                 self.bucket.delete_keys(self.s3_key_dict.keys())
