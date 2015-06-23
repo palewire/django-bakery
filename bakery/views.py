@@ -233,6 +233,8 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             The URL where redirect will send the user. Operates
             in the same way as the standard generic RedirectView.
     """
+    permanent = True
+
     def get_content(self):
         html = """
         <html>
