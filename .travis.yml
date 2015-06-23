@@ -29,7 +29,7 @@ matrix:
       env: "DJANGO_VERSION=1.5.12"
 
 install:
- - pip install pyflakes pep8 coverage python-coveralls
+ - pip install pyflakes pep8 coverage python-coveralls moto
  - pip install django-celery
  - pip install -q Django==$DJANGO_VERSION
 
