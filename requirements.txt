@@ -6,3 +6,4 @@ django-celery
 Sphinx
 pep8
 tox
+moto
