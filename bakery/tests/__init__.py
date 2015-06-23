@@ -251,7 +251,12 @@ class BakeryTest(TestCase):
             call_command("publish", no_pooling=True, verbosity=3)
 
     def test_unpublish_cmd(self):
-        pass
+        from moto import mock_s3
+        with mock_s3():
+            conn = boto.connect_s3()
+            conn.create_bucket(settings.AWS_BUCKET_NAME)
+            call_command("build")
+            call_command("unpublish", no_pooling=True, verbosity=3)
 
     def test_tasks(self):
         from bakery import tasks
