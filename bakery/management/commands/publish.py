@@ -173,6 +173,9 @@ No content was changed on S3.")
         # What ACL (i.e. security permissions) will be giving the files on S3?
         self.acl = getattr(settings, 'DEFAULT_ACL', self.DEFAULT_ACL)
 
+        # Should we set cache-control headers?
+        self.cache_control = getattr(settings, 'BAKERY_CACHE_CONTROL', {})
+
         # If the user specifies a build directory...
         if options.get('build_dir'):
             # ... validate that it is good.
@@ -309,6 +312,13 @@ No content was changed on S3.")
         # add the gzip headers, if necessary
         if self.gzip and content_type in self.gzip_content_types:
             headers['Content-Encoding'] = 'gzip'
+
+        # add the cache-control headers if necessary
+        if content_type in self.cache_control:
+            headers['Cache-Control'] = ''.join((
+                'max-age=',
+                str(self.cache_control[content_type])
+            ))
 
         # access and write the contents from the file
         with open(filename, 'rb') as file_obj:

@@ -4,6 +4,7 @@ import six
 import sys
 import boto
 import json
+import random
 from .. import views, feeds
 from django.db import models
 from .. import models as bmodels
@@ -248,9 +249,10 @@ class BakeryTest(TestCase):
             from moto import mock_s3
             with mock_s3():
                 conn = boto.connect_s3()
-                conn.create_bucket(settings.AWS_BUCKET_NAME)
+                b = conn.create_bucket(settings.AWS_BUCKET_NAME)
                 call_command("build")
                 call_command("publish", no_pooling=True, verbosity=3)
+                self.assertNotEqual(list(key for key in b.list()), [])
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
 
@@ -259,9 +261,10 @@ class BakeryTest(TestCase):
             from moto import mock_s3
             with mock_s3():
                 conn = boto.connect_s3()
-                conn.create_bucket(settings.AWS_BUCKET_NAME)
+                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
                 call_command("build")
                 call_command("unpublish", no_pooling=True, verbosity=3)
+                self.assertEqual(list(key for key in bucket.list()), [])
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
 
@@ -284,3 +287,30 @@ class BakeryTest(TestCase):
             'robots.txt',
             document_root=os.path.join(os.path.dirname(__file__), 'static')
         )
+
+    def test_cache_control(self):
+        if not sys.version_info[:2] == (3, 4):
+            from moto import mock_s3
+            # Set random max-age for various content types
+            with mock_s3():
+                with self.settings(BAKERY_CACHE_CONTROL={
+                    "application/javascript": random.randint(0, 100000),
+                    "text/css": random.randint(0, 100000),
+                    "text/html": random.randint(0, 100000),
+                }):
+                    conn = boto.connect_s3()
+                    bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+                    call_command("build")
+                    call_command("publish", no_pooling=True, verbosity=3)
+                    for key in bucket:
+                        key = bucket.get_key(key.name)
+                        if key.content_type in settings.BAKERY_CACHE_CONTROL:
+                            # key.cache_control returns string
+                            # with "max-age=" prefix
+                            self.assertIn(
+                                str(settings.BAKERY_CACHE_CONTROL.get(
+                                    key.content_type)),
+                                key.cache_control
+                            )
+        else:
+            self.skipTest("Moto doesn't work in Python 3.4")
