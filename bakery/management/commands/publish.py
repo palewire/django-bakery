@@ -313,7 +313,7 @@ No content was changed on S3.")
         if self.gzip and content_type in self.gzip_content_types:
             headers['Content-Encoding'] = 'gzip'
 
-        # add the cache-control heaers if necessary
+        # add the cache-control headers if necessary
         if content_type in self.cache_control:
             headers['Cache-Control'] = ''.join((
                 'max-age=',
