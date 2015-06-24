@@ -249,10 +249,22 @@ class BakeryTest(TestCase):
             from moto import mock_s3
             with mock_s3():
                 conn = boto.connect_s3()
-                b = conn.create_bucket(settings.AWS_BUCKET_NAME)
+                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
                 call_command("build")
                 call_command("publish", no_pooling=True, verbosity=3)
-                self.assertNotEqual(list(key for key in b.list()), [])
+                local_file_list = []
+                for (dirpath, dirnames, filenames) in os.walk(
+                        settings.BUILD_DIR):
+                    for fname in filenames:
+                        local_key = os.path.join(
+                            os.path.relpath(dirpath, settings.BUILD_DIR),
+                            fname
+                        )
+                        if local_key.startswith('./'):
+                            local_key = local_key[2:]
+                        local_file_list.append(local_key)
+                for key in bucket.list():
+                    self.assertIn(key.name, local_file_list)
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
 
