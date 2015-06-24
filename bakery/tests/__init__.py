@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import os
 import six
+import sys
 import boto
 import json
 from .. import views, feeds
@@ -243,20 +244,26 @@ class BakeryTest(TestCase):
         pass
 
     def test_publish_cmd(self):
-        from moto import mock_s3
-        with mock_s3():
-            conn = boto.connect_s3()
-            conn.create_bucket(settings.AWS_BUCKET_NAME)
-            call_command("build")
-            call_command("publish", no_pooling=True, verbosity=3)
+        if not sys.version_info[:2] == (3, 4):
+            from moto import mock_s3
+            with mock_s3():
+                conn = boto.connect_s3()
+                conn.create_bucket(settings.AWS_BUCKET_NAME)
+                call_command("build")
+                call_command("publish", no_pooling=True, verbosity=3)
+        else:
+            self.skipTest("Moto doesn't work in Python 3.4")
 
     def test_unpublish_cmd(self):
-        from moto import mock_s3
-        with mock_s3():
-            conn = boto.connect_s3()
-            conn.create_bucket(settings.AWS_BUCKET_NAME)
-            call_command("build")
-            call_command("unpublish", no_pooling=True, verbosity=3)
+        if not sys.version_info[:2] == (3, 4):
+            from moto import mock_s3
+            with mock_s3():
+                conn = boto.connect_s3()
+                conn.create_bucket(settings.AWS_BUCKET_NAME)
+                call_command("build")
+                call_command("unpublish", no_pooling=True, verbosity=3)
+        else:
+            self.skipTest("Moto doesn't work in Python 3.4")
 
     def test_tasks(self):
         from bakery import tasks
