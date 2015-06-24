@@ -276,7 +276,7 @@ class BakeryTest(TestCase):
                 bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
                 call_command("build")
                 call_command("unpublish", no_pooling=True, verbosity=3)
-                self.assertEqual(list(key for key in bucket.list()), [])
+                self.assertFalse(list(key for key in bucket.list()))
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
 
@@ -303,8 +303,8 @@ class BakeryTest(TestCase):
     def test_cache_control(self):
         if not sys.version_info[:2] == (3, 4):
             from moto import mock_s3
-            # Set random max-age for various content types
             with mock_s3():
+                # Set random max-age for various content types
                 with self.settings(BAKERY_CACHE_CONTROL={
                     "application/javascript": random.randint(0, 100000),
                     "text/css": random.randint(0, 100000),
@@ -326,3 +326,20 @@ class BakeryTest(TestCase):
                             )
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
+
+    def test_batch_unpublish(self):
+        if not sys.version_info[:2] == (3, 4):
+            from moto import mock_s3
+            with mock_s3():
+                conn = boto.connect_s3()
+                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+                keys = []
+                for i in range(0, 10000):
+                    k = boto.s3.key.Key(bucket)
+                    k.key = i
+                    k.set_contents_from_string(
+                        'This is test object {}'.format(i)
+                    )
+                    keys.append(k)
+                call_command("unpublish", no_pooling=True, verbosity=3)
+                self.assertFalse(list(key for key in bucket.list()))
