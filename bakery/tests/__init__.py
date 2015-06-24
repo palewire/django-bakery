@@ -293,10 +293,10 @@ class BakeryTest(TestCase):
             from moto import mock_s3
             # Set random max-age for various content types
             with mock_s3(), self.settings(BAKERY_CACHE_CONTROL={
-                    "application/javascript": random.randint(0,100000),
-                    "text/css": random.randint(0,100000),
-                    "text/html": random.randint(0,100000),
-                }):
+                    "application/javascript": random.randint(0, 100000),
+                    "text/css": random.randint(0, 100000),
+                    "text/html": random.randint(0, 100000),
+            }):
                 conn = boto.connect_s3()
                 bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
                 call_command("build")
