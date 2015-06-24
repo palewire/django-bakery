@@ -292,24 +292,25 @@ class BakeryTest(TestCase):
         if not sys.version_info[:2] == (3, 4):
             from moto import mock_s3
             # Set random max-age for various content types
-            with mock_s3(), self.settings(BAKERY_CACHE_CONTROL={
+            with mock_s3():
+                with self.settings(BAKERY_CACHE_CONTROL={
                     "application/javascript": random.randint(0, 100000),
                     "text/css": random.randint(0, 100000),
                     "text/html": random.randint(0, 100000),
-            }):
-                conn = boto.connect_s3()
-                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
-                call_command("build")
-                call_command("publish", no_pooling=True, verbosity=3)
-                for key in bucket:
-                    key = bucket.get_key(key.name)
-                    if key.content_type in settings.BAKERY_CACHE_CONTROL:
-                        # key.cache_control returns string
-                        # with "max-age=" prefix
-                        self.assertIn(
-                            str(settings.BAKERY_CACHE_CONTROL.get(
-                                key.content_type)),
-                            key.cache_control
-                        )
+                }):
+                    conn = boto.connect_s3()
+                    bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+                    call_command("build")
+                    call_command("publish", no_pooling=True, verbosity=3)
+                    for key in bucket:
+                        key = bucket.get_key(key.name)
+                        if key.content_type in settings.BAKERY_CACHE_CONTROL:
+                            # key.cache_control returns string
+                            # with "max-age=" prefix
+                            self.assertIn(
+                                str(settings.BAKERY_CACHE_CONTROL.get(
+                                    key.content_type)),
+                                key.cache_control
+                            )
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
