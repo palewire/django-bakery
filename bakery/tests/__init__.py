@@ -337,9 +337,7 @@ class BakeryTest(TestCase):
                 for i in range(0, 10000):
                     k = boto.s3.key.Key(bucket)
                     k.key = i
-                    k.set_contents_from_string(
-                        'This is test object {}'.format(i)
-                    )
+                    k.set_contents_from_string('This is test object %s' % i)
                     keys.append(k)
                 call_command("unpublish", no_pooling=True, verbosity=3)
                 self.assertFalse(list(key for key in bucket.list()))
