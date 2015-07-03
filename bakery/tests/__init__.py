@@ -341,3 +341,5 @@ class BakeryTest(TestCase):
                     keys.append(k)
                 call_command("unpublish", no_pooling=True, verbosity=3)
                 self.assertFalse(list(key for key in bucket.list()))
+        else:
+            self.skipTest("Moto doesn't work in Python 3.4")
