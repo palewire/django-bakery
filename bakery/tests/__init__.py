@@ -7,9 +7,9 @@ import json
 import random
 from .. import views, feeds
 from django.db import models
-from .. import models as bmodels
 from .. import static_views
 from django.conf import settings
+from .. import models as bmodels
 from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory
@@ -265,6 +265,9 @@ class BakeryTest(TestCase):
                         local_file_list.append(local_key)
                 for key in bucket.list():
                     self.assertIn(key.name, local_file_list)
+                call_command("unbuild")
+                os.makedirs(settings.BUILD_DIR)
+                call_command("publish", no_pooling=True, verbosity=3)
         else:
             self.skipTest("Moto doesn't work in Python 3.4")
 

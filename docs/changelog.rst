@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.7.5
+-----
+
+* BAKERY_CACHE_CONTROL settings variable and support
+* Better tests for publish and unpublish
+* Delete operations in publish and unpublish command breaks keys into batches to avoid S3 errors on large sets
+
 0.7.4
 -----
 

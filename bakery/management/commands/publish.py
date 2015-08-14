@@ -129,7 +129,11 @@ settings.py or provide a list as arguments."
             self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
-                self.bucket.delete_keys(self.s3_key_dict.keys())
+                key_chunks = []
+                for i in range(0, len(self.deleted_file_list), 100):
+                    key_chunks.append(self.deleted_file_list[i:i+100])
+                for chunk in key_chunks:
+                    self.bucket.delete_keys(chunk)
 
         # Run any post publish hooks on the views
         if not hasattr(settings, 'BAKERY_VIEWS'):
