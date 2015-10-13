@@ -108,7 +108,9 @@ settings.py or provide a list as arguments."
         # Initialize the boto connection
         self.conn = boto.connect_s3(
             settings.AWS_ACCESS_KEY_ID,
-            settings.AWS_SECRET_ACCESS_KEY
+            settings.AWS_SECRET_ACCESS_KEY,
+            calling_format=self.s3_calling_format,
+            host=self.s3_host
         )
 
         # Grab our bucket
@@ -179,6 +181,20 @@ No content was changed on S3.")
 
         # Should we set cache-control headers?
         self.cache_control = getattr(settings, 'BAKERY_CACHE_CONTROL', {})
+
+        # Use a non-standard calling format, if one is specified
+        self.s3_calling_format = getattr(
+            settings,
+            'BAKERY_S3_CALLING_FORMAT',
+            boto.s3.connection.S3Connection.DefaultCallingFormat
+        )
+
+        # Allow the user to specify a non-standard S3 endpoint
+        self.s3_host = getattr(
+            settings,
+            'BAKERY_S3_HOST',
+            boto.s3.connection.S3Connection.DefaultHost
+        )
 
         # If the user specifies a build directory...
         if options.get('build_dir'):
