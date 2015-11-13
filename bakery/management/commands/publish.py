@@ -1,5 +1,4 @@
 import os
-import boto
 import time
 import hashlib
 import logging
@@ -9,6 +8,7 @@ from optparse import make_option
 from multiprocessing.pool import ThreadPool
 from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
+from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 logger = logging.getLogger(__name__)
 
 
@@ -106,10 +106,19 @@ settings.py or provide a list as arguments."
         self.set_options(options)
 
         # Initialize the boto connection
-        self.conn = boto.connect_s3(
-            settings.AWS_ACCESS_KEY_ID,
-            settings.AWS_SECRET_ACCESS_KEY
-        )
+        if '.' in self.aws_bucket_name:
+            # Hack here for the odd bug with Python 2.7.9
+            # https://github.com/boto/boto/issues/2836
+            self.conn = S3Connection(
+                settings.AWS_ACCESS_KEY_ID,
+                settings.AWS_SECRET_ACCESS_KEY,
+                calling_format=OrdinaryCallingFormat()
+            )
+        else:
+            self.conn = S3Connection(
+                settings.AWS_ACCESS_KEY_ID,
+                settings.AWS_SECRET_ACCESS_KEY
+            )
 
         # Grab our bucket
         self.bucket = self.conn.get_bucket(self.aws_bucket_name)
