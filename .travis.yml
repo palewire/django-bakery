@@ -1,29 +1,16 @@
 language: python
 
 python:
- - "2.6"
  - "2.7"
  - "3.3"
  - "3.4"
 
 env:
- - DJANGO_VERSION=1.5.12
- - DJANGO_VERSION=1.6.11
  - DJANGO_VERSION=1.7.8
  - DJANGO_VERSION=1.8.2
+ - DJANGO_VERSION=1.9b1
 
 sudo: false
-
-matrix:
-  exclude:
-    - python: "2.6"
-      env: "DJANGO_VERSION=1.7.8"
-    - python: "2.6"
-      env: "DJANGO_VERSION=1.8.2"
-    - python: "3.3"
-      env: "DJANGO_VERSION=1.5.12"
-    - python: "3.4"
-      env: "DJANGO_VERSION=1.5.12"
 
 install:
  - pip install pyflakes pep8 coverage python-coveralls moto
