@@ -1,4 +1,5 @@
 language: python
+sudo: false
 
 python:
  - "2.7"
@@ -14,8 +15,6 @@ matrix:
   exclude:
     - python: "3.5"
       env: "DJANGO_VERSION=1.7.11"
-
-sudo: false
 
 install:
  - pip install pyflakes pep8 coverage python-coveralls moto

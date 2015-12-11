@@ -186,9 +186,13 @@ class BuildableDetailView(DetailView, BuildableMixin):
         return os.path.join(path, 'index.html')
 
     def set_kwargs(self, obj):
+        slug_field = self.get_slug_field()
         self.kwargs = {
             'pk': getattr(obj, 'pk', None),
-            'slug': getattr(obj, self.get_slug_field(), None),
+            slug_field: getattr(obj, slug_field, None),
+            # Also alias the slug_field to the key `slug`
+            # so it can work for people who just toss that in
+            'slug': getattr(obj, slug_field, None),
         }
 
     def build_object(self, obj):

@@ -37,6 +37,7 @@ class AutoMockObject(bmodels.AutoPublishingBuildableModel):
 
 class MockDetailView(views.BuildableDetailView):
     model = MockObject
+    slug_field = "the_slug"
     template_name = 'detailview.html'
 
 
@@ -148,6 +149,7 @@ class BakeryTest(TestCase):
             )
             self.assertTrue(os.path.exists(build_path))
             v.unbuild_object(o)
+            self.assertTrue(v.kwargs['slug'] == v.kwargs['the_slug'])
 
     def test_redirect_view(self):
         v = views.BuildableRedirectView(
