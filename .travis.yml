@@ -6,14 +6,14 @@ python:
  - "3.5"
 
 env:
- - DJANGO_VERSION=1.7.10
- - DJANGO_VERSION=1.8.6
- - DJANGO_VERSION=1.9rc1
+ - DJANGO_VERSION=1.7.11
+ - DJANGO_VERSION=1.8.7
+ - DJANGO_VERSION=1.9
 
 matrix:
   exclude:
     - python: "3.5"
-      env: "DJANGO_VERSION=1.7.10"
+      env: "DJANGO_VERSION=1.7.11"
 
 sudo: false
 
