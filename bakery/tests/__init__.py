@@ -138,6 +138,7 @@ class BakeryTest(TestCase):
         v = views.BuildableDetailView(
             queryset=MockObject.objects.all(),
             template_name='detailview.html',
+            slug_field="this_slug"
         )
         v.build_method
         v.build_queryset()
