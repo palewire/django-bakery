@@ -150,7 +150,8 @@ class BakeryTest(TestCase):
             )
             self.assertTrue(os.path.exists(build_path))
             v.unbuild_object(o)
-            self.assertTrue(v.kwargs['slug'] == v.kwargs['the_slug'])
+            print v.kwargs
+            self.assertTrue(v.kwargs['slug'] == v.kwargs['this_slug'])
 
     def test_redirect_view(self):
         v = views.BuildableRedirectView(
