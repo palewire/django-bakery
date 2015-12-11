@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.6
+-----
+
+* Patched ``set_kwargs`` to override the key name of the slug when it is configured by the detail view's ``slug_field`` setting
+
 0.7.5
 -----
 
