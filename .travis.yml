@@ -10,14 +10,18 @@ env:
  - DJANGO_VERSION=1.9.1
 
 install:
+ # Testing dependencies
  - pip install pyflakes pep8 coverage python-coveralls moto
+ # Required library dependencies
+ - pip install boto six
+ # Optional library dependencies
  - pip install django-celery
+ # The version of Django being tested against
  - pip install -q Django==$DJANGO_VERSION
 
 script:
  - pep8 bakery
  - pyflakes bakery
- - python setup.py install
  - coverage run setup.py test
 
 after_success:
