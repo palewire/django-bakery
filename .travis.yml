@@ -1,10 +1,6 @@
 language: python
 sudo: false
 
-os:
-  - linux
-  - osx
-
 python:
  - "2.7"
  - "3.5"
