@@ -29,6 +29,7 @@ class TestCommand(Command):
                 'django.contrib.sessions',
                 'django.contrib.staticfiles',
                 'bakery',
+                'djkombu',
                 'djcelery',
             ),
             MIDDLEWARE_CLASSES=(),
