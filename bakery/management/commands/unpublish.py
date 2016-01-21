@@ -25,4 +25,4 @@ class Command(BaseCommand):
             self.bucket.delete_keys(chunk)
 
         # A little logging
-        logger.info("unpublish completed, %d deleted files" % (len(self.keys))
+        logger.info("unpublish completed, %d deleted files" % len(self.keys))
