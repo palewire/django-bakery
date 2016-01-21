@@ -4,6 +4,7 @@ sudo: false
 python:
  - "2.7"
  - "3.5"
+ - pypy
 
 env:
  - DJANGO_VERSION=1.8.8
