@@ -29,6 +29,7 @@ class TestCommand(Command):
                 'django.contrib.sessions',
                 'django.contrib.staticfiles',
                 'bakery',
+                'djcelery',
             ),
             MIDDLEWARE_CLASSES=(),
             TEMPLATE_DIRS = (
@@ -65,10 +66,14 @@ class TestCommand(Command):
             # we're mocking boto, so we can put nonesense in here
             AWS_ACCESS_KEY_ID = 'MOCK_ACCESS_KEY_ID',
             AWS_SECRET_ACCESS_KEY = 'MOCK_SECRET_ACCESS_KEY',
-            AWS_BUCKET_NAME = 'mock_bucket'
+            AWS_BUCKET_NAME = 'mock_bucket',
+            # Celery configuration
+            BROKER_URL = 'django://',
         )
         import django
         django.setup()
+        import djcelery
+        djcelery.setup_loader()
         from django.core.management import call_command
         call_command('test', 'bakery.tests', verbosity=3)
 
