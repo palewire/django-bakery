@@ -272,16 +272,12 @@ class BakeryTest(TestCase):
             call_command("publish", no_pooling=True, verbosity=3)
 
     def test_unpublish_cmd(self):
-        if not sys.version_info[:2] == (3, 5):
-            from moto import mock_s3
-            with mock_s3():
-                conn = boto.connect_s3()
-                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
-                call_command("build")
-                call_command("unpublish", no_pooling=True, verbosity=3)
-                self.assertFalse(list(key for key in bucket.list()))
-        else:
-            self.skipTest("Moto doesn't work in Python 3.5")
+        with mock_s3():
+            conn = boto.connect_s3()
+            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            call_command("build")
+            call_command("unpublish", no_pooling=True, verbosity=3)
+            self.assertFalse(list(key for key in bucket.list()))
 
     def test_tasks(self):
         from bakery import tasks
@@ -304,45 +300,37 @@ class BakeryTest(TestCase):
         )
 
     def test_cache_control(self):
-        if not sys.version_info[:2] == (3, 5):
-            from moto import mock_s3
-            with mock_s3():
-                # Set random max-age for various content types
-                with self.settings(BAKERY_CACHE_CONTROL={
-                    "application/javascript": random.randint(0, 100000),
-                    "text/css": random.randint(0, 100000),
-                    "text/html": random.randint(0, 100000),
-                }):
-                    conn = boto.connect_s3()
-                    bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
-                    call_command("build")
-                    call_command("publish", no_pooling=True, verbosity=3)
-                    for key in bucket:
-                        key = bucket.get_key(key.name)
-                        if key.content_type in settings.BAKERY_CACHE_CONTROL:
-                            # key.cache_control returns string
-                            # with "max-age=" prefix
-                            self.assertIn(
-                                str(settings.BAKERY_CACHE_CONTROL.get(
-                                    key.content_type)),
-                                key.cache_control
-                            )
-        else:
-            self.skipTest("Moto doesn't work in Python 3.5")
-
-    def test_batch_unpublish(self):
-        if not sys.version_info[:2] == (3, 5):
-            from moto import mock_s3
-            with mock_s3():
+        with mock_s3():
+            # Set random max-age for various content types
+            with self.settings(BAKERY_CACHE_CONTROL={
+                "application/javascript": random.randint(0, 100000),
+                "text/css": random.randint(0, 100000),
+                "text/html": random.randint(0, 100000),
+            }):
                 conn = boto.connect_s3()
                 bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
-                keys = []
-                for i in range(0, 10000):
-                    k = boto.s3.key.Key(bucket)
-                    k.key = i
-                    k.set_contents_from_string('This is test object %s' % i)
-                    keys.append(k)
-                call_command("unpublish", no_pooling=True, verbosity=3)
-                self.assertFalse(list(key for key in bucket.list()))
-        else:
-            self.skipTest("Moto doesn't work in Python 3.5")
+                call_command("build")
+                call_command("publish", no_pooling=True, verbosity=3)
+                for key in bucket:
+                    key = bucket.get_key(key.name)
+                    if key.content_type in settings.BAKERY_CACHE_CONTROL:
+                        # key.cache_control returns string
+                        # with "max-age=" prefix
+                        self.assertIn(
+                            str(settings.BAKERY_CACHE_CONTROL.get(
+                                key.content_type)),
+                            key.cache_control
+                        )
+
+    def test_batch_unpublish(self):
+        with mock_s3():
+            conn = boto.connect_s3()
+            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            keys = []
+            for i in range(0, 10000):
+                k = boto.s3.key.Key(bucket)
+                k.key = i
+                k.set_contents_from_string('This is test object %s' % i)
+                keys.append(k)
+            call_command("unpublish", no_pooling=True, verbosity=3)
+            self.assertFalse(list(key for key in bucket.list()))
