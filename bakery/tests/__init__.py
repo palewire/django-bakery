@@ -248,7 +248,7 @@ class BakeryTest(TestCase):
         pass
 
     def test_publish_cmd(self):
-        if not sys.version_info[:2] == (3, 4):
+        if not sys.version_info[:2] == (3, 5):
             from moto import mock_s3
             with mock_s3():
                 conn = boto.connect_s3()
@@ -272,10 +272,10 @@ class BakeryTest(TestCase):
                 os.makedirs(settings.BUILD_DIR)
                 call_command("publish", no_pooling=True, verbosity=3)
         else:
-            self.skipTest("Moto doesn't work in Python 3.4")
+            self.skipTest("Moto doesn't work in Python 3.5")
 
     def test_unpublish_cmd(self):
-        if not sys.version_info[:2] == (3, 4):
+        if not sys.version_info[:2] == (3, 5):
             from moto import mock_s3
             with mock_s3():
                 conn = boto.connect_s3()
@@ -284,7 +284,7 @@ class BakeryTest(TestCase):
                 call_command("unpublish", no_pooling=True, verbosity=3)
                 self.assertFalse(list(key for key in bucket.list()))
         else:
-            self.skipTest("Moto doesn't work in Python 3.4")
+            self.skipTest("Moto doesn't work in Python 3.5")
 
     def test_tasks(self):
         from bakery import tasks
@@ -307,7 +307,7 @@ class BakeryTest(TestCase):
         )
 
     def test_cache_control(self):
-        if not sys.version_info[:2] == (3, 4):
+        if not sys.version_info[:2] == (3, 5):
             from moto import mock_s3
             with mock_s3():
                 # Set random max-age for various content types
@@ -331,10 +331,10 @@ class BakeryTest(TestCase):
                                 key.cache_control
                             )
         else:
-            self.skipTest("Moto doesn't work in Python 3.4")
+            self.skipTest("Moto doesn't work in Python 3.5")
 
     def test_batch_unpublish(self):
-        if not sys.version_info[:2] == (3, 4):
+        if not sys.version_info[:2] == (3, 5):
             from moto import mock_s3
             with mock_s3():
                 conn = boto.connect_s3()
@@ -348,4 +348,4 @@ class BakeryTest(TestCase):
                 call_command("unpublish", no_pooling=True, verbosity=3)
                 self.assertFalse(list(key for key in bucket.list()))
         else:
-            self.skipTest("Moto doesn't work in Python 3.4")
+            self.skipTest("Moto doesn't work in Python 3.5")
