@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.7
+-----
+
+* Patch provided backwards compatibility to a boto bug fix.
+
 0.7.6
 -----
 
