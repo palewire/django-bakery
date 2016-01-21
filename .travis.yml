@@ -3,18 +3,11 @@ sudo: false
 
 python:
  - "2.7"
- - "3.4"
  - "3.5"
 
 env:
- - DJANGO_VERSION=1.7.11
- - DJANGO_VERSION=1.8.7
- - DJANGO_VERSION=1.9
-
-matrix:
-  exclude:
-    - python: "3.5"
-      env: "DJANGO_VERSION=1.7.11"
+ - DJANGO_VERSION=1.8.8
+ - DJANGO_VERSION=1.9.1
 
 install:
  - pip install pyflakes pep8 coverage python-coveralls moto
