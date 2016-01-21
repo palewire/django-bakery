@@ -287,8 +287,8 @@ class BakeryTest(TestCase):
         # Some save overrides tests
         obj = AutoMockObject.objects.all()[0]
         obj.save(publish=False)
-        obj.is_published = True
-        obj.save()
+        #obj.is_published = True
+        #obj.save()
         obj.delete(unpublish=False)
 
     def test_static_views(self):
