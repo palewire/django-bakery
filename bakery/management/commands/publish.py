@@ -107,7 +107,7 @@ settings.py or provide a list as arguments."
         self.set_options(options)
 
         # Initialize the boto connection
-        if '.' in self.aws_bucket_name and sys.version_info[:3] >= (2,7,9):
+        if '.' in self.aws_bucket_name and sys.version_info[:3] >= (2, 7, 9):
             # Hack here for the odd bug with Python 2.7.9
             # https://github.com/boto/boto/issues/2836
             self.conn = S3Connection(
