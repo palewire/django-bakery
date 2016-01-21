@@ -5,6 +5,7 @@ import sys
 import boto
 import json
 import random
+from moto import mock_s3
 from .. import views, feeds
 from django.db import models
 from .. import static_views
@@ -248,31 +249,27 @@ class BakeryTest(TestCase):
         pass
 
     def test_publish_cmd(self):
-        if not sys.version_info[:2] == (3, 5):
-            from moto import mock_s3
-            with mock_s3():
-                conn = boto.connect_s3()
-                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
-                call_command("build")
-                call_command("publish", no_pooling=True, verbosity=3)
-                local_file_list = []
-                for (dirpath, dirnames, filenames) in os.walk(
-                        settings.BUILD_DIR):
-                    for fname in filenames:
-                        local_key = os.path.join(
-                            os.path.relpath(dirpath, settings.BUILD_DIR),
-                            fname
-                        )
-                        if local_key.startswith('./'):
-                            local_key = local_key[2:]
-                        local_file_list.append(local_key)
-                for key in bucket.list():
-                    self.assertIn(key.name, local_file_list)
-                call_command("unbuild")
-                os.makedirs(settings.BUILD_DIR)
-                call_command("publish", no_pooling=True, verbosity=3)
-        else:
-            self.skipTest("Moto doesn't work in Python 3.5")
+        with mock_s3():
+            conn = boto.connect_s3()
+            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            call_command("build")
+            call_command("publish", no_pooling=True, verbosity=3)
+            local_file_list = []
+            for (dirpath, dirnames, filenames) in os.walk(
+                    settings.BUILD_DIR):
+                for fname in filenames:
+                    local_key = os.path.join(
+                        os.path.relpath(dirpath, settings.BUILD_DIR),
+                        fname
+                    )
+                    if local_key.startswith('./'):
+                        local_key = local_key[2:]
+                    local_file_list.append(local_key)
+            for key in bucket.list():
+                self.assertIn(key.name, local_file_list)
+            call_command("unbuild")
+            os.makedirs(settings.BUILD_DIR)
+            call_command("publish", no_pooling=True, verbosity=3)
 
     def test_unpublish_cmd(self):
         if not sys.version_info[:2] == (3, 5):
