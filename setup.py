@@ -67,20 +67,10 @@ class TestCommand(Command):
             AWS_SECRET_ACCESS_KEY = 'MOCK_SECRET_ACCESS_KEY',
             AWS_BUCKET_NAME = 'mock_bucket'
         )
-        from django.core.management import call_command
         import django
-        if django.VERSION[:2] >= (1, 7):
-            django.setup()
-
-        # With Django 1.6, the way tests were discovered changed (see
-        # https://docs.djangoproject.com/en/1.7/releases/1.6/#new-test-runner)
-        # Set the argument to the test management command appropriately
-        # depending on the Django version
-        test_module = 'bakery.tests'
-        if django.VERSION[:2] < (1, 6):
-            test_module = 'bakery'
-
-        call_command('test', test_module)
+        django.setup()
+        from django.core.management import call_command
+        call_command('test', 'bakery.tests', verbosity=3)
 
 
 setup(
