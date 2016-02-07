@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Buildable views &mdash; django-bakery 0.6.1 documentation</title>
+    <title>Buildable views &mdash; django-bakery 0.7.6 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.1',
+        VERSION:     '0.7.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-bakery 0.6.1 documentation" href="index.html" />
+    <link rel="top" title="django-bakery 0.7.6 documentation" href="index.html" />
     <link rel="next" title="Buildable models" href="buildablemodels.html" />
     <link rel="prev" title="Common challenges" href="commonchallenges.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,14 +40,14 @@
         <li class="right" >
           <a href="commonchallenges.html" title="Common challenges"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="buildable-views">
 <h1>Buildable views<a class="headerlink" href="#buildable-views" title="Permalink to this headline">¶</a></h1>
@@ -56,33 +56,33 @@
 <h2>BuildableTemplateView<a class="headerlink" href="#buildabletemplateview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableTemplateView">
-<em class="property">class </em><tt class="descname">BuildableTemplateView</tt><big>(</big><em>TemplateView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BuildableTemplateView</code><span class="sig-paren">(</span><em>TemplateView</em>, <em>BuildableMixin</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableTemplateView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Renders and builds a simple template as a flat file. Extended from Django&#8217;s
 generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView">TemplateView</a>.</p>
 <dl class="attribute">
 <dt id="BuildableTemplateView.build_path">
-<tt class="descname">build_path</tt><a class="headerlink" href="#BuildableTemplateView.build_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>The target location of the built file in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.
-<tt class="docutils literal"><span class="pre">index.html</span></tt> would place it at the built site&#8217;s root.
-<tt class="docutils literal"><span class="pre">foo/index.html</span></tt> would place it inside a subdirectory. Required.</p>
+<code class="descname">build_path</code><a class="headerlink" href="#BuildableTemplateView.build_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The target location of the built file in the <code class="docutils literal"><span class="pre">BUILD_DIR</span></code>.
+<code class="docutils literal"><span class="pre">index.html</span></code> would place it at the built site&#8217;s root.
+<code class="docutils literal"><span class="pre">foo/index.html</span></code> would place it inside a subdirectory. Required.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableTemplateView.template_name">
-<tt class="descname">template_name</tt><a class="headerlink" href="#BuildableTemplateView.template_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">template_name</code><a class="headerlink" href="#BuildableTemplateView.template_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the template you would like Django to render. Required.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableTemplateView.build">
-<tt class="descname">build</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableTemplateView.build" title="Permalink to this definition">¶</a></dt>
+<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableTemplateView.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the rendered template&#8217;s HTML to a flat file. Only override this if you know what you&#8217;re doing.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableTemplateView.build_method">
-<tt class="descname">build_method</tt><a class="headerlink" href="#BuildableTemplateView.build_method" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alias to the <tt class="docutils literal"><span class="pre">build</span></tt> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
+<code class="descname">build_method</code><a class="headerlink" href="#BuildableTemplateView.build_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias to the <code class="docutils literal"><span class="pre">build</span></code> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
 </dd></dl>
 
 <p><strong>Example myapp/views.py</strong></p>
@@ -100,52 +100,52 @@ generic <a class="reference external" href="https://docs.djangoproject.com/en/de
 <h2>BuildableListView<a class="headerlink" href="#buildablelistview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableListView">
-<em class="property">class </em><tt class="descname">BuildableListView</tt><big>(</big><em>ListView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BuildableListView</code><span class="sig-paren">(</span><em>ListView</em>, <em>BuildableMixin</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableListView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Render and builds a page about a list of objects. Extended from Django&#8217;s
 generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView">ListView</a>.</p>
 <dl class="attribute">
 <dt id="BuildableListView.model">
-<tt class="descname">model</tt><a class="headerlink" href="#BuildableListView.model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">model</code><a class="headerlink" href="#BuildableListView.model" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Django database model where the list of objects can be drawn
-with a <tt class="docutils literal"><span class="pre">Model.objects.all()</span></tt> query. Optional. If you want to provide
-a more specific list, define the <tt class="docutils literal"><span class="pre">queryset</span></tt> attribute instead.</p>
+with a <code class="docutils literal"><span class="pre">Model.objects.all()</span></code> query. Optional. If you want to provide
+a more specific list, define the <code class="docutils literal"><span class="pre">queryset</span></code> attribute instead.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableListView.queryset">
-<tt class="descname">queryset</tt><a class="headerlink" href="#BuildableListView.queryset" title="Permalink to this definition">¶</a></dt>
+<code class="descname">queryset</code><a class="headerlink" href="#BuildableListView.queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>The list of objects that will be provided to the template. Can be
 any iterable of items, not just a Django queryset. Optional, but
-if this attribute is not defined the <tt class="docutils literal"><span class="pre">model</span></tt> attribute must be
+if this attribute is not defined the <code class="docutils literal"><span class="pre">model</span></code> attribute must be
 defined.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableListView.build_path">
-<tt class="descname">build_path</tt><a class="headerlink" href="#BuildableListView.build_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>The target location of the flat file in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.
-Optional. The default is <tt class="docutils literal"><span class="pre">index.html</span></tt>,  would place the flat file
-at the site&#8217;s root. Defining it as <tt class="docutils literal"><span class="pre">foo/index.html</span></tt> would place
+<code class="descname">build_path</code><a class="headerlink" href="#BuildableListView.build_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The target location of the flat file in the <code class="docutils literal"><span class="pre">BUILD_DIR</span></code>.
+Optional. The default is <code class="docutils literal"><span class="pre">index.html</span></code>,  would place the flat file
+at the site&#8217;s root. Defining it as <code class="docutils literal"><span class="pre">foo/index.html</span></code> would place
 the flat file inside a subdirectory.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableListView.template_name">
-<tt class="descname">template_name</tt><a class="headerlink" href="#BuildableListView.template_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">template_name</code><a class="headerlink" href="#BuildableListView.template_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The template you would like Django to render. You need
-to override this if you don&#8217;t want to rely on the Django <tt class="docutils literal"><span class="pre">ListView</span></tt>
+to override this if you don&#8217;t want to rely on the Django <code class="docutils literal"><span class="pre">ListView</span></code>
 defaults.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableListView.build_method">
-<tt class="descname">build_method</tt><a class="headerlink" href="#BuildableListView.build_method" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alias to the <tt class="docutils literal"><span class="pre">build_queryset</span></tt> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
+<code class="descname">build_method</code><a class="headerlink" href="#BuildableListView.build_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias to the <code class="docutils literal"><span class="pre">build_queryset</span></code> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableListView.build_queryset">
-<tt class="descname">build_queryset</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableListView.build_queryset" title="Permalink to this definition">¶</a></dt>
+<code class="descname">build_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableListView.build_queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the rendered template&#8217;s HTML to a flat file. Only override this if you know what you&#8217;re doing.</p>
 </dd></dl>
 
@@ -169,84 +169,104 @@ defaults.</p>
 
 </div>
 <div class="section" id="buildabledetailview">
-<h2>BuildableDetailView<a class="headerlink" href="#buildabledetailview" title="Permalink to this headline">¶</a></h2>
+<span id="buildable-detail-view"></span><h2>BuildableDetailView<a class="headerlink" href="#buildabledetailview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableDetailView">
-<em class="property">class </em><tt class="descname">BuildableDetailView</tt><big>(</big><em>DetailView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableDetailView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BuildableDetailView</code><span class="sig-paren">(</span><em>DetailView</em>, <em>BuildableMixin</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Render and build a &#8220;detail&#8221; page about an object or a series of pages
 about a list of objects. Extended from Django&#8217;s generic <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview">DetailView</a>.</p>
 <dl class="attribute">
 <dt id="BuildableDetailView.model">
-<tt class="descname">model</tt><a class="headerlink" href="#BuildableDetailView.model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">model</code><a class="headerlink" href="#BuildableDetailView.model" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Django database model where the list of objects can be drawn
-with a <tt class="docutils literal"><span class="pre">Model.objects.all()</span></tt> query. Optional. If you want to provide
-a more specific list, define the <tt class="docutils literal"><span class="pre">queryset</span></tt> attribute instead.</p>
+with a <code class="docutils literal"><span class="pre">Model.objects.all()</span></code> query. Optional. If you want to provide
+a more specific list, define the <code class="docutils literal"><span class="pre">queryset</span></code> attribute instead.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableDetailView.queryset">
-<tt class="descname">queryset</tt><a class="headerlink" href="#BuildableDetailView.queryset" title="Permalink to this definition">¶</a></dt>
+<code class="descname">queryset</code><a class="headerlink" href="#BuildableDetailView.queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Django model queryset objects are to be looked up from. Optional, but
-if this attribute is not defined the <tt class="docutils literal"><span class="pre">model</span></tt> attribute must be
+if this attribute is not defined the <code class="docutils literal"><span class="pre">model</span></code> attribute must be
 defined.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableDetailView.template_name">
-<tt class="descname">template_name</tt><a class="headerlink" href="#BuildableDetailView.template_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">template_name</code><a class="headerlink" href="#BuildableDetailView.template_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the template you would like Django to render. You need
 to override this if you don&#8217;t want to rely on the default, which is
-<tt class="docutils literal"><span class="pre">os.path.join(settings.BUILD_DIR,</span> <span class="pre">obj.get_absolute_url(),</span> <span class="pre">'index.html')</span></tt>.</p>
+<code class="docutils literal"><span class="pre">os.path.join(settings.BUILD_DIR,</span> <span class="pre">obj.get_absolute_url(),</span> <span class="pre">'index.html')</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableDetailView.get_build_path">
-<tt class="descname">get_build_path</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.get_build_path" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_build_path</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView.get_build_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to determine where to build the detail page. Override this if you
 would like your detail page at a different location. By default it
-will be built at <tt class="docutils literal"><span class="pre">os.path.join(obj.get_url(),</span> <span class="pre">&quot;index.html&quot;</span></tt>.</p>
+will be built at <code class="docutils literal"><span class="pre">os.path.join(obj.get_url(),</span> <span class="pre">&quot;index.html&quot;</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableDetailView.get_html">
-<tt class="descname">get_html</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.get_html" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_html</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView.get_html" title="Permalink to this definition">¶</a></dt>
 <dd><p>How to render the output for the provided object&#8217;s page. If you choose to render
 using something other than a Django template, like HttpResponse for
 instance, you will want to override this. By default it uses the template
-object&#8217;s default <tt class="docutils literal"><span class="pre">render</span></tt> method.</p>
+object&#8217;s default <code class="docutils literal"><span class="pre">render</span></code> method.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableDetailView.get_url">
-<tt class="descname">get_url</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.get_url" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_url</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView.get_url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the build directory, and therefore the URL, where the provided
-object&#8217;s flat file should be placed. By default is it <tt class="docutils literal"><span class="pre">obj.get_absolute_url()</span></tt>.</p>
+object&#8217;s flat file should be placed. By default it is <code class="docutils literal"><span class="pre">obj.get_absolute_url()</span></code>,
+so simplify defining that on your model is enough.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableDetailView.build_method">
-<tt class="descname">build_method</tt><a class="headerlink" href="#BuildableDetailView.build_method" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alias to the <tt class="docutils literal"><span class="pre">build_queryset</span></tt> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
+<code class="descname">build_method</code><a class="headerlink" href="#BuildableDetailView.build_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias to the <code class="docutils literal"><span class="pre">build_queryset</span></code> method used by the <a class="reference internal" href="managementcommands.html"><em>management commands</em></a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableDetailView.build_object">
-<tt class="descname">build_object</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.build_object" title="Permalink to this definition">¶</a></dt>
+<code class="descname">build_object</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView.build_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the rendered HTML for the template and the provided object to the build directory.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableDetailView.build_queryset">
-<tt class="descname">build_queryset</tt><big>(</big><big>)</big><a class="headerlink" href="#BuildableDetailView.build_queryset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes the rendered template&#8217;s HTML for each object in the <tt class="docutils literal"><span class="pre">queryset</span></tt> or <tt class="docutils literal"><span class="pre">model</span></tt> to a flat file. Only override this if you know what you&#8217;re doing.</p>
+<code class="descname">build_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView.build_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the rendered template&#8217;s HTML for each object in the <code class="docutils literal"><span class="pre">queryset</span></code> or <code class="docutils literal"><span class="pre">model</span></code> to a flat file. Only override this if you know what you&#8217;re doing.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="BuildableDetailView.unbuild_object">
-<tt class="descname">unbuild_object</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#BuildableDetailView.unbuild_object" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unbuild_object</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableDetailView.unbuild_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deletes the directory where the provided object&#8217;s flat files are stored.</p>
 </dd></dl>
 
+<p><strong>Example myapp/models.py</strong></p>
+<div class="highlight-python"><div class="highlight"><pre>from django.db im­port mod­els
+from bakery.mod­els im­port Build­ableMod­el
+
+
+class My­Mod­el(Build­ableMod­el):
+    de­tail_views = (&#39;myapp.views.ExampleDetailView&#39;,)
+    title = mod­els.Char­Field(max_length=100)
+    slug = models.SlugField(max_length=100)
+
+    def get_absolute_url(self):
+        &quot;&quot;&quot;
+        If you are going to publish a detail view for each object,
+        one easy way to set the path where it will be built is to
+        configure Django&#39;s standard get_absolute_url method.
+        &quot;&quot;&quot;
+        return &#39;/%s/&#39; % self.slug
+</pre></div>
+</div>
 <p><strong>Example myapp/views.py</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">MyModel</span>
 <span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableDetailView</span>
@@ -264,8 +284,8 @@ object&#8217;s flat file should be placed. By default is it <tt class="docutils 
 <h2>Buildable404View<a class="headerlink" href="#buildable404view" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="Buildable404View">
-<em class="property">class </em><tt class="descname">Buildable404View</tt><big>(</big><em>BuildableTemplateView</em><big>)</big><a class="headerlink" href="#Buildable404View" title="Permalink to this definition">¶</a></dt>
-<dd><p>Renders and builds a simple 404 error page template as a flat file. Extended from the <tt class="docutils literal"><span class="pre">BuildableTemplateView</span></tt> above.</p>
+<em class="property">class </em><code class="descname">Buildable404View</code><span class="sig-paren">(</span><em>BuildableTemplateView</em><span class="sig-paren">)</span><a class="headerlink" href="#Buildable404View" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders and builds a simple 404 error page template as a flat file. Extended from the <code class="docutils literal"><span class="pre">BuildableTemplateView</span></code> above.</p>
 <p><strong>All it does</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableTemplateView</span>
 
@@ -282,19 +302,19 @@ object&#8217;s flat file should be placed. By default is it <tt class="docutils 
 <h2>BuildableRedirectView<a class="headerlink" href="#buildableredirectview" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="BuildableRedirectView">
-<em class="property">class </em><tt class="descname">BuildableRedirectView</tt><big>(</big><em>RedirectView</em>, <em>BuildableMixin</em><big>)</big><a class="headerlink" href="#BuildableRedirectView" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BuildableRedirectView</code><span class="sig-paren">(</span><em>RedirectView</em>, <em>BuildableMixin</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableRedirectView" title="Permalink to this definition">¶</a></dt>
 <dd><p>Render and build a redirect. Extended from Django&#8217;s generic
 <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#redirectview">RedirectView</a>.</p>
 <dl class="attribute">
 <dt id="BuildableRedirectView.build_path">
-<tt class="descname">build_path</tt><a class="headerlink" href="#BuildableRedirectView.build_path" title="Permalink to this definition">¶</a></dt>
+<code class="descname">build_path</code><a class="headerlink" href="#BuildableRedirectView.build_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>The URL being requested, which will be published as a flatfile
 with a redirect away from it.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="BuildableRedirectView.url">
-<tt class="descname">url</tt><a class="headerlink" href="#BuildableRedirectView.url" title="Permalink to this definition">¶</a></dt>
+<code class="descname">url</code><a class="headerlink" href="#BuildableRedirectView.url" title="Permalink to this definition">¶</a></dt>
 <dd><p>The URL where redirect will send the user. Operates
 in the same way as the standard generic RedirectView.</p>
 </dd></dl>
@@ -317,7 +337,7 @@ in the same way as the standard generic RedirectView.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -337,12 +357,14 @@ in the same way as the standard generic RedirectView.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="buildablemodels.html"
                         title="next chapter">Buildable models</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/buildableviews.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/buildableviews.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -359,7 +381,7 @@ in the same way as the standard generic RedirectView.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -371,12 +393,12 @@ in the same way as the standard generic RedirectView.</p>
         <li class="right" >
           <a href="commonchallenges.html" title="Common challenges"
              >previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, Los Angeles Times Data Desk.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Los Angeles Times Data Desk.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

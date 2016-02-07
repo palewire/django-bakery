@@ -176,7 +176,7 @@ class BuildableDetailView(DetailView, BuildableMixin):
         if not obj.get_absolute_url():
             raise NotImplementedError("No URL configured. You must either \
 set a ``get_absolute_url`` method on the %s model or override the %s view's \
-``get_url`` method" % (self.model.__name__, self.__class__.__name__))
+``get_url`` method" % (obj.__class__.__name__, self.__class__.__name__))
         return obj.get_absolute_url()
 
     def get_build_path(self, obj):

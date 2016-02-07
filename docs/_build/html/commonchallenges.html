@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Common challenges &mdash; django-bakery 0.6.1 documentation</title>
+    <title>Common challenges &mdash; django-bakery 0.7.6 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.1',
+        VERSION:     '0.7.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-bakery 0.6.1 documentation" href="index.html" />
+    <link rel="top" title="django-bakery 0.7.6 documentation" href="index.html" />
     <link rel="next" title="Buildable views" href="buildableviews.html" />
     <link rel="prev" title="Getting started" href="gettingstarted.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,17 +40,96 @@
         <li class="right" >
           <a href="gettingstarted.html" title="Getting started"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="common-challenges">
 <h1>Common challenges<a class="headerlink" href="#common-challenges" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="configuring-where-detail-pages-are-built">
+<h2>Configuring where detail pages are built<a class="headerlink" href="#configuring-where-detail-pages-are-built" title="Permalink to this headline">¶</a></h2>
+<p>If you are seeking to publish a detail page for each record in a database model,
+our recommended way is using the <a class="reference internal" href="buildableviews.html#buildable-detail-view"><span>BuildableDetailView</span></a>.</p>
+<p>When the view is executed via bakery&#8217;s <a class="reference internal" href="managementcommands.html#build"><span>standard build process</span></a>, it will loop
+through each object in the table and build a corresponding page at a path determined by
+the view&#8217;s <code class="docutils literal"><span class="pre">get_url</span></code> method.</p>
+<p>You can override <code class="docutils literal"><span class="pre">get_url</span></code> to build the pages anywhere you want, but the easiest
+route is by configuring Django&#8217;s standard <a class="reference external" href="https://docs.djangoproject.com/en/1.9/ref/models/instances/#get-absolute-url">get_absolute_url</a>
+method on the model, which is where <code class="docutils literal"><span class="pre">get_url</span></code> looks by default.</p>
+<p>Here&#8217;s an example. Let&#8217;s start with a model that will contain a record for each
+of America&#8217;s 50 states. Notice how we have defined Django&#8217;s standard <code class="docutils literal"><span class="pre">get_absolute_url</span></code>
+method to return a URL that features each state&#8217;s unique postal code.</p>
+<div class="highlight-python"><div class="highlight"><pre>from django.db im­port mod­els
+from bakery.mod­els im­port Build­ableMod­el
+
+
+class State(Build­ableMod­el):
+    name = mod­els.Char­Field(max_length=100)
+    postal_code = models.CharField(max_length=2, unique=True)
+
+<span class="hll">    def get_absolute_url(self):
+</span><span class="hll">        return &#39;/%s/&#39; % self.postal_code
+</span></pre></div>
+</div>
+<p>That model is then connected to a <code class="docutils literal"><span class="pre">BuildableDetailView</span></code> that can create a page
+for every state.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableDetailView</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleDetailView</span><span class="p">(</span><span class="n">BuildableListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">State</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;state_detail.html&#39;</span>
+</pre></div>
+</div>
+<p>As described in the <a class="reference internal" href="gettingstarted.html"><em>getting started guide</em></a>, that view will need to be added
+to the <code class="docutils literal"><span class="pre">BAKERY_VIEWS</span></code> list in <code class="docutils literal"><span class="pre">settings.py</span></code>.</p>
+<p>Now, because the URL has been preconfigured with <code class="docutils literal"><span class="pre">get_absolute_url</span></code>, all 50 pages
+can be built with the standard management command (assuming your settings have
+been properly configured).</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py build
+</pre></div>
+</div>
+<p>That will create pages like this in the build directory.</p>
+<div class="highlight-bash"><div class="highlight"><pre>build/AL/index.html
+build/AK/index.html
+build/AR/index.html
+build/AZ/index.html
+build/CA/index.html
+build/CO/index.html
+... etc ...
+</pre></div>
+</div>
+<p>If you wanted to build objects using a more complex pattern, you can instead
+override the <code class="docutils literal"><span class="pre">get_url</span></code> method on the <code class="docutils literal"><span class="pre">BuildableDetailView</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">bakery.views</span> <span class="kn">import</span> <span class="n">BuildableDetailView</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleDetailView</span><span class="p">(</span><span class="n">BuildableListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">State</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;state_detail.html&#39;</span>
+
+<span class="hll">    <span class="k">def</span> <span class="nf">get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+</span><span class="hll">        <span class="k">return</span> <span class="s">&#39;/my-fancy-pattern/state/</span><span class="si">%s</span><span class="s">/&#39;</span> <span class="o">%</span> <span class="n">obj</span><span class="o">.</span><span class="n">postal_code</span>
+</span></pre></div>
+</div>
+<p>That will create pages like this in the build directory.</p>
+<div class="highlight-bash"><div class="highlight"><pre>build/my-fancy-pattern/state/AL/index.html
+build/my-fancy-pattern/state/AK/index.html
+build/my-fancy-pattern/state/AR/index.html
+build/my-fancy-pattern/state/AZ/index.html
+build/my-fancy-pattern/state/CA/index.html
+build/my-fancy-pattern/state/CO/index.html
+... etc ...
+</pre></div>
+</div>
+</div>
 <div class="section" id="building-json-instead-of-html">
 <h2>Building JSON instead of HTML<a class="headerlink" href="#building-json-instead-of-html" title="Permalink to this headline">¶</a></h2>
 <p>Suppose you have a view the acts like an API, generating a small snippet
@@ -146,11 +225,11 @@ additional configuration.</p>
 </div>
 <div class="section" id="building-a-single-view-on-demand">
 <h2>Building a single view on demand<a class="headerlink" href="#building-a-single-view-on-demand" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">build</span></tt> management command can regenerate all pages for all views in the
-<tt class="docutils literal"><span class="pre">BAKERY_VIEWS</span></tt> settings variable. A <a class="reference internal" href="buildablemodels.html"><em>buildable model</em></a>
+<p>The <code class="docutils literal"><span class="pre">build</span></code> management command can regenerate all pages for all views in the
+<code class="docutils literal"><span class="pre">BAKERY_VIEWS</span></code> settings variable. A <a class="reference internal" href="buildablemodels.html"><em>buildable model</em></a>
 can recreate all pages related to a single object. But can you rebuild all pages
 created by just one view? Yes, and all it takes is importing the view and invoking
-its <tt class="docutils literal"><span class="pre">build_method</span></tt>.</p>
+its <code class="docutils literal"><span class="pre">build_method</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>&gt;&gt;&gt; from yourapp.views import DummyDe­tailView
 &gt;&gt;&gt; DummyDe­tailView().build_method()
 </pre></div>
@@ -169,7 +248,7 @@ class Command(BaseCommand):
 </pre></div>
 </div>
 <p>Or, if you wanted to rebuild the view without deleting everything else in the existing
-build directory, you could pass it as an argument to the standard <tt class="docutils literal"><span class="pre">build</span></tt> command
+build directory, you could pass it as an argument to the standard <code class="docutils literal"><span class="pre">build</span></code> command
 with instructions to skip everything else it normally does.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py build yourapp.views.DummyDetailView --keep-build-dir --skip-static --skip-media
 </pre></div>
@@ -181,11 +260,12 @@ with instructions to skip everything else it normally does.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Common challenges</a><ul>
+<li><a class="reference internal" href="#configuring-where-detail-pages-are-built">Configuring where detail pages are built</a></li>
 <li><a class="reference internal" href="#building-json-instead-of-html">Building JSON instead of HTML</a></li>
 <li><a class="reference internal" href="#building-a-single-view-on-demand">Building a single view on demand</a></li>
 </ul>
@@ -198,12 +278,14 @@ with instructions to skip everything else it normally does.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="buildableviews.html"
                         title="next chapter">Buildable views</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/commonchallenges.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/commonchallenges.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -220,7 +302,7 @@ with instructions to skip everything else it normally does.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -232,12 +314,12 @@ with instructions to skip everything else it normally does.</p>
         <li class="right" >
           <a href="gettingstarted.html" title="Getting started"
              >previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, Los Angeles Times Data Desk.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Los Angeles Times Data Desk.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

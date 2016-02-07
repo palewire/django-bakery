@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Getting started &mdash; django-bakery 0.6.1 documentation</title>
+    <title>Getting started &mdash; django-bakery 0.7.6 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.1',
+        VERSION:     '0.7.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,31 +23,31 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-bakery 0.6.1 documentation" href="index.html" />
-    <link rel="next" title="Buildable views" href="buildableviews.html" />
+    <link rel="top" title="django-bakery 0.7.6 documentation" href="index.html" />
+    <link rel="next" title="Common challenges" href="commonchallenges.html" />
     <link rel="prev" title="django-bakery" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="buildableviews.html" title="Buildable views"
+          <a href="commonchallenges.html" title="Common challenges"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="django-bakery"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
@@ -58,7 +58,7 @@
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install django-bakery
 </pre></div>
 </div>
-<p>Edit your <tt class="docutils literal"><span class="pre">settings.py</span></tt> and add the app to your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt> list.</p>
+<p>Edit your <code class="docutils literal"><span class="pre">settings.py</span></code> and add the app to your <code class="docutils literal"><span class="pre">INSTALLED_APPS</span></code> list.</p>
 <div class="highlight-python"><div class="highlight"><pre>IN­STALLED_APPS = (
     # ...
     # other apps would be above this of course
@@ -70,7 +70,7 @@
 </div>
 <div class="section" id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>Also in <tt class="docutils literal"><span class="pre">settings.py</span></tt>, add a build directory where the site will be built as flat files. This is where bakery will create the static version of your website that can be hosted elsewhere.</p>
+<p>Also in <code class="docutils literal"><span class="pre">settings.py</span></code>, add a build directory where the site will be built as flat files. This is where bakery will create the static version of your website that can be hosted elsewhere.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BUILD_DIR</span> <span class="o">=</span> <span class="s">&#39;/home/you/code/your-site/build/&#39;</span>
 </pre></div>
 </div>
@@ -104,8 +104,8 @@ because we aren&#8217;t going to rewrite their documentation here.</p>
 <p>If you&#8217;ve already seen class-based views and decided you dislike them,
 <a class="reference external" href="http://lukeplant.me.uk/blog/posts/djangos-cbvs-were-a-mistake/">you&#8217;re not alone</a>
 but you&#8217;ll have to take our word that they&#8217;re worth the trouble in this case. You&#8217;ll see why soon enough.</p>
-<p>After you’ve con­ver­ted your views, add them to a list in <tt class="docutils literal"><span class="pre">settings.py</span></tt> where
-all build­able views should be recorded as in the <tt class="docutils literal"><span class="pre">BAKERY_VIEWS</span></tt> variable.</p>
+<p>After you’ve con­ver­ted your views, add them to a list in <code class="docutils literal"><span class="pre">settings.py</span></code> where
+all build­able views should be recorded as in the <code class="docutils literal"><span class="pre">BAKERY_VIEWS</span></code> variable.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_VIEWS</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s">&#39;yourapp.views.DummyL­istView&#39;</span><span class="p">,</span>
     <span class="s">&#39;yourapp.views.DummyDe­tailView&#39;</span><span class="p">,</span>
@@ -119,9 +119,9 @@ all build­able views should be recorded as in the <tt class="docutils literal">
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py build
 </pre></div>
 </div>
-<p>This will create a copy of every page that your views support in the <tt class="docutils literal"><span class="pre">BUILD_DIR</span></tt>.
-You can re­view its work by fir­ing up the <tt class="docutils literal"><span class="pre">buildserver</span></tt>, which will loc­ally
-host your flat files in the same way the Django’s <tt class="docutils literal"><span class="pre">runserver</span></tt> hosts your
+<p>This will create a copy of every page that your views support in the <code class="docutils literal"><span class="pre">BUILD_DIR</span></code>.
+You can re­view its work by fir­ing up the <code class="docutils literal"><span class="pre">buildserver</span></code>, which will loc­ally
+host your flat files in the same way the Django’s <code class="docutils literal"><span class="pre">runserver</span></code> hosts your
 dynamic data­base-driv­en pages.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python manage.py buildserver
 </pre></div>
@@ -130,7 +130,7 @@ dynamic data­base-driv­en pages.</p>
 &#8220;buck­et&#8221; inside Amazon&#8217;s service. You can go to <a class="reference external" href="http://aws.amazon.com/s3/">aws.amazon.com/s3/</a>
 to set up an ac­count. If you need some ba­sic in­struc­tions you can find
 them <a class="reference external" href="http://docs.amazonwebservices.com/AmazonS3/latest/gsg/GetStartedWithS3.html?r=9703">here</a>.
-Then set your buck­et name in <tt class="docutils literal"><span class="pre">settings.py</span></tt>.</p>
+Then set your buck­et name in <code class="docutils literal"><span class="pre">settings.py</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>AWS_BUCK­ET_­NAME = &#39;your-buck­et&#39;
 </pre></div>
 </div>
@@ -151,7 +151,7 @@ control <a class="reference external" href="http://docs.aws.amazon.com/AmazonS3/
 <h2>Optimization<a class="headerlink" href="#optimization" title="Permalink to this headline">¶</a></h2>
 <p>If you are publishing to S3, you can reduce the size of HTML, JavaScript and CSS files
 by having bakery compress them using <a class="reference external" href="http://en.wikipedia.org/wiki/Gzip">gzip</a> as they are uploaded. Read more about this feature <a class="reference external" href="http://www.savjee.be/2014/03/Jekyll-to-S3-deploy-script-with-gzip/">here</a>, <a class="reference external" href="http://sukharevd.net/gzipping-website-in-amazon-s3-bucket.html">here</a> or <a class="reference external" href="http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3">here</a>.</p>
-<p>Getting started is as simple as returning to <tt class="docutils literal"><span class="pre">settings.py</span></tt> and adding the following:</p>
+<p>Getting started is as simple as returning to <code class="docutils literal"><span class="pre">settings.py</span></code> and adding the following:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">BAKERY_GZIP</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
 </div>
@@ -167,7 +167,7 @@ by having bakery compress them using <a class="reference external" href="http://
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -184,14 +184,16 @@ by having bakery compress them using <a class="reference external" href="http://
   <p class="topless"><a href="index.html"
                         title="previous chapter">django-bakery</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="buildableviews.html"
-                        title="next chapter">Buildable views</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/gettingstarted.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <p class="topless"><a href="commonchallenges.html"
+                        title="next chapter">Common challenges</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gettingstarted.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -208,24 +210,24 @@ by having bakery compress them using <a class="reference external" href="http://
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="buildableviews.html" title="Buildable views"
+          <a href="commonchallenges.html" title="Common challenges"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="django-bakery"
              >previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, Los Angeles Times Data Desk.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Los Angeles Times Data Desk.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

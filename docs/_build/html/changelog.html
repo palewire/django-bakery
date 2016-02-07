@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; django-bakery 0.6.1 documentation</title>
+    <title>Changelog &mdash; django-bakery 0.7.6 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.1',
+        VERSION:     '0.7.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-bakery 0.6.1 documentation" href="index.html" />
+    <link rel="top" title="django-bakery 0.7.6 documentation" href="index.html" />
     <link rel="next" title="Credits" href="credits.html" />
     <link rel="prev" title="Management commands" href="managementcommands.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,74 +40,108 @@
         <li class="right" >
           <a href="managementcommands.html" title="Management commands"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>0.7.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>0.7.7<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added <tt class="docutils literal"><span class="pre">BuildableRedirectView</span></tt></li>
+<li>Patch provided backwards compatibility to a boto bug fix.</li>
 </ul>
 </div>
 <div class="section" id="id2">
-<h2>0.6.4<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>0.7.6<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added <tt class="docutils literal"><span class="pre">BuildableFeed</span></tt> for RSS support</li>
+<li>Patched <code class="docutils literal"><span class="pre">set_kwargs</span></code> to override the key name of the slug when it is configured by the detail view&#8217;s <code class="docutils literal"><span class="pre">slug_field</span></code> setting</li>
 </ul>
 </div>
 <div class="section" id="id3">
-<h2>0.6.3<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<h2>0.7.5<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Changed <tt class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></tt> to commit to the database before triggering a task</li>
-<li>Changed celery tasks to accept primary keys instead of model objects</li>
+<li>BAKERY_CACHE_CONTROL settings variable and support</li>
+<li>Better tests for publish and unpublish</li>
+<li>Delete operations in publish and unpublish command breaks keys into batches to avoid S3 errors on large sets</li>
 </ul>
 </div>
 <div class="section" id="id4">
-<h2>0.6.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<h2>0.7.4<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>An <tt class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></tt> that is able to use a Celery job queue to automatically build and publish objects when they are saved</li>
-<li>Refactored <tt class="docutils literal"><span class="pre">build</span></tt> management command to allow for its different tasks to be more easily overridden</li>
-<li>Added a <tt class="docutils literal"><span class="pre">--keep-build-dir</span></tt> option to the <tt class="docutils literal"><span class="pre">build</span></tt> command.</li>
+<li>Fixed content_type versus mimetype bug in the static views for Django 1.7 and 1.8</li>
+<li>A few other small Python 3 related bugs</li>
 </ul>
 </div>
 <div class="section" id="id5">
-<h2>0.5.0<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<h2>0.7.3<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Refactored the <tt class="docutils literal"><span class="pre">publish</span></tt> and <tt class="docutils literal"><span class="pre">unpublish</span></tt> management commands to use boto instead of s3cmd.</li>
-<li><tt class="docutils literal"><span class="pre">build</span></tt> and <tt class="docutils literal"><span class="pre">publish</span></tt> management commands use file mimetypes instead of a regex on the filename to decide if a file will be gzipped.</li>
-<li><tt class="docutils literal"><span class="pre">publish</span></tt> management command includes &#8211;force and &#8211;dry-run uploads to force an upload of all file, regardless of changes, and to print output without uploading files, respectively.</li>
-<li><tt class="docutils literal"><span class="pre">publish</span></tt> management command now pools uploads to increase speed</li>
+<li>Added a <code class="docutils literal"><span class="pre">--no-delete</span></code> option to the <code class="docutils literal"><span class="pre">publish</span></code> management command.</li>
+<li>Fixed testing in Django 1.7</li>
 </ul>
 </div>
 <div class="section" id="id6">
-<h2>0.4.2<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<h2>0.7.1<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added a <tt class="docutils literal"><span class="pre">get_content</span></tt> method to all of the buildable views to make it easier to build pages that don&#8217;t require a template, like JSON outputs</li>
+<li>Added <code class="docutils literal"><span class="pre">BuildableRedirectView</span></code></li>
 </ul>
 </div>
 <div class="section" id="id7">
-<h2>0.4.1<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<h2>0.6.4<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added <code class="docutils literal"><span class="pre">BuildableFeed</span></code> for RSS support</li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h2>0.6.3<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Changed <code class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></code> to commit to the database before triggering a task</li>
+<li>Changed celery tasks to accept primary keys instead of model objects</li>
+</ul>
+</div>
+<div class="section" id="id9">
+<h2>0.6.0<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>An <code class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></code> that is able to use a Celery job queue to automatically build and publish objects when they are saved</li>
+<li>Refactored <code class="docutils literal"><span class="pre">build</span></code> management command to allow for its different tasks to be more easily overridden</li>
+<li>Added a <code class="docutils literal"><span class="pre">--keep-build-dir</span></code> option to the <code class="docutils literal"><span class="pre">build</span></code> command.</li>
+</ul>
+</div>
+<div class="section" id="id10">
+<h2>0.5.0<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Refactored the <code class="docutils literal"><span class="pre">publish</span></code> and <code class="docutils literal"><span class="pre">unpublish</span></code> management commands to use boto instead of s3cmd.</li>
+<li><code class="docutils literal"><span class="pre">build</span></code> and <code class="docutils literal"><span class="pre">publish</span></code> management commands use file mimetypes instead of a regex on the filename to decide if a file will be gzipped.</li>
+<li><code class="docutils literal"><span class="pre">publish</span></code> management command includes &#8211;force and &#8211;dry-run uploads to force an upload of all file, regardless of changes, and to print output without uploading files, respectively.</li>
+<li><code class="docutils literal"><span class="pre">publish</span></code> management command now pools uploads to increase speed</li>
+</ul>
+</div>
+<div class="section" id="id11">
+<h2>0.4.2<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added a <code class="docutils literal"><span class="pre">get_content</span></code> method to all of the buildable views to make it easier to build pages that don&#8217;t require a template, like JSON outputs</li>
+</ul>
+</div>
+<div class="section" id="id12">
+<h2>0.4.1<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Bug fix with calculating Python version in the views in v0.4.0</li>
 </ul>
 </div>
-<div class="section" id="id8">
-<h2>0.4.0<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id13">
+<h2>0.4.0<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added optional gzip support to build routine for Amazon S3 publishing (via <a class="reference external" href="https://twitter.com/emamd">&#64;emamd</a>)</li>
 <li>Mixin buildable view with common methods</li>
 </ul>
 </div>
-<div class="section" id="id9">
-<h2>0.3.0<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id14">
+<h2>0.3.0<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Python 3 support</li>
 <li>Unit tests</li>
@@ -115,17 +149,17 @@
 <li>Coverage reporting by Coveralls.io</li>
 <li>PEP8 compliance</li>
 <li>PyFlakes compliance</li>
-<li>Refactored <tt class="docutils literal"><span class="pre">buildserver</span></tt> management command to work with latest versions of Django</li>
+<li>Refactored <code class="docutils literal"><span class="pre">buildserver</span></code> management command to work with latest versions of Django</li>
 </ul>
 </div>
-<div class="section" id="id10">
-<h2>0.2.0<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id15">
+<h2>0.2.0<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Numerous bug fixes</li>
 </ul>
 </div>
-<div class="section" id="id11">
-<h2>0.1.0<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id16">
+<h2>0.1.0<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="http://datadesk.latimes.com/posts/2012/03/introducing-django-bakery/">Initial release</a></li>
 </ul>
@@ -136,22 +170,27 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">0.7.1</a></li>
-<li><a class="reference internal" href="#id2">0.6.4</a></li>
-<li><a class="reference internal" href="#id3">0.6.3</a></li>
-<li><a class="reference internal" href="#id4">0.6.0</a></li>
-<li><a class="reference internal" href="#id5">0.5.0</a></li>
-<li><a class="reference internal" href="#id6">0.4.2</a></li>
-<li><a class="reference internal" href="#id7">0.4.1</a></li>
-<li><a class="reference internal" href="#id8">0.4.0</a></li>
-<li><a class="reference internal" href="#id9">0.3.0</a></li>
-<li><a class="reference internal" href="#id10">0.2.0</a></li>
-<li><a class="reference internal" href="#id11">0.1.0</a></li>
+<li><a class="reference internal" href="#id1">0.7.7</a></li>
+<li><a class="reference internal" href="#id2">0.7.6</a></li>
+<li><a class="reference internal" href="#id3">0.7.5</a></li>
+<li><a class="reference internal" href="#id4">0.7.4</a></li>
+<li><a class="reference internal" href="#id5">0.7.3</a></li>
+<li><a class="reference internal" href="#id6">0.7.1</a></li>
+<li><a class="reference internal" href="#id7">0.6.4</a></li>
+<li><a class="reference internal" href="#id8">0.6.3</a></li>
+<li><a class="reference internal" href="#id9">0.6.0</a></li>
+<li><a class="reference internal" href="#id10">0.5.0</a></li>
+<li><a class="reference internal" href="#id11">0.4.2</a></li>
+<li><a class="reference internal" href="#id12">0.4.1</a></li>
+<li><a class="reference internal" href="#id13">0.4.0</a></li>
+<li><a class="reference internal" href="#id14">0.3.0</a></li>
+<li><a class="reference internal" href="#id15">0.2.0</a></li>
+<li><a class="reference internal" href="#id16">0.1.0</a></li>
 </ul>
 </li>
 </ul>
@@ -162,12 +201,14 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="credits.html"
                         title="next chapter">Credits</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/changelog.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -184,7 +225,7 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -196,12 +237,12 @@
         <li class="right" >
           <a href="managementcommands.html" title="Management commands"
              >previous</a> |</li>
-        <li><a href="index.html">django-bakery 0.6.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, Los Angeles Times Data Desk.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Los Angeles Times Data Desk.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

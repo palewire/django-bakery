@@ -100,6 +100,7 @@ BuildableListView
             queryset = MyModel.objects.filter(is_published=True)
             template_name = 'mymodel_list.html'
 
+.. _buildable-detail-view:
 
 BuildableDetailView
 -------------------
@@ -140,6 +141,7 @@ BuildableDetailView
         instance, you will want to override this. By default it uses the template
         object's default ``render`` method.
 
+    .. _get_url
     .. method:: get_url(obj)
 
         Returns the build directory, and therefore the URL, where the provided
