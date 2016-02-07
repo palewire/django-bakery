@@ -81,7 +81,7 @@ class TestCommand(Command):
 
 setup(
     name='django-bakery',
-    version='0.7.7',
+    version='0.7.8',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
@@ -97,9 +97,16 @@ setup(
         'bakery.tests.templates',
     ),
     classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Framework :: Django',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
+        'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
         'six>=1.5.2',

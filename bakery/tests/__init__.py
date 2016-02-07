@@ -162,7 +162,7 @@ class BakeryTest(TestCase):
             self.assertTrue(v.kwargs['slug'] == v.kwargs['this_slug'])
 
     def test_nourl_detail_view(self):
-        with self.assertRaises(NotImplementedError): 
+        with self.assertRaises(NotImplementedError):
             NoUrlDetailView().build_queryset()
 
     def test_redirect_view(self):
