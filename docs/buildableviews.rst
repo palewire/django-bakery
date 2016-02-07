@@ -8,7 +8,7 @@ BuildableTemplateView
 
 .. py:class:: BuildableTemplateView(TemplateView, BuildableMixin)
 
-    Renders and builds a simple template as a flat file. Extended from Django's 
+    Renders and builds a simple template as a flat file. Extended from Django's
     generic `TemplateView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView>`_.
 
     .. py:attribute:: build_path
@@ -39,12 +39,13 @@ BuildableTemplateView
             build_path = 'examples/index.html'
             template_name = 'examples.html'
 
+
 BuildableListView
 -----------------
 
 .. class:: BuildableListView(ListView, BuildableMixin)
 
-    Render and builds a page about a list of objects. Extended from Django's 
+    Render and builds a page about a list of objects. Extended from Django's
     generic `ListView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView>`_.
 
     .. attribute:: model
@@ -123,7 +124,7 @@ BuildableDetailView
     .. attribute:: template_name
 
         The name of the template you would like Django to render. You need
-        to override this if you don't want to rely on the default, which is 
+        to override this if you don't want to rely on the default, which is
         ``os.path.join(settings.BUILD_DIR, obj.get_absolute_url(), 'index.html')``.
 
     .. method:: get_build_path(obj)
@@ -142,7 +143,8 @@ BuildableDetailView
     .. method:: get_url(obj)
 
         Returns the build directory, and therefore the URL, where the provided
-        object's flat file should be placed. By default is it ``obj.get_absolute_url()``.
+        object's flat file should be placed. By default it is ``obj.get_absolute_url()``,
+        so simplify defining that on your model is enough.
 
     .. py:attribute:: build_method
 
@@ -160,6 +162,27 @@ BuildableDetailView
 
         Deletes the directory where the provided object's flat files are stored.
 
+    **Example myapp/models.py**
+
+    .. code-block:: python
+
+        from django.db im­port mod­els
+        from bakery.mod­els im­port Build­ableMod­el
+
+
+        class My­Mod­el(Build­ableMod­el):
+            de­tail_views = ('myapp.views.ExampleDetailView',)
+            title = mod­els.Char­Field(max_length=100)
+            slug = models.SlugField(max_length=100)
+
+            def get_absolute_url(self):
+                """
+                If you are going to publish a detail view for each object,
+                one easy way to set the path where it will be built is to
+                configure Django's standard get_absolute_url method.
+                """
+                return '/%s/' % self.slug
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -171,6 +194,8 @@ BuildableDetailView
         class ExampleDetailView(BuildableListView):
             queryset = MyModel.objects.filter(is_published=True)
             template_name = 'mymodel_detail.html'
+
+
 
 Buildable404View
 ----------------

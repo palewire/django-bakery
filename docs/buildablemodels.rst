@@ -4,15 +4,15 @@ Buildable models
 Models that build themselves
 ----------------------------
 
-If your site pub­lishes numerous pages built from a large data­base, the build-and-pub­lish routine can take 
-a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally 
-mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire 
+If your site pub­lishes numerous pages built from a large data­base, the build-and-pub­lish routine can take
+a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally
+mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire
 data­base to re­build every time there’s a minor edit.
 
-We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els. 
-When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that 
-ob­ject is con­nec­ted to. We ac­com­plish this with a ``BuildableModel`` class 
-you can in­her­it. It works the same as a standard Django model, except that 
+We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els.
+When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that
+ob­ject is con­nec­ted to. We ac­com­plish this with a ``BuildableModel`` class
+you can in­her­it. It works the same as a standard Django model, except that
 you are asked define a list of the de­tail views con­nec­ted to each ob­ject.
 
 BuildableModel
@@ -64,31 +64,41 @@ BuildableModel
         class My­Mod­el(Build­ableMod­el):
             de­tail_views = ('myapp.views.ExampleDetailView',)
             title = mod­els.Char­Field(max_length=100)
+            slug = models.SlugField(max_length=100)
             de­scrip­tion = mod­els.Text­Field()
             is_published = models.BooleanField(default=False)
+
+            def get_absolute_url(self):
+                """
+                If you are going to publish a detail view for each object,
+                one easy way to set the path where it will be built is to
+                configure Django's standard get_absolute_url method.
+                """
+                return '/%s/' % self.slug
 
             def _build_re­lated(self):
                 from myapp import views
                 views.MySitem­apView().build_queryset()
                 views.MyRSS­Feed().build_queryset()
 
+
 Models that publish themselves
 ------------------------------
 
 With a buildable model in place, you can take things a step further with the
-``AutoPublishingBuildableModel`` so that a up­date pos­ted to the data­base by an entrant 
-us­ing the `Django ad­min <https://docs.djangoproject.com/en/dev/ref/contrib/admin/>`_ 
-can set in­to mo­tion a small build that is then synced with your live site on Amazon S3. 
+``AutoPublishingBuildableModel`` so that a up­date pos­ted to the data­base by an entrant
+us­ing the `Django ad­min <https://docs.djangoproject.com/en/dev/ref/contrib/admin/>`_
+can set in­to mo­tion a small build that is then synced with your live site on Amazon S3.
 
 At the Los Angeles Times Data Desk, we use that sys­tem to host ap­plic­a­tions
 with in-house Django ad­min­is­tra­tion pan­els that, for the entrant, walk and
 talk like a live website, but behind the scenes auto­mat­ic­ally fig­ure out how
-to serve them­selves on the Web as flat files. That’s how a site like 
+to serve them­selves on the Web as flat files. That’s how a site like
 `graphics.latimes.com <http://graphics.latimes.com>`_ is man­aged.
 
-This is accomplished by handing off the build from the user’s save re­quest in the ad­min to a 
+This is accomplished by handing off the build from the user’s save re­quest in the ad­min to a
 job serv­er that does the work in the back­ground. This pre­vents a user who makes a push-but­ton save
-in the ad­min from hav­ing to wait for the full process to com­plete be­fore receiving a re­sponse. 
+in the ad­min from hav­ing to wait for the full process to com­plete be­fore receiving a re­sponse.
 
 This is done by passing off build in­struc­tions to `a Cel­ery job serv­er <http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html>`_.
 **You need to install Celery and have it fully configured before this model will work.**
@@ -151,5 +161,14 @@ AutoPublishingBuildableModel
         class My­Mod­el(AutoPublishingBuildableModel):
             de­tail_views = ('myapp.views.ExampleDetailView',)
             title = mod­els.Char­Field(max_length=100)
+            slug = models.SlugField(max_length=100)
             de­scrip­tion = mod­els.Text­Field()
             is_published = models.BooleanField(default=False)
+
+            def get_absolute_url(self):
+                """
+                If you are going to publish a detail view for each object,
+                one easy way to set the path where it will be built is to
+                configure Django's standard get_absolute_url method.
+                """
+                return '/%s/' % self.slug
