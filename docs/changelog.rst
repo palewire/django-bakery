@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.8
+-----
+
+* Improved error handling and documentation of BuildableDetailView's ``get_url`` method.
+
 0.7.7
 -----
 
