@@ -42,7 +42,7 @@ for every state.
     from bakery.views import BuildableDetailView
 
 
-    class ExampleDetailView(BuildableListView):
+    class StateDetailView(BuildableListView):
         model = State
         template_name = 'state_detail.html'
 
