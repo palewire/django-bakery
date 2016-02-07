@@ -26,6 +26,11 @@ class MockObject(bmodels.BuildableModel):
         return '/%s/' % self.id
 
 
+class NoUrlObject(bmodels.BuildableModel):
+    detail_views = ['bakery.tests.MockDetailView']
+    name = models.CharField(max_length=500)
+
+
 class AutoMockObject(bmodels.AutoPublishingBuildableModel):
     detail_views = ['bakery.tests.MockDetailView']
     name = models.CharField(max_length=500)
@@ -39,6 +44,10 @@ class MockDetailView(views.BuildableDetailView):
     model = MockObject
     slug_field = "the_slug"
     template_name = 'detailview.html'
+
+
+class NoUrlDetailView(views.BuildableDetailView):
+    model = NoUrlObject
 
 
 class MockRedirectView(views.BuildableRedirectView):
@@ -80,7 +89,7 @@ class BakeryTest(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
-        for m in [MockObject, AutoMockObject]:
+        for m in [MockObject, AutoMockObject, NoUrlObject]:
             m.objects.create(name=1)
             m.objects.create(name=2)
             m.objects.create(name=3)
@@ -151,6 +160,10 @@ class BakeryTest(TestCase):
             self.assertTrue(os.path.exists(build_path))
             v.unbuild_object(o)
             self.assertTrue(v.kwargs['slug'] == v.kwargs['this_slug'])
+
+    def test_nourl_detail_view(self):
+        with self.assertRaises(NotImplementedError): 
+            NoUrlDetailView().build_queryset()
 
     def test_redirect_view(self):
         v = views.BuildableRedirectView(
