@@ -7,8 +7,9 @@ import shutil
 import logging
 from .base import BuildableMixin
 from django.conf import settings
-from django.test.client import RequestFactory
 from django.views.generic import DetailView
+from django.test.client import RequestFactory
+from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +35,7 @@ class BuildableDetailView(DetailView, BuildableMixin):
         The URL at which the detail page should appear.
         """
         if not obj.get_absolute_url():
-            raise NotImplementedError("No URL configured. You must either \
+            raise ImproperlyConfigured("No URL configured. You must either \
 set a ``get_absolute_url`` method on the %s model or override the %s view's \
 ``get_url`` method" % (obj.__class__.__name__, self.__class__.__name__))
         return obj.get_absolute_url()

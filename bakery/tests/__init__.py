@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory
 from django.core.management.base import CommandError
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -162,7 +163,7 @@ class BakeryTest(TestCase):
             self.assertTrue(v.kwargs['slug'] == v.kwargs['this_slug'])
 
     def test_nourl_detail_view(self):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(ImproperlyConfigured):
             NoUrlDetailView().build_queryset()
 
     def test_redirect_view(self):
