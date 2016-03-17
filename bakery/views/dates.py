@@ -1,4 +1,5 @@
 from django.views.generic import ArchiveIndexView
+from bakery.views import BuildableMixin
 
 
 class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):

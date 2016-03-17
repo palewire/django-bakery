@@ -6,6 +6,7 @@ from .base import (
 )
 from .detail import BuildableDetailView
 from .list import BuildableListView
+from .dates import BuildableArchiveIndexView
 
 __all__ = (
     'BuildableMixin',
@@ -14,4 +15,5 @@ __all__ = (
     'BuildableRedirectView',
     'BuildableDetailView',
     'BuildableListView',
+    'BuildableArchiveIndexView',
 )
