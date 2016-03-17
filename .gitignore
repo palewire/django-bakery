@@ -8,3 +8,4 @@ dist/*
 *.pyc
 *.swp
 .DS_Store
+example/db.sqlite3
