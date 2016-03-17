@@ -9,3 +9,5 @@ dist/*
 *.swp
 .DS_Store
 example/db.sqlite3
+example/.build
+example/.static

@@ -1,5 +1,10 @@
-from django.views.generic import ArchiveIndexView
+import os
+import logging
+from django.conf import settings
 from bakery.views import BuildableMixin
+from django.test.client import RequestFactory
+from django.views.generic import ArchiveIndexView
+logger = logging.getLogger(__name__)
 
 
 class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
@@ -16,7 +21,7 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
 
     @property
     def build_method(self):
-        return self.build_dated_queryset
+        return self.build_queryset
 
     def build_queryset(self):
         logger.debug("Building %s" % self.build_path)
@@ -24,7 +29,3 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
         self.prep_directory(self.build_path)
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         self.build_file(path, self.get_content())
-
-    def build_dated_queryset(self):
-        date_list, object_list, extra_context = self.get_dated_items()
-        [self.build_object(o) for o in object_list]
