@@ -1,0 +1,34 @@
+[
+{
+    "model": "date_views.article",
+    "pk": 1,
+    "fields": {
+        "title": "Article 1",
+        "pub_date": "2016-03-19"
+    }
+},
+{
+    "model": "date_views.article",
+    "pk": 2,
+    "fields": {
+        "title": "Article 2",
+        "pub_date": "2016-03-20"
+    }
+},
+{
+    "model": "date_views.article",
+    "pk": 3,
+    "fields": {
+        "title": "Article 3",
+        "pub_date": "2016-02-19"
+    }
+},
+{
+    "model": "date_views.article",
+    "pk": 4,
+    "fields": {
+        "title": "Article 4",
+        "pub_date": "2015-03-19"
+    }
+}
+]
