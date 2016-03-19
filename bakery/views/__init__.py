@@ -9,7 +9,11 @@ from .list import BuildableListView
 from .dates import (
     BuildableArchiveIndexView,
     BuildableYearArchiveView,
-    BuildableMonthArchiveView
+    BuildableMonthArchiveView,
+    BuildableWeekArchiveView,
+    BuildableDayArchiveView,
+    BuildableTodayArchiveView,
+    BuildableDateDetailView
 )
 
 __all__ = (
@@ -21,5 +25,9 @@ __all__ = (
     'BuildableListView',
     'BuildableArchiveIndexView',
     'BuildableYearArchiveView',
-    'BuildableMonthArchiveView'
+    'BuildableMonthArchiveView',
+    'BuildableWeekArchiveView',
+    'BuildableDayArchiveView',
+    'BuildableTodayArchiveView',
+    'BuildableDateDetailView'
 )

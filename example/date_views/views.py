@@ -3,9 +3,12 @@ from .models import Article
 from bakery.views import (
     BuildableArchiveIndexView,
     BuildableYearArchiveView,
-    BuildableMonthArchiveView
+    BuildableMonthArchiveView,
+    BuildableWeekArchiveView,
+    BuildableDayArchiveView,
+    BuildableTodayArchiveView,
+    BuildableDateDetailView
 )
-#from django.views.generic.dates import *
 
 
 class MyIndexView(BuildableArchiveIndexView):

@@ -9,6 +9,10 @@ from django.views.generic.dates import (
     ArchiveIndexView,
     YearArchiveView,
     MonthArchiveView,
+    WeekArchiveView,
+    DayArchiveView,
+    TodayArchiveView,
+    DateDetailView
 )
 logger = logging.getLogger(__name__)
 
@@ -122,4 +126,20 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
 
 
 class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
+    pass
+
+
+class BuildableWeekArchiveView(WeekArchiveView, BuildableMixin):
+    pass
+
+
+class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
+    pass
+
+
+class BuildableTodayArchiveView(TodayArchiveView, BuildableMixin):
+    pass
+
+
+class BuildableDateDetailView(DateDetailView, BuildableMixin):
     pass
