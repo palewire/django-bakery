@@ -125,6 +125,8 @@ STATIC_URL = '/static/'
 
 BAKERY_VIEWS = (
     'date_views.views.MyIndexView',
+    'date_views.views.MyYearArchiveView',
+    #'date_views.views.MyMonthArchiveView',
 )
 BUILD_DIR = os.path.join(BASE_DIR, '.build/')
 STATIC_ROOT = os.path.join(BASE_DIR, '.static/')
