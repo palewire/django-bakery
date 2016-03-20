@@ -236,7 +236,11 @@ class BakeryTest(TestCase):
         v = MockArchiveDayView()
         v.build_method
         v.build_dated_queryset()
-        dates = [('2014', '01', '01'), ('2015', '01', '01'), ('2016', '01', '01')]
+        dates = [
+            ('2014', '01', '01'),
+            ('2015', '01', '01'),
+            ('2016', '01', '01')
+        ]
         for year, month, day in dates:
             build_path = os.path.join(
                 settings.BUILD_DIR,
