@@ -300,7 +300,7 @@ BuildableYearArchiveView
     .. method:: get_url()
 
         The URL at which the detail page should appear. By default it is /archive/ + the year in
-        the generic view's ``year_format`` attribute.
+        the generic view's ``year_format`` attribute. An example would be /archive/2016/
 
     .. py:attribute:: build_method
 
