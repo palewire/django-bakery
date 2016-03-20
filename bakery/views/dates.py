@@ -9,10 +9,7 @@ from django.views.generic.dates import (
     ArchiveIndexView,
     YearArchiveView,
     MonthArchiveView,
-    WeekArchiveView,
     DayArchiveView,
-    TodayArchiveView,
-    DateDetailView
 )
 logger = logging.getLogger(__name__)
 
