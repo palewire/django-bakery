@@ -1,3 +1,7 @@
+"""
+Views that inherit from Django's class-based generic views and add methods
+for building flat files.
+"""
 import os
 import shutil
 import logging
@@ -16,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
     """
-    Renders and builds a top-level index page showing the “latest” objects,
+    Renders and builds a top-level index page showing the "latest" objects,
     by date.
 
     Required attributes:
