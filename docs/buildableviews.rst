@@ -297,6 +297,22 @@ BuildableYearArchiveView
         The URL at which the detail page should appear. By default it is /archive/ + the year in
         the generic view's ``year_format`` attribute.
 
+    .. py:attribute:: build_method
+
+        An alias to the ``build_dated_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: build_dated_queryset()
+
+        Writes the rendered HTML for all publishable dates to the build directory.
+
+    .. py:method:: build_year(obj)
+
+        Writes the rendered HTML for the provided year to the build directory.
+
+    .. py:method:: unbuild_year(obj)
+
+        Deletes the directory where the provided year's flat files are stored.
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -347,6 +363,22 @@ BuildableMonthArchiveView
         The URL at which the detail page should appear. By default it is /archive/ + the
         year in self.year_format + the month in self.month_format. An example would be /archive/2016/01/.
 
+    .. py:attribute:: build_method
+
+        An alias to the ``build_dated_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: build_dated_queryset()
+
+        Writes the rendered HTML for all publishable dates to the build directory.
+
+    .. py:method:: build_month(obj)
+
+        Writes the rendered HTML for the provided month to the build directory.
+
+    .. py:method:: unbuild_month(obj)
+
+        Deletes the directory where the provided month's flat files are stored.
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -395,6 +427,22 @@ BuildableDayArchiveView
 
         The URL at which the detail page should appear. By default it is /archive/ + the year in self.year_format + the
         month in self.month_format + the day in the self.day_format. An example would be /archive/2016/01/01/.
+
+    .. py:attribute:: build_method
+
+        An alias to the ``build_dated_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: build_dated_queryset()
+
+        Writes the rendered HTML for all publishable dates to the build directory.
+
+    .. py:method:: build_day(obj)
+
+        Writes the rendered HTML for the provided day to the build directory.
+
+    .. py:method:: unbuild_day(obj)
+
+        Deletes the directory where the provided day's flat files are stored.
 
     **Example myapp/views.py**
 
