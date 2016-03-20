@@ -201,6 +201,7 @@ class BakeryTest(TestCase):
         v.build_method
         v.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, v.build_path)
+        self.assertTrue(os.path.exists(build_path))
 
     def test_year_view(self):
         v = MockArchiveYearView()
