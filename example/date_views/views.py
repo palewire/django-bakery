@@ -29,4 +29,5 @@ class MyYearArchiveView(BuildableYearArchiveView):
 class MyMonthArchiveView(BuildableMonthArchiveView):
     queryset = Article.objects.all()
     date_field = "pub_date"
+    month_format = "%m"
     #allow_future = True
