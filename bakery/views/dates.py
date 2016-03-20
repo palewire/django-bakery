@@ -177,7 +177,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
 
     def build_month(self, dt):
         """
-        Build the page for the provided year.
+        Build the page for the provided month.
         """
         self.month = str(dt.month)
         self.year = str(dt.year)
@@ -206,17 +206,99 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
             shutil.rmtree(path)
 
 
-class BuildableWeekArchiveView(WeekArchiveView, BuildableMixin):
-    pass
-
-
 class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
-    pass
+    """
+    Renders and builds a day archive showing all objects in a given day.
 
+    Required attributes:
 
-class BuildableTodayArchiveView(TodayArchiveView, BuildableMixin):
-    pass
+        model or queryset:
+            Where the list of objects should come from. Must be a queryset
+            object, not a list.
 
+        template_name:
+            The name of the template you would like Django to render. You need
+            to override this if you don't want to rely on the Django defaults.
+    """
+    @property
+    def build_method(self):
+        return self.build_dated_queryset
 
-class BuildableDateDetailView(DateDetailView, BuildableMixin):
-    pass
+    def get_year(self):
+        """
+        Return the year from the database in the format expected by the URL.
+        """
+        fmt = self.get_year_format()
+        dt = date(int(self.year), int(self.month), int(self.day))
+        return dt.strftime(fmt)
+
+    def get_month(self):
+        """
+        Return the month from the database in the format expected by the URL.
+        """
+        fmt = self.get_month_format()
+        dt = date(int(self.year), int(self.month), int(self.day))
+        return dt.strftime(fmt)
+
+    def get_day(self):
+        """
+        Return the day from the database in the format expected by the URL.
+        """
+        fmt = self.get_day_format()
+        dt = date(int(self.year), int(self.month), int(self.day))
+        return dt.strftime(fmt)
+
+    def get_url(self):
+        """
+        The URL at which the detail page should appear.
+
+        By default it is /archive/ + the year in self.year_format.
+        """
+        return os.path.join(
+            '/archive',
+            self.get_year(),
+            self.get_month(),
+            self.get_day()
+        )
+
+    def get_build_path(self):
+        """
+        Used to determine where to build the page. Override this if you
+        would like your page at a different location. By default it
+        will be built at self.get_url() + "/index.html"
+        """
+        path = os.path.join(settings.BUILD_DIR, self.get_url()[1:])
+        os.path.exists(path) or os.makedirs(path)
+        return os.path.join(path, 'index.html')
+
+    def build_day(self, dt):
+        """
+        Build the page for the provided day.
+        """
+        self.month = str(dt.month)
+        self.year = str(dt.year)
+        self.day = str(dt.day)
+        logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
+        self.request = RequestFactory().get(self.get_url())
+        path = self.get_build_path()
+        self.build_file(path, self.get_content())
+
+    def build_dated_queryset(self):
+        """
+        Build pages for all years in the queryset.
+        """
+        qs = self.get_dated_queryset()
+        days = self.get_date_list(qs, date_type='day')
+        [self.build_day(dt) for dt in days]
+
+    def unbuild_day(self, dt):
+        """
+        Deletes the directory at self.get_build_path.
+        """
+        self.year = str(dt.year)
+        self.month = str(dt.month)
+        self.day = str(dt.day)
+        logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
+        path = os.path.split(self.get_build_path())[0]
+        if os.path.exists(path):
+            shutil.rmtree(path)

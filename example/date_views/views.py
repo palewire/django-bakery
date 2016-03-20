@@ -1,13 +1,9 @@
-from django.shortcuts import render
-from .models import Article
+from date_views.models import Article
 from bakery.views import (
     BuildableArchiveIndexView,
     BuildableYearArchiveView,
     BuildableMonthArchiveView,
-    BuildableWeekArchiveView,
-    BuildableDayArchiveView,
-    BuildableTodayArchiveView,
-    BuildableDateDetailView
+    BuildableDayArchiveView
 )
 
 
@@ -27,6 +23,13 @@ class MyYearArchiveView(BuildableYearArchiveView):
 
 
 class MyMonthArchiveView(BuildableMonthArchiveView):
+    queryset = Article.objects.all()
+    date_field = "pub_date"
+    month_format = "%m"
+    #allow_future = True
+
+
+class MyDayArchiveView(BuildableDayArchiveView):
     queryset = Article.objects.all()
     date_field = "pub_date"
     month_format = "%m"
