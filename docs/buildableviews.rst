@@ -207,7 +207,7 @@ BuildableArchiveIndexView
 .. class:: BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin)
 
     Renders and builds a top-level index page showing the “latest” objects,
-    by date. Extended from Django's generic `ArchiveIndexView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#archiveindexview>`_.
+    by date. Extended from Django's generic `ArchiveIndexView <https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#archiveindexview>`_.
     The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
@@ -269,7 +269,7 @@ BuildableYearArchiveView
 .. class:: BuildableYearArchiveView(YearArchiveView, BuildableMixin)
 
     Renders and builds a yearly archive showing all available months
-    (and, if you'd like, objects) in a given year. Extended from Django's generic `YearArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#yeararchiveview>`_.
+    (and, if you'd like, objects) in a given year. Extended from Django's generic `YearArchiveView <https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#yeararchiveview>`_.
     The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
@@ -336,7 +336,7 @@ BuildableMonthArchiveView
 
 .. class:: BuildableMonthArchiveView(MonthArchiveView, BuildableMixin)
 
-    Renders and builds a monthly archive showing all objects in a given month. Extended from Django's generic `MonthArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#montharchiveview>`_.
+    Renders and builds a monthly archive showing all objects in a given month. Extended from Django's generic `MonthArchiveView <https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#montharchiveview>`_.
     The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
@@ -403,7 +403,7 @@ BuildableDayArchiveView
 
 .. class:: BuildableDayArchiveView(DayArchiveView, BuildableMixin)
 
-    Renders and builds a day archive showing all objects in a given day. Extended from Django's generic `DayArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#dayarchiveview>`_.
+    Renders and builds a day archive showing all objects in a given day. Extended from Django's generic `DayArchiveView <https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#dayarchiveview>`_.
     The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
