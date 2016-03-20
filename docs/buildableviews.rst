@@ -265,7 +265,7 @@ BuildableYearArchiveView
 .. class:: BuildableYearArchiveView(YearArchiveView, BuildableMixin)
 
     Renders and builds a yearly archive showing all available months
-    (and, if you'd like, objects) in a given year.
+    (and, if you'd like, objects) in a given year. Extended from Django's generic `YearArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#yeararchiveview>`_.
 
     **Example myapp/views.py**
 
@@ -285,7 +285,7 @@ BuildableMonthArchiveView
 
 .. class:: BuildableMonthArchiveView(MonthArchiveView, BuildableMixin)
 
-    Renders and builds a monthly archive showing all objects in a given month.
+    Renders and builds a monthly archive showing all objects in a given month. Extended from Django's generic `MonthArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#montharchiveview>`_.
 
     .. code-block:: python
 
@@ -302,7 +302,7 @@ BuildableDayArchiveView
 
 .. class:: BuildableDayArchiveView(DayArchiveView, BuildableMixin)
 
-    Renders and builds a day archive showing all objects in a given day.
+    Renders and builds a day archive showing all objects in a given day. Extended from Django's generic `DayArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#dayarchiveview>`_.
 
     .. code-block:: python
 
