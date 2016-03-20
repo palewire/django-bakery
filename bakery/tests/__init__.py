@@ -74,7 +74,7 @@ class MockArchiveMonthView(views.BuildableMonthArchiveView):
     template_name = 'monthview.html'
 
 
-class MockArchiveMonthView(views.BuildableDayArchiveView):
+class MockArchiveDayView(views.BuildableDayArchiveView):
     model = MockObject
     date_field = 'pub_date'
     month_format = "%m"
@@ -202,7 +202,6 @@ class BakeryTest(TestCase):
         v.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, v.build_path)
 
-
     def test_year_view(self):
         v = MockArchiveYearView()
         v.build_method
@@ -213,6 +212,21 @@ class BakeryTest(TestCase):
                 settings.BUILD_DIR,
                 'archive',
                 '%s' % y,
+                'index.html'
+            )
+            self.assertTrue(os.path.exists(build_path))
+
+    def test_month_view(self):
+        v = MockArchiveMonthView()
+        v.build_method
+        v.build_dated_queryset()
+        dates = [('2014', '01'), ('2015', '01'), ('2016', '01')]
+        for year, month in dates:
+            build_path = os.path.join(
+                settings.BUILD_DIR,
+                'archive',
+                year,
+                month,
                 'index.html'
             )
             self.assertTrue(os.path.exists(build_path))
