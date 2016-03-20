@@ -231,6 +231,22 @@ class BakeryTest(TestCase):
             )
             self.assertTrue(os.path.exists(build_path))
 
+    def test_day_view(self):
+        v = MockArchiveDayView()
+        v.build_method
+        v.build_dated_queryset()
+        dates = [('2014', '01', '01'), ('2015', '01', '01'), ('2016', '01', '01')]
+        for year, month, day in dates:
+            build_path = os.path.join(
+                settings.BUILD_DIR,
+                'archive',
+                year,
+                month,
+                day,
+                'index.html'
+            )
+            self.assertTrue(os.path.exists(build_path))
+
     def test_redirect_view(self):
         v = views.BuildableRedirectView(
             build_path="detail/badurl.html",
