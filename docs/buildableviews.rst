@@ -10,6 +10,7 @@ BuildableTemplateView
 
     Renders and builds a simple template as a flat file. Extended from Django's
     generic `TemplateView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#django.views.generic.base.TemplateView>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. py:attribute:: build_path
 
@@ -47,6 +48,7 @@ BuildableListView
 
     Render and builds a page about a list of objects. Extended from Django's
     generic `ListView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
 
@@ -109,6 +111,7 @@ BuildableDetailView
 
     Render and build a "detail" page about an object or a series of pages
     about a list of objects. Extended from Django's generic `DetailView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#detailview>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
 
@@ -205,6 +208,7 @@ BuildableArchiveIndexView
 
     Renders and builds a top-level index page showing the “latest” objects,
     by date. Extended from Django's generic `ArchiveIndexView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#archiveindexview>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
 
@@ -266,6 +270,7 @@ BuildableYearArchiveView
 
     Renders and builds a yearly archive showing all available months
     (and, if you'd like, objects) in a given year. Extended from Django's generic `YearArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#yeararchiveview>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
 
@@ -321,7 +326,7 @@ BuildableYearArchiveView
         from bakery.views import BuildableYearArchiveView
 
 
-        class ExampleArchiveIndexView(BuildableArchiveIndexView):
+        class ExampleArchiveYearView(BuildableYearArchiveView):
             model = MyModel
             date_field = "pub_date"
 
@@ -332,6 +337,7 @@ BuildableMonthArchiveView
 .. class:: BuildableMonthArchiveView(MonthArchiveView, BuildableMixin)
 
     Renders and builds a monthly archive showing all objects in a given month. Extended from Django's generic `MonthArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#montharchiveview>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
 
@@ -384,12 +390,13 @@ BuildableMonthArchiveView
     .. code-block:: python
 
         from myapp.models import MyModel
-        from bakery.views import BuildableYearArchiveView
+        from bakery.views import BuildableMonthArchiveView
 
 
-        class BuildableMonthArchiveView(BuildableArchiveIndexView):
+        class ExampleMonthArchiveView(BuildableMonthArchiveView):
             model = MyModel
             date_field = "pub_date"
+
 
 BuildableDayArchiveView
 -----------------------
@@ -397,6 +404,7 @@ BuildableDayArchiveView
 .. class:: BuildableDayArchiveView(DayArchiveView, BuildableMixin)
 
     Renders and builds a day archive showing all objects in a given day. Extended from Django's generic `DayArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#dayarchiveview>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. attribute:: model
 
@@ -449,12 +457,13 @@ BuildableDayArchiveView
     .. code-block:: python
 
         from myapp.models import MyModel
-        from bakery.views import BuildableYearArchiveView
+        from bakery.views import BuildableDayArchiveView
 
 
-        class BuildableDayArchiveView(BuildableArchiveIndexView):
+        class ExampleDayArchiveView(BuildableDayArchiveView):
             model = MyModel
             date_field = "pub_date"
+
 
 Buildable404View
 ----------------
@@ -462,6 +471,7 @@ Buildable404View
 .. class:: Buildable404View(BuildableTemplateView)
 
     Renders and builds a simple 404 error page template as a flat file. Extended from the ``BuildableTemplateView`` above.
+    The base class has a number of options not documented here you should consult.
 
     **All it does**
 
@@ -482,6 +492,7 @@ BuildableRedirectView
 
     Render and build a redirect. Extended from Django's generic
     `RedirectView <https://docs.djangoproject.com/en/dev/ref/class-based-views/base/#redirectview>`_.
+    The base class has a number of options not documented here you should consult.
 
     .. py:attribute:: build_path
 
