@@ -286,6 +286,12 @@ BuildableYearArchiveView
         to override this if you don't want to rely on the Django default,
         which is ``<model_name_lowercase>_archive_year.html``.
 
+    .. method:: get_build_path(obj)
+
+        Used to determine where to build the detail page. Override this if you
+        would like your detail page at a different location. By default it
+        will be built at ``os.path.join(obj.get_url(), "index.html"``.
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -325,6 +331,14 @@ BuildableMonthArchiveView
         to override this if you don't want to rely on the Django default,
         which is ``<model_name_lowercase>_archive_month.html``.
 
+    .. method:: get_build_path(obj)
+
+        Used to determine where to build the detail page. Override this if you
+        would like your detail page at a different location. By default it
+        will be built at ``os.path.join(obj.get_url(), "index.html"``.
+
+    **Example myapp/views.py**
+
     .. code-block:: python
 
         from myapp.models import MyModel
@@ -360,6 +374,14 @@ BuildableDayArchiveView
         The template you would like Django to render. You need
         to override this if you don't want to rely on the Django default,
         which is ``<model_name_lowercase>_archive_day.html``.
+
+    .. method:: get_build_path(obj)
+
+        Used to determine where to build the detail page. Override this if you
+        would like your detail page at a different location. By default it
+        will be built at ``os.path.join(obj.get_url(), "index.html"``.
+
+    **Example myapp/views.py**
 
     .. code-block:: python
 
