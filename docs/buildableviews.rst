@@ -198,6 +198,121 @@ BuildableDetailView
             template_name = 'mymodel_detail.html'
 
 
+BuildableArchiveIndexView
+-------------------------
+
+.. class:: BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin)
+
+    Renders and builds a top-level index page showing the “latest” objects,
+    by date. Extended from Django's generic `ArchiveIndexView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#archiveindexview>`_.
+
+    .. attribute:: model
+
+        A Django database model where the list of objects can be drawn
+        with a ``Model.objects.all()`` query. Optional. If you want to provide
+        a more specific list, define the ``queryset`` attribute instead.
+
+    .. attribute:: queryset
+
+        The list of objects that will be provided to the template. Can be
+        any iterable of items, not just a Django queryset. Optional, but
+        if this attribute is not defined the ``model`` attribute must be
+        defined.
+
+    .. attribute:: build_path
+
+        The target location of the flat file in the ``BUILD_DIR``.
+        Optional. The default is ``archive/index.html``,  would place the flat file
+        at the '/archive/' URL.
+
+    .. attribute:: template_name
+
+        The template you would like Django to render. You need
+        to override this if you don't want to rely on the Django default,
+        which is ``<model_name_lowercase>_archive.html``.
+
+    .. py:attribute:: build_method
+
+        An alias to the ``build_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: build_queryset()
+
+        Writes the rendered template's HTML to a flat file. Only override this if you know what you're doing.
+
+    **Example myapp/views.py**
+
+    .. code-block:: python
+
+        from myapp.models import MyModel
+        from bakery.views import BuildableArchiveIndexView
+
+
+        class ExampleArchiveIndexView(BuildableArchiveIndexView):
+            model = MyModel
+            date_field = "pub_date"
+
+
+        class DifferentExampleArchiveIndexView(BuildableArchiveIndexView):
+            build_path = 'my-archive-directory/index.html'
+            queryset = MyModel.objects.filter(is_published=True)
+            date_field = "pub_date"
+            template_name = 'mymodel_list.html'
+
+
+BuildableYearArchiveView
+------------------------
+
+.. class:: BuildableYearArchiveView(YearArchiveView, BuildableMixin)
+
+    Renders and builds a yearly archive showing all available months
+    (and, if you'd like, objects) in a given year.
+
+    **Example myapp/views.py**
+
+    .. code-block:: python
+
+        from myapp.models import MyModel
+        from bakery.views import BuildableYearArchiveView
+
+
+        class ExampleArchiveIndexView(BuildableArchiveIndexView):
+            model = MyModel
+            date_field = "pub_date"
+
+
+BuildableMonthArchiveView
+-------------------------
+
+.. class:: BuildableMonthArchiveView(MonthArchiveView, BuildableMixin)
+
+    Renders and builds a monthly archive showing all objects in a given month.
+
+    .. code-block:: python
+
+        from myapp.models import MyModel
+        from bakery.views import BuildableYearArchiveView
+
+
+        class BuildableMonthArchiveView(BuildableArchiveIndexView):
+            model = MyModel
+            date_field = "pub_date"
+
+BuildableDayArchiveView
+-----------------------
+
+.. class:: BuildableDayArchiveView(DayArchiveView, BuildableMixin)
+
+    Renders and builds a day archive showing all objects in a given day.
+
+    .. code-block:: python
+
+        from myapp.models import MyModel
+        from bakery.views import BuildableYearArchiveView
+
+
+        class BuildableDayArchiveView(BuildableArchiveIndexView):
+            model = MyModel
+            date_field = "pub_date"
 
 Buildable404View
 ----------------

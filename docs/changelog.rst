@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.8.0
+-----
+
+* Added new date-based archive views BuildableArchiveIndexView, BuildableYearArchiveView, BuildableMonthArchiveView, BuildableDayArchiveView
+* get_url method on the BuildableDetailView now raises a ImproperlyConfigured error
+* Refactored views into separate files
+
 0.7.8
 -----
 
