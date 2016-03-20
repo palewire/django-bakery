@@ -10,10 +10,7 @@ from .dates import (
     BuildableArchiveIndexView,
     BuildableYearArchiveView,
     BuildableMonthArchiveView,
-    BuildableWeekArchiveView,
-    BuildableDayArchiveView,
-    BuildableTodayArchiveView,
-    BuildableDateDetailView
+    BuildableDayArchiveView
 )
 
 __all__ = (
@@ -26,8 +23,5 @@ __all__ = (
     'BuildableArchiveIndexView',
     'BuildableYearArchiveView',
     'BuildableMonthArchiveView',
-    'BuildableWeekArchiveView',
-    'BuildableDayArchiveView',
-    'BuildableTodayArchiveView',
-    'BuildableDateDetailView'
+    'BuildableDayArchiveView'
 )
