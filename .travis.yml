@@ -4,11 +4,10 @@ sudo: false
 python:
  - "2.7"
  - "3.5"
- - "pypy"
 
 env:
- - DJANGO_VERSION=1.8.9
- - DJANGO_VERSION=1.9.2
+ - DJANGO_VERSION=1.8.11
+ - DJANGO_VERSION=1.9.4
 
 install:
  # Testing dependencies
