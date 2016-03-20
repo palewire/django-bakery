@@ -292,6 +292,11 @@ BuildableYearArchiveView
         would like your detail page at a different location. By default it
         will be built at ``os.path.join(obj.get_url(), "index.html"``.
 
+    .. method:: get_url(obj)
+
+        The URL at which the detail page should appear. By default it is /archive/ + the year in
+        the generic view's ``year_format`` attribute.
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -337,6 +342,11 @@ BuildableMonthArchiveView
         would like your detail page at a different location. By default it
         will be built at ``os.path.join(obj.get_url(), "index.html"``.
 
+    .. method:: get_url(obj)
+
+        The URL at which the detail page should appear. By default it is /archive/ + the
+        year in self.year_format + the month in self.month_format. An example would be /archive/2016/01/.
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -380,6 +390,11 @@ BuildableDayArchiveView
         Used to determine where to build the detail page. Override this if you
         would like your detail page at a different location. By default it
         will be built at ``os.path.join(obj.get_url(), "index.html"``.
+
+    .. method:: get_url(obj)
+
+        The URL at which the detail page should appear. By default it is /archive/ + the year in self.year_format + the
+        month in self.month_format + the day in the self.day_format. An example would be /archive/2016/01/01/.
 
     **Example myapp/views.py**
 
