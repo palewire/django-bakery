@@ -291,13 +291,13 @@ BuildableYearArchiveView
         to override this if you don't want to rely on the Django default,
         which is ``<model_name_lowercase>_archive_year.html``.
 
-    .. method:: get_build_path(obj)
+    .. method:: get_build_path()
 
         Used to determine where to build the detail page. Override this if you
         would like your detail page at a different location. By default it
         will be built at ``os.path.join(obj.get_url(), "index.html"``.
 
-    .. method:: get_url(obj)
+    .. method:: get_url()
 
         The URL at which the detail page should appear. By default it is /archive/ + the year in
         the generic view's ``year_format`` attribute.
@@ -310,11 +310,11 @@ BuildableYearArchiveView
 
         Writes the rendered HTML for all publishable dates to the build directory.
 
-    .. py:method:: build_year(obj)
+    .. py:method:: build_year(dt)
 
         Writes the rendered HTML for the provided year to the build directory.
 
-    .. py:method:: unbuild_year(obj)
+    .. py:method:: unbuild_year(dt)
 
         Deletes the directory where the provided year's flat files are stored.
 
@@ -358,13 +358,13 @@ BuildableMonthArchiveView
         to override this if you don't want to rely on the Django default,
         which is ``<model_name_lowercase>_archive_month.html``.
 
-    .. method:: get_build_path(obj)
+    .. method:: get_build_path()
 
         Used to determine where to build the detail page. Override this if you
         would like your detail page at a different location. By default it
         will be built at ``os.path.join(obj.get_url(), "index.html"``.
 
-    .. method:: get_url(obj)
+    .. method:: get_url()
 
         The URL at which the detail page should appear. By default it is /archive/ + the
         year in self.year_format + the month in self.month_format. An example would be /archive/2016/01/.
@@ -377,11 +377,11 @@ BuildableMonthArchiveView
 
         Writes the rendered HTML for all publishable dates to the build directory.
 
-    .. py:method:: build_month(obj)
+    .. py:method:: build_month(dt)
 
         Writes the rendered HTML for the provided month to the build directory.
 
-    .. py:method:: unbuild_month(obj)
+    .. py:method:: unbuild_month(dt)
 
         Deletes the directory where the provided month's flat files are stored.
 
@@ -425,13 +425,13 @@ BuildableDayArchiveView
         to override this if you don't want to rely on the Django default,
         which is ``<model_name_lowercase>_archive_day.html``.
 
-    .. method:: get_build_path(obj)
+    .. method:: get_build_path()
 
         Used to determine where to build the detail page. Override this if you
         would like your detail page at a different location. By default it
         will be built at ``os.path.join(obj.get_url(), "index.html"``.
 
-    .. method:: get_url(obj)
+    .. method:: get_url()
 
         The URL at which the detail page should appear. By default it is /archive/ + the year in self.year_format + the
         month in self.month_format + the day in the self.day_format. An example would be /archive/2016/01/01/.
@@ -444,11 +444,11 @@ BuildableDayArchiveView
 
         Writes the rendered HTML for all publishable dates to the build directory.
 
-    .. py:method:: build_day(obj)
+    .. py:method:: build_day(dt)
 
         Writes the rendered HTML for the provided day to the build directory.
 
-    .. py:method:: unbuild_day(obj)
+    .. py:method:: unbuild_day(dt)
 
         Deletes the directory where the provided day's flat files are stored.
 
