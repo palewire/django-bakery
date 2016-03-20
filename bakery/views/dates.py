@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 
 class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
     """
-    Renders and builds a top-level archive of date-based items.
+    Renders and builds a top-level index page showing the “latest” objects,
+    by date.
 
     Required attributes:
 
