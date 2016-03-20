@@ -14,6 +14,6 @@ urlpatterns = [
     url(r'^archive/(?P<year>[0-9]{4})/$', MyYearArchiveView.as_view()),
     url(
         r'^archive/(?P<year>[0-9]{4})/(?P<month>[0-9]+)/$',
-        MyMonthArchiveView.as_view(month_format='%m')
+        MyMonthArchiveView.as_view()
     ),
 ]
