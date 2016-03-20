@@ -81,7 +81,7 @@ class TestCommand(Command):
 
 setup(
     name='django-bakery',
-    version='0.7.8',
+    version='0.8.0',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
@@ -89,6 +89,7 @@ setup(
     license="MIT",
     packages=(
         'bakery',
+        'bakery.views',
         'bakery.management',
         'bakery.management.commands',
         'bakery.tests',
@@ -110,8 +111,8 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
-        'six>=1.5.2',
-        'boto>=2.28',
+        'six>1.5.2',
+        'boto>2.28',
     ],
     cmdclass={'test': TestCommand}
 )
