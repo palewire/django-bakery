@@ -163,7 +163,8 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         The URL at which the detail page should appear.
 
-        By default it is /archive/ + the year in self.year_format.
+        By default it is /archive/ + the year in self.year_format + the
+        month in self.month_format. An example would be /archive/2016/01/.
         """
         return os.path.join('/archive', self.get_year(), self.get_month())
 
@@ -254,7 +255,9 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         """
         The URL at which the detail page should appear.
 
-        By default it is /archive/ + the year in self.year_format.
+        By default it is /archive/ + the year in self.year_format + the
+        month in self.month_format + the day in the self.day_format.
+        An example would be /archive/2016/01/01/.
         """
         return os.path.join(
             '/archive',
