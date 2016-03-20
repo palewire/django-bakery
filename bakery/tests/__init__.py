@@ -5,6 +5,7 @@ import boto
 import json
 import random
 from moto import mock_s3
+from datetime import date
 from .. import views, feeds
 from django.db import models
 from .. import static_views
@@ -21,6 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 class MockObject(bmodels.BuildableModel):
     detail_views = ['bakery.tests.MockDetailView']
     name = models.CharField(max_length=500)
+    pub_date = models.DateField()
 
     def get_absolute_url(self):
         super(MockObject, self).get_absolute_url()  # Just for test coverage
@@ -30,11 +32,13 @@ class MockObject(bmodels.BuildableModel):
 class NoUrlObject(bmodels.BuildableModel):
     detail_views = ['bakery.tests.MockDetailView']
     name = models.CharField(max_length=500)
+    pub_date = models.DateField()
 
 
 class AutoMockObject(bmodels.AutoPublishingBuildableModel):
     detail_views = ['bakery.tests.MockDetailView']
     name = models.CharField(max_length=500)
+    pub_date = models.DateField()
     is_published = models.BooleanField(default=False)
 
     def get_absolute_url(self):
@@ -49,6 +53,32 @@ class MockDetailView(views.BuildableDetailView):
 
 class NoUrlDetailView(views.BuildableDetailView):
     model = NoUrlObject
+
+
+class MockArchiveIndexView(views.BuildableArchiveIndexView):
+    model = MockObject
+    date_field = 'pub_date'
+    template_name = 'indexview.html'
+
+
+class MockArchiveYearView(views.BuildableYearArchiveView):
+    model = MockObject
+    date_field = 'pub_date'
+    template_name = 'yearview.html'
+
+
+class MockArchiveMonthView(views.BuildableMonthArchiveView):
+    model = MockObject
+    date_field = 'pub_date'
+    month_format = "%m"
+    template_name = 'monthview.html'
+
+
+class MockArchiveMonthView(views.BuildableDayArchiveView):
+    model = MockObject
+    date_field = 'pub_date'
+    month_format = "%m"
+    template_name = 'dayview.html'
 
 
 class MockRedirectView(views.BuildableRedirectView):
@@ -91,9 +121,9 @@ class BakeryTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         for m in [MockObject, AutoMockObject, NoUrlObject]:
-            m.objects.create(name=1)
-            m.objects.create(name=2)
-            m.objects.create(name=3)
+            m.objects.create(name=1, pub_date=date(2016, 1, 1))
+            m.objects.create(name=2, pub_date=date(2015, 1, 1))
+            m.objects.create(name=3, pub_date=date(2014, 1, 1))
 
     def test_models(self):
         for m in [MockObject, AutoMockObject]:
@@ -165,6 +195,13 @@ class BakeryTest(TestCase):
     def test_nourl_detail_view(self):
         with self.assertRaises(ImproperlyConfigured):
             NoUrlDetailView().build_queryset()
+
+    def test_index_view(self):
+        v = MockArchiveIndexView()
+        v.build_method
+        v.build_queryset()
+        build_path = os.path.join(settings.BUILD_DIR, v.build_path)
+        self.assertTrue(os.path.exists(build_path))
 
     def test_redirect_view(self):
         v = views.BuildableRedirectView(
