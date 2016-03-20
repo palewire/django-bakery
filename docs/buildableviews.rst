@@ -267,6 +267,25 @@ BuildableYearArchiveView
     Renders and builds a yearly archive showing all available months
     (and, if you'd like, objects) in a given year. Extended from Django's generic `YearArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#yeararchiveview>`_.
 
+    .. attribute:: model
+
+        A Django database model where the list of objects can be drawn
+        with a ``Model.objects.all()`` query. Optional. If you want to provide
+        a more specific list, define the ``queryset`` attribute instead.
+
+    .. attribute:: queryset
+
+        The list of objects that will be provided to the template. Can be
+        any iterable of items, not just a Django queryset. Optional, but
+        if this attribute is not defined the ``model`` attribute must be
+        defined.
+
+    .. attribute:: template_name
+
+        The template you would like Django to render. You need
+        to override this if you don't want to rely on the Django default,
+        which is ``<model_name_lowercase>_archive_year.html``.
+
     **Example myapp/views.py**
 
     .. code-block:: python
@@ -287,6 +306,25 @@ BuildableMonthArchiveView
 
     Renders and builds a monthly archive showing all objects in a given month. Extended from Django's generic `MonthArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#montharchiveview>`_.
 
+    .. attribute:: model
+
+        A Django database model where the list of objects can be drawn
+        with a ``Model.objects.all()`` query. Optional. If you want to provide
+        a more specific list, define the ``queryset`` attribute instead.
+
+    .. attribute:: queryset
+
+        The list of objects that will be provided to the template. Can be
+        any iterable of items, not just a Django queryset. Optional, but
+        if this attribute is not defined the ``model`` attribute must be
+        defined.
+
+    .. attribute:: template_name
+
+        The template you would like Django to render. You need
+        to override this if you don't want to rely on the Django default,
+        which is ``<model_name_lowercase>_archive_month.html``.
+
     .. code-block:: python
 
         from myapp.models import MyModel
@@ -303,6 +341,25 @@ BuildableDayArchiveView
 .. class:: BuildableDayArchiveView(DayArchiveView, BuildableMixin)
 
     Renders and builds a day archive showing all objects in a given day. Extended from Django's generic `DayArchiveView https://docs.djangoproject.com/en/1.9/ref/class-based-views/generic-date-based/#dayarchiveview>`_.
+
+    .. attribute:: model
+
+        A Django database model where the list of objects can be drawn
+        with a ``Model.objects.all()`` query. Optional. If you want to provide
+        a more specific list, define the ``queryset`` attribute instead.
+
+    .. attribute:: queryset
+
+        The list of objects that will be provided to the template. Can be
+        any iterable of items, not just a Django queryset. Optional, but
+        if this attribute is not defined the ``model`` attribute must be
+        defined.
+
+    .. attribute:: template_name
+
+        The template you would like Django to render. You need
+        to override this if you don't want to rely on the Django default,
+        which is ``<model_name_lowercase>_archive_day.html``.
 
     .. code-block:: python
 
