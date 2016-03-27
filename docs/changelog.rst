@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.1
+-----
+
+* Patch to allow for models to be imported with ``django.contrib.contenttypes`` being installed.
+
 0.8.0
 -----
 
