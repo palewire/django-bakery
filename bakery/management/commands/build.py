@@ -6,7 +6,6 @@ import shutil
 import logging
 import mimetypes
 from django.conf import settings
-from optparse import make_option
 from django.core import management
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.core.urlresolvers import get_callable
@@ -15,46 +14,44 @@ from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
 
 
-custom_options = (
-    make_option(
-        "--build-dir",
-        action="store",
-        dest="build_dir",
-        default='',
-        help="Specify the path of the build directory. \
-Will use settings.BUILD_DIR by default."
-    ),
-    make_option(
-        "--keep-build-dir",
-        action="store_true",
-        dest="keep_build_dir",
-        default=False,
-        help="Skip initializing the build directory before building files."
-    ),
-    make_option(
-        "--skip-static",
-        action="store_true",
-        dest="skip_static",
-        default=False,
-        help="Skip collecting the static files when building."
-    ),
-    make_option(
-        "--skip-media",
-        action="store_true",
-        dest="skip_media",
-        default=False,
-        help="Skip collecting the media files when building."
-    ),
-)
-
-
 class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
-    option_list = BaseCommand.option_list + custom_options
     build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in \
 settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
 settings.py or provide a list as arguments."
+
+    def add_arguments(self, parser):
+        parser.add_argument('view_list', nargs='*', type=str, default=[])
+        parser.add_argument(
+            "--build-dir",
+            action="store",
+            dest="build_dir",
+            default='',
+            help="Specify the path of the build directory. \
+Will use settings.BUILD_DIR by default."
+        )
+        parser.add_argument(
+            "--keep-build-dir",
+            action="store_true",
+            dest="keep_build_dir",
+            default=False,
+            help="Skip initializing the build directory before building files."
+        )
+        parser.add_argument(
+            "--skip-static",
+            action="store_true",
+            dest="skip_static",
+            default=False,
+            help="Skip collecting the static files when building."
+        )
+        parser.add_argument(
+            "--skip-media",
+            action="store_true",
+            dest="skip_media",
+            default=False,
+            help="Skip collecting the media files when building."
+        )
 
     def handle(self, *args, **options):
         """
@@ -99,8 +96,8 @@ settings.py or provide a list as arguments."
             self.build_dir = settings.BUILD_DIR
 
         # Figure out what views we'll be using
-        if args:
-            self.view_list = args
+        if options['view_list']:
+            self.view_list = options['view_list']
         else:
             if not hasattr(settings, 'BAKERY_VIEWS'):
                 raise CommandError(self.views_unconfig_msg)
