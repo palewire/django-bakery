@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.2
+-----
+
+* Upgraded to Django new style of management command options.
+
 0.8.1
 -----
 
