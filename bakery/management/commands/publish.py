@@ -5,7 +5,6 @@ import hashlib
 import logging
 import mimetypes
 from django.conf import settings
-from optparse import make_option
 from multiprocessing.pool import ThreadPool
 from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
@@ -13,61 +12,8 @@ from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 logger = logging.getLogger(__name__)
 
 
-custom_options = (
-    make_option(
-        "--build-dir",
-        action="store",
-        dest="build_dir",
-        default='',
-        help="Specify the path of the build directory. \
-Will use settings.BUILD_DIR by default."
-    ),
-    make_option(
-        "--aws-bucket-name",
-        action="store",
-        dest="aws_bucket_name",
-        default='',
-        help="Specify the AWS bucket to sync with. \
-Will use settings.AWS_BUCKET_NAME by default."
-    ),
-    make_option(
-        "--force",
-        action="store_true",
-        dest="force",
-        default="",
-        help="Force a republish of all items in the build directory"
-    ),
-    make_option(
-        "--dry-run",
-        action="store_true",
-        dest="dry_run",
-        default="",
-        help="Display the output of what would have been uploaded \
-removed, but without actually publishing."
-    ),
-    make_option(
-        "--no-delete",
-        action="store_true",
-        dest="no_delete",
-        default=False,
-        help=("Keep files in S3, even if they do not exist in the build \
-directory. The default behavior is to delete files in the \
-bucket that are not in the build directory.")
-    ),
-    make_option(
-        "--no-pooling",
-        action="store_true",
-        dest="no_pooling",
-        default=False,
-        help=("Run uploads one by one rather than pooling them to \
-run concurrently.")
-    ),
-)
-
-
 class Command(BaseCommand):
     help = "Syncs the build directory with Amazon s3 bucket"
-    option_list = BaseCommand.option_list + custom_options
 
     # Default permissions for the files published to s3
     DEFAULT_ACL = 'public-read'
@@ -91,6 +37,56 @@ settings.py or provide it with --build-dir"
 in settings.py or provide it with --aws-bucket-name"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
 settings.py or provide a list as arguments."
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--build-dir",
+            action="store",
+            dest="build_dir",
+            default='',
+            help="Specify the path of the build directory. \
+Will use settings.BUILD_DIR by default."
+        )
+        parser.add_argument(
+            "--aws-bucket-name",
+            action="store",
+            dest="aws_bucket_name",
+            default='',
+            help="Specify the AWS bucket to sync with. \
+Will use settings.AWS_BUCKET_NAME by default."
+        )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            dest="force",
+            default="",
+            help="Force a republish of all items in the build directory"
+        )
+        parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            dest="dry_run",
+            default="",
+            help="Display the output of what would have been uploaded \
+removed, but without actually publishing."
+        )
+        parser.add_argument(
+            "--no-delete",
+            action="store_true",
+            dest="no_delete",
+            default=False,
+            help=("Keep files in S3, even if they do not exist in the build \
+directory. The default behavior is to delete files in the \
+bucket that are not in the build directory.")
+        )
+        parser.add_argument(
+            "--no-pooling",
+            action="store_true",
+            dest="no_pooling",
+            default=False,
+            help=("Run uploads one by one rather than pooling them to \
+run concurrently.")
+        )
 
     def handle(self, *args, **options):
         """
