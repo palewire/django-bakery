@@ -103,19 +103,16 @@ run concurrently.")
         self.set_options(options)
 
         # Initialize the boto connection
+        boto_kwargs = {}
         if '.' in self.aws_bucket_name and sys.version_info[:3] >= (2, 7, 9):
             # Hack here for the odd bug with Python 2.7.9
             # https://github.com/boto/boto/issues/2836
-            self.conn = S3Connection(
-                settings.AWS_ACCESS_KEY_ID,
-                settings.AWS_SECRET_ACCESS_KEY,
-                calling_format=OrdinaryCallingFormat()
-            )
-        else:
-            self.conn = S3Connection(
-                settings.AWS_ACCESS_KEY_ID,
-                settings.AWS_SECRET_ACCESS_KEY
-            )
+            boto_kwargs['calling_format'] = OrdinaryCallingFormat()
+        self.conn = S3Connection(
+            settings.AWS_ACCESS_KEY_ID,
+            settings.AWS_SECRET_ACCESS_KEY,
+            **boto_kwargs
+        )
 
         # Grab our bucket
         self.bucket = self.conn.get_bucket(self.aws_bucket_name)
