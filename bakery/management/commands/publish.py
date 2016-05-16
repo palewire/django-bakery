@@ -104,7 +104,7 @@ run concurrently.")
 
         # Initialize the boto connection
         boto_kwargs = dict(
-            host=getattr(settings, 'AWS_S3_HOST', 's3.amazonaws.com')
+            host=getattr(settings, 'AWS_S3_HOST', S3Connection.DefaultHost)
         )
         if '.' in self.aws_bucket_name and sys.version_info[:3] >= (2, 7, 9):
             # Hack here for the odd bug with Python 2.7.9
