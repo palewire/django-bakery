@@ -233,3 +233,13 @@ with instructions to skip everything else it normally does.
 .. code-block:: bash
 
     $ python manage.py build yourapp.views.DummyDetailView --keep-build-dir --skip-static --skip-media
+
+Enabling Amazon's accelerated uploads
+-------------------------------------
+
+If your bucket has enabled `Amazon's S3 transfer acceleration service <https://aws.amazon.com/blogs/aws/aws-storage-update-amazon-s3-transfer-acceleration-larger-snowballs-in-more-regions/?sc_channel=sm&sc_campaign=launches_2016&sc_publisher=tw_go&sc_content=chi_summit_s3_transfer_acc&sc_country_video=global&sc_geo=global&sc_category=s3&adbsc=social60723236&adbid=983704521666913&adbpl=fb&adbpr=153063591397681&adbid=983942131643152&adbpl=fb&adbpr=153063591397681>`_,
+you can configure bakery it use by overriding the default ``AWS_S3_HOST`` variable in ``settings.py``.
+
+.. code-block:: python
+
+    AWS_S3_HOST = 's3-accelerate.amazonaws.com'
