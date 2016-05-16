@@ -86,7 +86,7 @@ AWS_S3_HOST
 
 .. envvar:: AWS_S3_HOST
 
-    The hostname to use with connecting with Amazon Web Service's S3 system. If the
+    The hostname to use when connecting with Amazon Web Service's S3 system. If the
     setting is not provided the boto package's default is used.
 
 .. code-block:: python
