@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.3
+-----
+
+* Added support for ``AWS_S3_HOST`` variable to override the default with connecting to S3 via boto
+
 0.8.2
 -----
 

@@ -81,6 +81,21 @@ AWS_SECRET_ACCESS_KEY
 
     AWS_SECRET_ACCESS_KEY = 'your-secret-key'
 
+AWS_S3_HOST
+-----------
+
+.. envvar:: AWS_S3_HOST
+
+    The hostname to use with connecting with Amazon Web Service's S3 system. If the
+    setting is not provided the boto package's default is used.
+
+.. code-block:: python
+
+    # Substitute in Amazon's accelerated upload service
+    AWS_S3_HOST = 's3-accelerate.amazonaws.com'
+    # Specify the region of the bucket to work around bugs with S3 in certain version of boto
+    AWS_S3_HOST = 's3-%s.amazonaws.com' % AWS_REGION
+
 BAKERY_GZIP
 -----------
 
