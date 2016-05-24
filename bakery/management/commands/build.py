@@ -84,7 +84,7 @@ Will use settings.BUILD_DIR by default."
         """
         Configure a few global options before things get going.
         """
-        self.verbosity = int(options.get('verbosity'))
+        self.verbosity = int(options.get('verbosity', 1))
 
         # Figure out what build directory to use
         if options.get("build_dir"):
