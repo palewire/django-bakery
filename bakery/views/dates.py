@@ -77,8 +77,9 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
+        year = super(BuildableYearArchiveView, self).get_year()
         fmt = self.get_year_format()
-        return date(int(self.year), 1, 1).strftime(fmt)
+        return date(int(year), 1, 1).strftime(fmt)
 
     def get_url(self):
         """
