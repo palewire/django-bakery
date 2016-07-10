@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.7
+-----
+
+* ``get_month`` and ``get_year`` fix on the month archive view
+
 0.8.6
 -----
 
