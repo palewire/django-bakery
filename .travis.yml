@@ -12,6 +12,8 @@ env:
  - DJANGO_VERISON=1.10
 
 install:
+ # Upgrade pip
+ - pip install pip --upgrade
  # Testing dependencies
  - pip install pyflakes pep8 coverage python-coveralls moto
  # Required library dependencies
