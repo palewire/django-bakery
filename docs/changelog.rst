@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.8
+-----
+
+* Django 1.10 support and testing
+
 0.8.7
 -----
 
