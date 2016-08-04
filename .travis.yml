@@ -9,7 +9,7 @@ python:
 env:
  - DJANGO_VERSION=1.8.14
  - DJANGO_VERSION=1.9.9
- - DJANGO_VERISON="1.10"
+ - DJANGO_VERISON=1.10
 
 install:
  # Testing dependencies
@@ -19,7 +19,7 @@ install:
  # Optional library dependencies
  - pip install celery django-celery django-kombu
  # The version of Django being tested against
- - pip install -q Django==$DJANGO_VERSION
+ - pip install Django==$DJANGO_VERSION
 
 script:
  - pep8 bakery
