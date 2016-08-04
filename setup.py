@@ -33,16 +33,23 @@ class TestCommand(Command):
                 'djcelery',
             ),
             MIDDLEWARE_CLASSES=(),
-            TEMPLATE_DIRS = (
-                os.path.abspath(
-                     os.path.join(
-                         os.path.dirname(__file__),
-                         'bakery',
-                         'tests',
-                         'templates',
-                     ),
-                ),
-            ),
+            TEMPLATES = [
+                {
+                    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                    'DIRS': [os.path.abspath(
+                         os.path.join(
+                             os.path.dirname(__file__),
+                             'bakery',
+                             'tests',
+                             'templates',
+                         ),
+                    )],
+                    'APP_DIRS': True,
+                    'OPTIONS': {
+                        'context_processors': [],
+                    },
+                },
+            ],
             BUILD_DIR = tempfile.mkdtemp(),
             STATIC_ROOT = os.path.abspath(
                  os.path.join(
