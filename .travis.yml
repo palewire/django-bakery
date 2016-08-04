@@ -1,4 +1,5 @@
 language: python
+
 sudo: false
 
 python:
@@ -8,7 +9,7 @@ python:
 env:
  - DJANGO_VERSION=1.8.14
  - DJANGO_VERSION=1.9.9
- - DJANGO_VERISON=1.10
+ - DJANGO_VERISON="1.10"
 
 install:
  # Testing dependencies
