@@ -1,10 +1,25 @@
 Changelog
 =========
 
+0.8.7
+-----
+
+* ``get_month`` and ``get_year`` fix on the month archive view
+
+0.8.6
+-----
+
+* ``get_year`` fix on the year archive view.
+
+0.8.5
+-----
+
+* ``get_absolute_url`` bug fix on detail view.
+
 0.8.3
 -----
 
-* Added support for ``AWS_S3_HOST`` variable to override the default with connecting to S3 via boto
+* Added support for ``AWS_S3_HOST`` variable to override the default with connecting to S3 via boto.
 
 0.8.2
 -----

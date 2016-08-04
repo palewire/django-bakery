@@ -77,8 +77,9 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
+        year = super(BuildableYearArchiveView, self).get_year()
         fmt = self.get_year_format()
-        return date(int(self.year), 1, 1).strftime(fmt)
+        return date(int(year), 1, 1).strftime(fmt)
 
     def get_url(self):
         """
@@ -149,15 +150,18 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
+        year = super(BuildableMonthArchiveView, self).get_year()
         fmt = self.get_year_format()
-        return date(int(self.year), 1, 1).strftime(fmt)
+        return date(int(year), 1, 1).strftime(fmt)
 
     def get_month(self):
         """
         Return the month from the database in the format expected by the URL.
         """
+        year = super(BuildableMonthArchiveView, self).get_year()
+        month = super(BuildableMonthArchiveView, self).get_month()
         fmt = self.get_month_format()
-        return date(int(self.year), int(self.month), 1).strftime(fmt)
+        return date(int(year), int(month), 1).strftime(fmt)
 
     def get_url(self):
         """
