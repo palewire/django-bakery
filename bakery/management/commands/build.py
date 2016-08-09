@@ -9,7 +9,6 @@ from django.conf import settings
 from django.core import management
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.core.urlresolvers import get_callable
-from django.core.exceptions import ViewDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
 
@@ -180,11 +179,8 @@ Will use settings.BUILD_DIR by default."
             logger.debug("Building %s" % view_str)
             if self.verbosity > 1:
                 six.print_("Building %s" % view_str)
-            try:
-                view = get_callable(view_str)
-                view().build_method()
-            except (TypeError, ViewDoesNotExist, ImportError):
-                raise CommandError("View %s does not work." % view_str)
+            view = get_callable(view_str)
+            view().build_method()
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
