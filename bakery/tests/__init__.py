@@ -14,7 +14,6 @@ from .. import models as bmodels
 from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory
-from django.core.management.base import CommandError
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
@@ -322,14 +321,6 @@ class BakeryTest(TestCase):
         self.assertTrue(os.path.exists(robots_path))
         favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
         self.assertTrue(os.path.exists(favicon_path))
-        # If the view you attempt to build does not exist,
-        # the build command should throw a CommandError.
-        self.assertRaises(
-            CommandError,
-            call_command,
-            'build',
-            'FooView',
-        )
 
     def test_unbuild_cmd(self):
         call_command("unbuild")
