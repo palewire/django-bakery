@@ -1,8 +1,7 @@
 Django
 six
-pyflakes
+flake8
 python-coveralls
 django-celery
 Sphinx
-pep8
 moto
