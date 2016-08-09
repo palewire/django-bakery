@@ -13,7 +13,7 @@ env:
 
 install:
  # Testing dependencies
- - pip install pyflakes pep8 coverage python-coveralls moto
+ - pip install flake8 coverage python-coveralls moto
  # Required library dependencies
  - pip install boto six
  # Optional library dependencies
