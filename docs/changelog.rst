@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.9
+-----
+
+* Removed ``CommandError`` exception handling in ``build`` command because errors should never pass silently, unless explicitly silenced.
+
 0.8.8
 -----
 
