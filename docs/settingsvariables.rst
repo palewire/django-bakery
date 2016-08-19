@@ -115,24 +115,48 @@ GZIP_CONTENT_TYPES
 
     A list of file mime types used to determine which files to add the
     'Content-Encoding: gzip' metadata header when syncing to Amazon S3.
+    
     Defaults to include all 'text/css', 'text/html', 'application/javascript',
-    'application/x-javascript', 'application/json' and 'application/xml'
-    files.
+    'application/x-javascript' and everything else recommended by the HTML5 
+    `boilerplate guide <https://github.com/h5bp/server-configs-apache>`_.
 
     Only matters if you have set ``BAKERY_GZIP`` to ``True``.
 
 .. code-block:: python
 
-    # defaults to 'text/css', 'text/html', 'application/javascript',
-    # 'application/x-javascript', 'application/json' and 'application/xml'
-    # files.
     GZIP_CONTENT_TYPES = (
-        'text/css',
-        'text/html',
-        'application/javascript',
-        'application/x-javascript',
-        'application/json',
-        'application/xml'
+        "application/atom+xml",
+        "application/javascript",
+        "application/json",
+        "application/ld+json",
+        "application/manifest+json",
+        "application/rdf+xml",
+        "application/rss+xml",
+        "application/schema+json",
+        "application/vnd.geo+json",
+        "application/vnd.ms-fontobject",
+        "application/x-font-ttf",
+        "application/x-javascript",
+        "application/x-web-app-manifest+json",
+        "application/xhtml+xml",
+        "application/xml",
+        "font/eot",
+        "font/opentype",
+        "image/bmp",
+        "image/svg+xml",
+        "image/vnd.microsoft.icon",
+        "image/x-icon",
+        "text/cache-manifest",
+        "text/css",
+        "text/html",
+        "text/javascript",
+        "text/plain",
+        "text/vcard",
+        "text/vnd.rim.location.xloc",
+        "text/vtt",
+        "text/x-component",
+        "text/x-cross-domain-policy",
+        "text/xml"
     )
 
 DEFAULT_ACL
