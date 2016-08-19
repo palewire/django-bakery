@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.10
+------
+
+* Expanded default ``GZIP_CONTENT_TYPES`` to cover SVGs and everything else recommended by the `HTML5 boilerplate guides <GZIP_CONTENT_TYPES>`_.
+
 0.8.9
 -----
 
