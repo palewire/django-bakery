@@ -6,6 +6,7 @@ import logging
 import mimetypes
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
+from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
 from boto.s3.connection import S3Connection, OrdinaryCallingFormat
@@ -17,16 +18,6 @@ class Command(BaseCommand):
 
     # Default permissions for the files published to s3
     DEFAULT_ACL = 'public-read'
-
-    # Mimetypes of content we want to gzip
-    GZIP_CONTENT_TYPES = (
-        'text/css',
-        'text/html',
-        'application/javascript',
-        'application/x-javascript',
-        'application/json',
-        'application/xml'
-    )
 
     # Error messages we might use below
     build_missing_msg = "Build directory does not exist. Cannot publish \
@@ -176,7 +167,7 @@ No content was changed on S3.")
         self.gzip_content_types = getattr(
             settings,
             'GZIP_CONTENT_TYPES',
-            self.GZIP_CONTENT_TYPES
+            DEFAULT_GZIP_CONTENT_TYPES
         )
 
         # What ACL (i.e. security permissions) will be giving the files on S3?
