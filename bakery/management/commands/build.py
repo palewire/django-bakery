@@ -129,7 +129,10 @@ Will use settings.BUILD_DIR by default."
             interactive=False,
             verbosity=0
         )
-        target_dir = os.path.join(self.build_dir, settings.STATIC_URL.lstrip('/'))
+        target_dir = os.path.join(
+            self.build_dir,
+            settings.STATIC_URL.lstrip('/')
+        )
 
         if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
