@@ -184,7 +184,7 @@ class BakeryTest(TestCase):
         for o in MockObject.objects.all():
             build_path = os.path.join(
                 settings.BUILD_DIR,
-                o.get_absolute_url()[1:],
+                o.get_absolute_url().lstrip('/'),
                 'index.html',
             )
             self.assertTrue(os.path.exists(build_path))
