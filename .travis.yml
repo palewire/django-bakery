@@ -21,7 +21,7 @@ install:
  # Required library dependencies
  - pip install boto six
  # Optional library dependencies
- - pip install celery django-celery django-kombu
+ - pip install celery
  # The version of Django being tested against
  - pip install -q Django==$DJANGO_VERSION
 
