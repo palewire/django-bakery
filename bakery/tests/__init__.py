@@ -15,7 +15,6 @@ from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.contenttypes.models import ContentType
 
 
 class MockObject(bmodels.BuildableModel):
