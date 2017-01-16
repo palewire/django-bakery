@@ -20,6 +20,16 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
+    def create_request(self, path):
+        """
+        Returns a GET request object for use when building views.
+
+        If inheriting views require additional request attributes
+        (e.g. user, site), override this method and define those
+        attributes on the returned object.
+        """
+        return RequestFactory().get(path)
+
     def get_content(self):
         """
         How to render the HTML or other content for the page.
@@ -110,7 +120,7 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
 
     def build(self):
         logger.debug("Building %s" % self.template_name)
-        self.request = RequestFactory().get(self.build_path)
+        self.request = self.create_request(self.build_path)
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         self.prep_directory(self.build_path)
         self.build_file(path, self.get_content())
@@ -161,7 +171,7 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             self.build_path,
             self.get_redirect_url()
         ))
-        self.request = RequestFactory().get(self.build_path)
+        self.request = self.create_request(self.build_path)
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         self.prep_directory(self.build_path)
         self.build_file(path, self.get_content())
