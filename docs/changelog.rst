@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.12
+------
+
+* Added ``create_request`` method to the base view mixin so there's a clearer method for overriding the creation of a ``RequestFactory`` when building views.
+
 0.8.10
 ------
 
