@@ -82,6 +82,7 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
     response["Content-Length"] = len(contents)
     return response
 
+
 DEFAULT_DIRECTORY_INDEX_TEMPLATE = """
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" \
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
