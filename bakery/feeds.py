@@ -3,7 +3,6 @@ import logging
 from django.conf import settings
 from bakery.views import BuildableMixin
 from django.contrib.syndication.views import Feed
-
 logger = logging.getLogger(__name__)
 
 

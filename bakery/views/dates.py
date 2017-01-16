@@ -14,7 +14,6 @@ from django.views.generic.dates import (
     MonthArchiveView,
     DayArchiveView,
 )
-
 logger = logging.getLogger(__name__)
 
 
