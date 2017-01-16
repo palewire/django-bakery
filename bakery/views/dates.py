@@ -8,13 +8,13 @@ import logging
 from datetime import date
 from django.conf import settings
 from bakery.views import BuildableMixin
-from django.test.client import RequestFactory
 from django.views.generic.dates import (
     ArchiveIndexView,
     YearArchiveView,
     MonthArchiveView,
     DayArchiveView,
 )
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,7 +48,7 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
 
     def build_queryset(self):
         logger.debug("Building %s" % self.build_path)
-        self.request = RequestFactory().get(self.build_path)
+        self.request = self.create_request(self.build_path)
         self.prep_directory(self.build_path)
         path = os.path.join(settings.BUILD_DIR, self.build_path)
         self.build_file(path, self.get_content())
@@ -105,7 +105,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         self.year = str(dt.year)
         logger.debug("Building %s" % self.year)
-        self.request = RequestFactory().get(self.get_url())
+        self.request = self.create_request(self.get_url())
         path = self.get_build_path()
         self.build_file(path, self.get_content())
 
@@ -189,7 +189,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         self.month = str(dt.month)
         self.year = str(dt.year)
         logger.debug("Building %s-%s" % (self.year, self.month))
-        self.request = RequestFactory().get(self.get_url())
+        self.request = self.create_request(self.get_url())
         path = self.get_build_path()
         self.build_file(path, self.get_content())
 
@@ -288,7 +288,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         self.year = str(dt.year)
         self.day = str(dt.day)
         logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
-        self.request = RequestFactory().get(self.get_url())
+        self.request = self.create_request(self.get_url())
         path = self.get_build_path()
         self.build_file(path, self.get_content())
 
