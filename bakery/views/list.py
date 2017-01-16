@@ -7,7 +7,6 @@ import logging
 from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import ListView
-
 logger = logging.getLogger(__name__)
 
 

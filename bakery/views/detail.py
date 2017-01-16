@@ -9,7 +9,6 @@ from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import DetailView
 from django.core.exceptions import ImproperlyConfigured
-
 logger = logging.getLogger(__name__)
 
 

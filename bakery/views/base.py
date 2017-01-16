@@ -20,6 +20,16 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
+    def create_request(self, path):
+        """
+        Returns a GET request object for use when building views.
+
+        If inheriting views require additional request attributes
+        (e.g. user, site), override this method and define those
+        attributes on the returned object.
+        """
+        return RequestFactory().get(path)
+
     def get_content(self):
         """
         How to render the HTML or other content for the page.
@@ -88,17 +98,6 @@ class BuildableMixin(object):
             outfile = gzip.GzipFile(path, 'wb')
         outfile.write(six.binary_type(html))
         outfile.close()
-
-    def create_request(self, path):
-        """
-        Creates a request object.
-
-        This GET request simulates an actual HTTP request to the view. If
-        inheriting views require additional request attributes (e.g. user,
-        site), override this method and define those attributes on the returned
-        object.
-        """
-        return RequestFactory().get(path)
 
 
 class BuildableTemplateView(TemplateView, BuildableMixin):
