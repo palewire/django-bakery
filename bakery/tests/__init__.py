@@ -369,21 +369,21 @@ class BakeryTest(TestCase):
             call_command("unpublish", no_pooling=True, verbosity=3)
             self.assertFalse(list(key for key in bucket.list()))
 
-    def test_tasks(self):
-        from bakery import tasks
-        obj = AutoMockObject.objects.all()[0]
-        ct = ContentType.objects.get_for_model(obj)
-        tasks.publish_object(ct.id, obj.id)
-        tasks.unpublish_object(ct.id, obj.id)
-        # Some save overrides tests
-        obj = AutoMockObject.objects.all()[0]
-        obj.save(publish=False)
-        obj.save()
-        obj.is_published = True
-        obj.save()
-        obj.is_published = False
-        obj.save()
-        obj.delete()
+    # def test_tasks(self):
+    #     from bakery import tasks
+    #     obj = AutoMockObject.objects.all()[0]
+    #     ct = ContentType.objects.get_for_model(obj)
+    #     tasks.publish_object(ct.id, obj.id)
+    #     tasks.unpublish_object(ct.id, obj.id)
+    #     # Some save overrides tests
+    #     obj = AutoMockObject.objects.all()[0]
+    #     obj.save(publish=False)
+    #     obj.save()
+    #     obj.is_published = True
+    #     obj.save()
+    #     obj.is_published = False
+    #     obj.save()
+    #     obj.delete()
 
     def test_static_views(self):
         static_views.serve(

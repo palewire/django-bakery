@@ -2,6 +2,6 @@ Django
 six
 flake8
 python-coveralls
-django-celery
+celery
 Sphinx
 moto
