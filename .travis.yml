@@ -10,10 +10,9 @@ python:
  - "3.5"
 
 env:
- - DJANGO_VERSION=1.7.11
  - DJANGO_VERSION=1.8.16
  - DJANGO_VERSION=1.9.11
- - DJANGO_VERSION=1.10.3
+ - DJANGO_VERSION=1.10.5
 
 install:
  # Testing dependencies
