@@ -8,8 +8,8 @@ import logging
 from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import DetailView
-from django.test.client import RequestFactory
 from django.core.exceptions import ImproperlyConfigured
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +62,7 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
 
     def build_object(self, obj):
         logger.debug("Building %s" % obj)
-        self.request = RequestFactory().get(self.get_url(obj))
+        self.request = self.create_request(self.get_url(obj))
         self.set_kwargs(obj)
         path = self.get_build_path(obj)
         self.build_file(path, self.get_content())
