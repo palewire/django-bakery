@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.13
+------
+
+* Fixed bug in ``BuildableDayArchiveView`` argument handling.
+
 0.8.12
 ------
 
