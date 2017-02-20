@@ -234,24 +234,30 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
+        year = super(BuildableDayArchiveView, self).get_year()
         fmt = self.get_year_format()
-        dt = date(int(self.year), int(self.month), int(self.day))
+        dt = date(int(year), 1, 1)
         return dt.strftime(fmt)
 
     def get_month(self):
         """
         Return the month from the database in the format expected by the URL.
         """
+        year = super(BuildableDayArchiveView, self).get_year()
+        month = super(BuildableDayArchiveView, self).get_month()
         fmt = self.get_month_format()
-        dt = date(int(self.year), int(self.month), int(self.day))
+        dt = date(int(year), int(month), 1)
         return dt.strftime(fmt)
 
     def get_day(self):
         """
         Return the day from the database in the format expected by the URL.
         """
+        year = super(BuildableDayArchiveView, self).get_year()
+        month = super(BuildableDayArchiveView, self).get_month()
+        day = super(BuildableDayArchiveView, self).get_day()
         fmt = self.get_day_format()
-        dt = date(int(self.year), int(self.month), int(self.day))
+        dt = date(int(year), int(month), int(day))
         return dt.strftime(fmt)
 
     def get_url(self):
