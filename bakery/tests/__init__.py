@@ -419,7 +419,7 @@ class BakeryTest(TestCase):
             conn = boto.connect_s3()
             bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
             keys = []
-            for i in range(0, 10000):
+            for i in range(0, 100):
                 k = boto.s3.key.Key(bucket)
                 k.key = i
                 k.set_contents_from_string('This is test object %s' % i)
