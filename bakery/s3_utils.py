@@ -46,7 +46,8 @@ def get_all_objects_in_bucket(aws_bucket_name, s3_client=None):
     return obj_dict
 
 
-def batch_delete_s3_objects(keys, aws_bucket_name, chunk_size=100, s3_client=None):
+def batch_delete_s3_objects(
+        keys, aws_bucket_name, chunk_size=100, s3_client=None):
     if s3_client is None:
         s3_client = get_s3_client()
 
