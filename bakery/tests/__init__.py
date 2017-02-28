@@ -344,7 +344,8 @@ class BakeryTest(TestCase):
         s3.Bucket(settings.AWS_BUCKET_NAME).create()
 
     def _get_bucket_objects(self):
-        return s3_client.list_objects_v2(Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
+        return s3_client.list_objects_v2(
+            Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
 
     def test_publish_cmd(self):
         with mock_s3():
@@ -412,7 +413,8 @@ class BakeryTest(TestCase):
                 call_command("publish", no_pooling=True, verbosity=3)
 
                 for obj in self._get_bucket_objects():
-                    s3_obj = s3.Object(settings.AWS_BUCKET_NAME, obj.get('Key'))
+                    s3_obj = s3.Object(
+                        settings.AWS_BUCKET_NAME, obj.get('Key'))
 
                     if s3_obj.content_type in settings.BAKERY_CACHE_CONTROL:
                         # key.cache_control returns string
