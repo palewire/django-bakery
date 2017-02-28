@@ -11,12 +11,13 @@ from django.db import models
 from .. import static_views
 from django.conf import settings
 from .. import models as bmodels
+from .. import s3_utils
 from django.http import HttpResponse
 from django.core.management import call_command
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.core.exceptions import ImproperlyConfigured
 
-s3_client = boto3.client('s3')
+s3_client = s3_utils.get_s3_client()
 s3 = boto3.resource('s3')
 
 
@@ -117,7 +118,16 @@ class MockJSONView(JSONResponseMixin, views.BuildableTemplateView):
         return {'hello': 'tests'}
 
 
-class BakeryTest(TestCase):
+class BakeryBaseTestCase(TestCase):
+    def _create_bucket(self):
+        s3.Bucket(settings.AWS_BUCKET_NAME).create()
+
+    def _get_bucket_objects(self):
+        return s3_client.list_objects_v2(
+            Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
+
+
+class BakeryTest(BakeryBaseTestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -340,13 +350,6 @@ class BakeryTest(TestCase):
     def test_buildserver_cmd(self):
         pass
 
-    def _create_bucket(self):
-        s3.Bucket(settings.AWS_BUCKET_NAME).create()
-
-    def _get_bucket_objects(self):
-        return s3_client.list_objects_v2(
-            Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
-
     def test_publish_cmd(self):
         with mock_s3():
             self._create_bucket()
@@ -435,4 +438,62 @@ class BakeryTest(TestCase):
                 obj.put('This is test object %s' % i)
                 keys.append(key)
             call_command("unpublish", no_pooling=True, verbosity=3)
+            self.assertFalse(self._get_bucket_objects())
+
+
+class S3UtilsTest(BakeryBaseTestCase):
+
+    def test_get_s3_client_honors_settings_over_environ(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'env_access'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'env_secret'
+        with self.settings(
+            AWS_ACCESS_KEY_ID='settings_access',
+            AWS_SECRET_ACCESS_KEY='settings_secret'
+        ):
+            s3_client = s3_utils.get_s3_client()
+            credentials = boto3.DEFAULT_SESSION.get_credentials()
+            self.assertEqual(credentials.access_key, 'settings_access')
+            self.assertEqual(credentials.secret_key, 'settings_secret')
+
+    @override_settings()
+    def test_get_s3_client_handles_no_settings_gracefully(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'env_access'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'env_secret'
+        del settings.AWS_ACCESS_KEY_ID
+        del settings.AWS_SECRET_ACCESS_KEY
+        s3_utils.get_s3_client()
+
+    def test_get_all_objects_in_bucket(self):
+        with mock_s3():
+            self._create_bucket()
+            keys = []
+            for i in range(0, 33):
+                key = str(i)
+                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+                obj.put('This is test object %s' % i)
+                keys.append(key)
+            all_objects = s3_utils.get_all_objects_in_bucket(
+                settings.AWS_BUCKET_NAME,
+                max_keys=9)
+            # Note that this test can't be totally relied on until the contributions
+            # to moto in https://github.com/spulec/moto/pull/814 are installed locally.
+            # It works either way.
+            self.assertEqual(len(keys), len(all_objects))
+
+    def test_batch_delete_s3_objects(self):
+        with mock_s3():
+            self._create_bucket()
+            keys = []
+            for i in range(0, 33):
+                key = str(i)
+                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+                obj.put('This is test object %s' % i)
+                keys.append(key)
+
+            all_objects = self._get_bucket_objects()
+            all_keys = [o.get('Key') for o in all_objects]
+            s3_utils.batch_delete_s3_objects(
+                all_keys,
+                settings.AWS_BUCKET_NAME,
+                chunk_size=5)
             self.assertFalse(self._get_bucket_objects())
