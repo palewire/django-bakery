@@ -4,13 +4,17 @@ import time
 import hashlib
 import logging
 import mimetypes
+import boto3
+
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
+from bakery.s3_utils import get_s3_client, get_all_objects_in_bucket, batch_delete_s3_objects
 from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
-from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 logger = logging.getLogger(__name__)
+
+s3 = boto3.resource('s3')
 
 
 class Command(BaseCommand):
@@ -94,24 +98,13 @@ run concurrently.")
         self.set_options(options)
 
         # Initialize the boto connection
-        boto_kwargs = dict(
-            host=getattr(settings, 'AWS_S3_HOST', S3Connection.DefaultHost)
-        )
-        if '.' in self.aws_bucket_name and sys.version_info[:3] >= (2, 7, 9):
-            # Hack here for the odd bug with Python 2.7.9
-            # https://github.com/boto/boto/issues/2836
-            boto_kwargs['calling_format'] = OrdinaryCallingFormat()
-        self.conn = S3Connection(
-            settings.AWS_ACCESS_KEY_ID,
-            settings.AWS_SECRET_ACCESS_KEY,
-            **boto_kwargs
-        )
+        self.s3_client = get_s3_client()
 
         # Grab our bucket
-        self.bucket = self.conn.get_bucket(self.aws_bucket_name)
+        self.bucket = s3.Bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket
-        self.s3_key_dict = self.get_s3_key_dict()
+        self.s3_obj_dict = get_all_objects_in_bucket(self.aws_bucket_name, self.s3_client)
 
         # Get a list of all the local files in our build directory
         self.local_file_list = self.get_local_file_list()
@@ -121,15 +114,11 @@ run concurrently.")
 
         # Delete anything that's left in our keys dict
         if not self.dry_run and not self.no_delete:
-            self.deleted_file_list = list(self.s3_key_dict.keys())
+            self.deleted_file_list = list(self.s3_obj_dict.keys())
             self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
-                key_chunks = []
-                for i in range(0, len(self.deleted_file_list), 100):
-                    key_chunks.append(self.deleted_file_list[i:i+100])
-                for chunk in key_chunks:
-                    self.bucket.delete_keys(chunk)
+                batch_delete_s3_objects(self.deleted_file_list, self.aws_bucket_name)
 
         # Run any post publish hooks on the views
         if not hasattr(settings, 'BAKERY_VIEWS'):
@@ -219,15 +208,6 @@ No content was changed on S3.")
         self.no_delete = options.get('no_delete')
         self.no_pooling = options.get('no_pooling')
 
-    def get_s3_key_dict(self):
-        """
-        Retrieves and returns a dictionary of keys in our s3 bucket.
-
-        The keys will be the name (or path) of the key and the value
-        will be the Key object from boto.
-        """
-        return dict((key.name, key) for key in self.bucket.list())
-
     def get_local_file_list(self):
         """
         Walk the local build directory and create a list of relative and
@@ -259,29 +239,26 @@ No content was changed on S3.")
             abs_file_path = os.path.join(self.build_dir, file_key)
 
             # check if the file exists
-            if file_key in self.s3_key_dict:
-                key = self.s3_key_dict[file_key]
-                s3_md5 = key.etag.strip('"')
+            if file_key in self.s3_obj_dict:
+                s3_etag = self.s3_obj_dict[file_key].get('ETag').strip('"')
                 local_md5 = hashlib.md5(
                     open(abs_file_path, "rb").read()
                 ).hexdigest()
 
                 # don't upload if the md5 sums are the same
-                if s3_md5 == local_md5 and not self.force_publish:
+                if s3_etag == local_md5 and not self.force_publish:
                     pass
                 elif self.force_publish:
-                    update_list.append((key, abs_file_path))
+                    update_list.append((file_key, abs_file_path))
                 else:
-                    update_list.append((key, abs_file_path))
+                    update_list.append((file_key, abs_file_path))
 
                 # remove the file from the dict, we don't need it anymore
-                del self.s3_key_dict[file_key]
+                del self.s3_obj_dict[file_key]
 
             # if the file doesn't exist, create it
             else:
-                if not self.dry_run:
-                    key = self.bucket.new_key(file_key)
-                update_list.append((key or None, abs_file_path))
+                update_list.append((file_key, abs_file_path))
 
         # Upload all these files
         if self.no_pooling:
@@ -299,35 +276,33 @@ No content was changed on S3.")
         """
         self.upload_to_s3(*payload)
 
-    def upload_to_s3(self, key, filename):
+    def upload_to_s3(self, file_key, filename):
         """
         Set the content type and gzip headers if applicable
         and upload the item to S3
         """
-        headers = {}
+        extra_args = {'ACL': self.acl}
         # guess and add the mimetype to header
         content_type = mimetypes.guess_type(filename)[0]
-        headers['Content-Type'] = content_type
+
+        if content_type:
+            extra_args['ContentType'] = content_type
 
         # add the gzip headers, if necessary
         if self.gzip and content_type in self.gzip_content_types:
-            headers['Content-Encoding'] = 'gzip'
+            extra_args['ContentEncoding'] = 'gzip'
 
         # add the cache-control headers if necessary
         if content_type in self.cache_control:
-            headers['Cache-Control'] = ''.join((
+            extra_args['CacheControl'] = ''.join((
                 'max-age=',
                 str(self.cache_control[content_type])
             ))
 
         # access and write the contents from the file
-        with open(filename, 'rb') as file_obj:
-            if not self.dry_run:
-                logger.debug("uploading %s" % filename)
-                key.set_contents_from_file(
-                    file_obj,
-                    headers,
-                    policy=self.acl
-                )
-            self.uploaded_files += 1
-            self.uploaded_file_list.append(file_obj)
+        if not self.dry_run:
+            logger.debug("uploading %s" % filename)
+            s3_obj = s3.Object(self.aws_bucket_name, file_key)
+            s3_obj.upload_file(filename, ExtraArgs=extra_args)
+        self.uploaded_files += 1
+        self.uploaded_file_list.append(filename)
