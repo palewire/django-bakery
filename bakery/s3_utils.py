@@ -15,7 +15,7 @@ def get_s3_client():
     if hasattr(settings, 'AWS_SECRET_ACCESS_KEY'):
         secret_key = settings.AWS_SECRET_ACCESS_KEY
 
-    session = boto3.setup_default_session(
+    boto3.setup_default_session(
         aws_access_key_id=access_key,
         aws_secret_access_key=secret_key)
     return boto3.client('s3')
