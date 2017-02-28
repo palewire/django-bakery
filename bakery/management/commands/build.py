@@ -129,7 +129,10 @@ Will use settings.BUILD_DIR by default."
             interactive=False,
             verbosity=0
         )
-        target_dir = os.path.join(self.build_dir, settings.STATIC_URL[1:])
+        target_dir = os.path.join(
+            self.build_dir,
+            settings.STATIC_URL.lstrip('/')
+        )
 
         if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
@@ -167,7 +170,7 @@ Will use settings.BUILD_DIR by default."
         if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
             shutil.copytree(
                 settings.MEDIA_ROOT,
-                os.path.join(self.build_dir, settings.MEDIA_URL[1:])
+                os.path.join(self.build_dir, settings.MEDIA_URL.lstrip('/'))
             )
 
     def build_views(self):

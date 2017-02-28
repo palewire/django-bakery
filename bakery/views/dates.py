@@ -94,7 +94,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url()[1:])
+        path = os.path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
         os.path.exists(path) or os.makedirs(path)
         return os.path.join(path, 'index.html')
 
@@ -177,7 +177,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url()[1:])
+        path = os.path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
         os.path.exists(path) or os.makedirs(path)
         return os.path.join(path, 'index.html')
 
@@ -281,7 +281,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url()[1:])
+        path = os.path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
         os.path.exists(path) or os.makedirs(path)
         return os.path.join(path, 'index.html')
 
