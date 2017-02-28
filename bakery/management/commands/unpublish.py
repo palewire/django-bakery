@@ -20,7 +20,7 @@ in settings.py or provide it with --aws-bucket-name"
             dest="aws_bucket_name",
             default='',
             help="Specify the AWS bucket to sync with. \
-Will use settings.AWS_BUCKET_NAME by default."
+                Will use settings.AWS_BUCKET_NAME by default."
         )
 
     def handle(self, *args, **options):
