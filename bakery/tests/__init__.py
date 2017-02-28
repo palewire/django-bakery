@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import os
 import six
-import boto
+import boto3
 import json
 import random
 from moto import mock_s3
@@ -15,6 +15,9 @@ from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory
 from django.core.exceptions import ImproperlyConfigured
+
+s3_client = boto3.client('s3')
+s3 = boto3.resource('s3')
 
 
 class MockObject(bmodels.BuildableModel):
@@ -337,10 +340,15 @@ class BakeryTest(TestCase):
     def test_buildserver_cmd(self):
         pass
 
+    def _create_bucket(self):
+        s3.Bucket(settings.AWS_BUCKET_NAME).create()
+
+    def _get_bucket_objects(self):
+        return s3_client.list_objects_v2(Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
+
     def test_publish_cmd(self):
         with mock_s3():
-            conn = boto.connect_s3()
-            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            self._create_bucket()
             call_command("build")
             call_command("publish", no_pooling=True, verbosity=3)
             local_file_list = []
@@ -354,19 +362,19 @@ class BakeryTest(TestCase):
                     if local_key.startswith('./'):
                         local_key = local_key[2:]
                     local_file_list.append(local_key)
-            for key in bucket.list():
-                self.assertIn(key.name, local_file_list)
+
+            for obj in self._get_bucket_objects():
+                self.assertIn(obj.get('Key'), local_file_list)
             call_command("unbuild")
             os.makedirs(settings.BUILD_DIR)
             call_command("publish", no_pooling=True, verbosity=3)
 
     def test_unpublish_cmd(self):
         with mock_s3():
-            conn = boto.connect_s3()
-            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            self._create_bucket()
             call_command("build")
             call_command("unpublish", no_pooling=True, verbosity=3)
-            self.assertFalse(list(key for key in bucket.list()))
+            self.assertFalse(self._get_bucket_objects())
 
     # def test_tasks(self):
     #     from bakery import tasks
@@ -399,30 +407,30 @@ class BakeryTest(TestCase):
                 "text/css": random.randint(0, 100000),
                 "text/html": random.randint(0, 100000),
             }):
-                conn = boto.connect_s3()
-                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+                self._create_bucket()
                 call_command("build")
                 call_command("publish", no_pooling=True, verbosity=3)
-                for key in bucket:
-                    key = bucket.get_key(key.name)
-                    if key.content_type in settings.BAKERY_CACHE_CONTROL:
+
+                for obj in self._get_bucket_objects():
+                    s3_obj = s3.Object(settings.AWS_BUCKET_NAME, obj.get('Key'))
+
+                    if s3_obj.content_type in settings.BAKERY_CACHE_CONTROL:
                         # key.cache_control returns string
                         # with "max-age=" prefix
                         self.assertIn(
                             str(settings.BAKERY_CACHE_CONTROL.get(
-                                key.content_type)),
-                            key.cache_control
+                                s3_obj.content_type)),
+                            s3_obj.cache_control
                         )
 
     def test_batch_unpublish(self):
         with mock_s3():
-            conn = boto.connect_s3()
-            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            self._create_bucket()
             keys = []
-            for i in range(0, 100):
-                k = boto.s3.key.Key(bucket)
-                k.key = i
-                k.set_contents_from_string('This is test object %s' % i)
-                keys.append(k)
+            for i in range(0, 377):
+                key = str(i)
+                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+                obj.put('This is test object %s' % i)
+                keys.append(key)
             call_command("unpublish", no_pooling=True, verbosity=3)
-            self.assertFalse(list(key for key in bucket.list()))
+            self.assertFalse(self._get_bucket_objects())
