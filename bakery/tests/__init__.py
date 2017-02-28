@@ -450,7 +450,6 @@ class S3UtilsTest(BakeryBaseTestCase):
             AWS_ACCESS_KEY_ID='settings_access',
             AWS_SECRET_ACCESS_KEY='settings_secret'
         ):
-            s3_client = s3_utils.get_s3_client()
             credentials = boto3.DEFAULT_SESSION.get_credentials()
             self.assertEqual(credentials.access_key, 'settings_access')
             self.assertEqual(credentials.secret_key, 'settings_secret')
@@ -475,9 +474,10 @@ class S3UtilsTest(BakeryBaseTestCase):
             all_objects = s3_utils.get_all_objects_in_bucket(
                 settings.AWS_BUCKET_NAME,
                 max_keys=9)
-            # Note that this test can't be totally relied on until the contributions
-            # to moto in https://github.com/spulec/moto/pull/814 are installed locally.
-            # It works either way.
+            # Note that this test can't be totally relied on until the
+            # contributions to moto in
+            # https://github.com/spulec/moto/pull/814 are installed.
+            # It works either way though.
             self.assertEqual(len(keys), len(all_objects))
 
     def test_batch_delete_s3_objects(self):
