@@ -276,7 +276,7 @@ No content was changed on S3.")
         """
         self.upload_to_s3(*payload)
 
-    def upload_to_s3(self, file_key, filename):
+    def upload_to_s3(self, key, filename):
         """
         Set the content type and gzip headers if applicable
         and upload the item to S3
@@ -302,7 +302,7 @@ No content was changed on S3.")
         # access and write the contents from the file
         if not self.dry_run:
             logger.debug("uploading %s" % filename)
-            s3_obj = s3.Object(self.aws_bucket_name, file_key)
+            s3_obj = s3.Object(self.aws_bucket_name, key)
             s3_obj.upload_file(filename, ExtraArgs=extra_args)
         self.uploaded_files += 1
         self.uploaded_file_list.append(filename)
