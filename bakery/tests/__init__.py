@@ -450,6 +450,7 @@ class S3UtilsTest(BakeryBaseTestCase):
             AWS_ACCESS_KEY_ID='settings_access',
             AWS_SECRET_ACCESS_KEY='settings_secret'
         ):
+            s3_utils.get_s3_client()
             credentials = boto3.DEFAULT_SESSION.get_credentials()
             self.assertEqual(credentials.access_key, 'settings_access')
             self.assertEqual(credentials.secret_key, 'settings_secret')

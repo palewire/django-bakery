@@ -86,7 +86,7 @@ class TestCommand(Command):
         # import djcelery
         # djcelery.setup_loader()
         from django.core.management import call_command
-        call_command('test', 'bakery.tests.S3UtilsTest', verbosity=3)
+        call_command('test', 'bakery.tests', verbosity=3)
 
 
 setup(
