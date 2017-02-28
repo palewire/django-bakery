@@ -1,14 +1,12 @@
-import boto3
 import logging
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
-from bakery.s3_utils import get_all_objects_in_bucket, batch_delete_s3_objects
+from django.core.management.base import CommandError
+from bakery.management.commands.base_publish import BasePublishCommand
+
 logger = logging.getLogger(__name__)
 
-s3 = boto3.resource('s3')
 
-
-class Command(BaseCommand):
+class Command(BasePublishCommand):
     help = "Empties the Amazon S3 bucket defined in settings.py"
     bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
 in settings.py or provide it with --aws-bucket-name"
@@ -33,9 +31,9 @@ in settings.py or provide it with --aws-bucket-name"
             aws_bucket_name = settings.AWS_BUCKET_NAME
 
         # Pull all the keys from the bucket
-        all_objects = get_all_objects_in_bucket(aws_bucket_name)
+        all_objects = self.get_all_objects_in_bucket(aws_bucket_name)
         keys = all_objects.keys()
-        batch_delete_s3_objects(keys, aws_bucket_name)
+        self.batch_delete_s3_objects(keys, aws_bucket_name)
 
         # A little logging
         logger.info("unpublish completed, %d deleted files" % len(keys))

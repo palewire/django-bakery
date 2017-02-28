@@ -8,18 +8,18 @@ import boto3
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
-from bakery.s3_utils import (
-    get_s3_client,
-    get_all_objects_in_bucket,
-    batch_delete_s3_objects)
+from bakery.management.commands.base_publish import (
+    BasePublishCommand,
+    get_s3_client
+)
 from django.core.urlresolvers import get_callable
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import CommandError
 logger = logging.getLogger(__name__)
 
 s3 = boto3.resource('s3')
 
 
-class Command(BaseCommand):
+class Command(BasePublishCommand):
     help = "Syncs the build directory with Amazon s3 bucket"
 
     # Default permissions for the files published to s3
@@ -106,7 +106,7 @@ run concurrently.")
         self.bucket = s3.Bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket
-        self.s3_obj_dict = get_all_objects_in_bucket(
+        self.s3_obj_dict = self.get_all_objects_in_bucket(
             self.aws_bucket_name, self.s3_client)
 
         # Get a list of all the local files in our build directory
@@ -121,7 +121,7 @@ run concurrently.")
             self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
-                batch_delete_s3_objects(
+                self.batch_delete_s3_objects(
                     self.deleted_file_list, self.aws_bucket_name)
 
         # Run any post publish hooks on the views
