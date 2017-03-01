@@ -8,7 +8,7 @@ import boto3
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
-from bakery.management.commands.base_publish import (
+from bakery.management.commands import (
     BasePublishCommand,
     get_s3_client
 )
