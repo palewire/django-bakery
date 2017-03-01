@@ -11,7 +11,7 @@ from django.db import models
 from .. import static_views
 from django.conf import settings
 from .. import models as bmodels
-from ..management.commands.base_publish import (
+from ..management.commands import (
     get_s3_client,
     get_all_objects_in_bucket,
     batch_delete_s3_objects)
