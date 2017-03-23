@@ -1,5 +1,4 @@
 import os
-import six
 import sys
 import gzip
 import shutil
@@ -109,7 +108,7 @@ Will use settings.BUILD_DIR by default."
         # Destroy the build directory, if it exists
         logger.debug("Initializing %s" % self.build_dir)
         if self.verbosity > 1:
-            six.print_("Initializing build directory")
+            self.stdout.write("Initializing build directory")
         if os.path.exists(self.build_dir):
             shutil.rmtree(self.build_dir)
 
@@ -122,7 +121,7 @@ Will use settings.BUILD_DIR by default."
         """
         logger.debug("Building static directory")
         if self.verbosity > 1:
-            six.print_("Building static directory")
+            self.stdout.write("Building static directory")
 
         management.call_command(
             "collectstatic",
@@ -166,7 +165,7 @@ Will use settings.BUILD_DIR by default."
         """
         logger.debug("Building static directory")
         if self.verbosity > 1:
-            six.print_("Building media directory")
+            self.stdout.write("Building media directory")
         if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
             shutil.copytree(
                 settings.MEDIA_ROOT,
@@ -181,7 +180,7 @@ Will use settings.BUILD_DIR by default."
         for view_str in self.view_list:
             logger.debug("Building %s" % view_str)
             if self.verbosity > 1:
-                six.print_("Building %s" % view_str)
+                self.stdout.write("Building %s" % view_str)
             view = get_callable(view_str)
             view().build_method()
 
@@ -225,7 +224,7 @@ Will use settings.BUILD_DIR by default."
                     # ... let the world know...
                     logger.debug("Gzipping %s" % filename)
                     if self.verbosity > 1:
-                        six.print_("Gzipping %s" % filename)
+                        self.stdout.write("Gzipping %s" % filename)
 
                     # ... create the new file in the build directory ...
                     f_in = open(og_file, 'rb')
