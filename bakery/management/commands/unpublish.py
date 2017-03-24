@@ -2,7 +2,6 @@ import logging
 from django.conf import settings
 from django.core.management.base import CommandError
 from bakery.management.commands import BasePublishCommand
-
 logger = logging.getLogger(__name__)
 
 
