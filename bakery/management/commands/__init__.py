@@ -26,7 +26,7 @@ def get_all_objects_in_bucket(
         aws_bucket_name,
         s3_client=None,
         max_keys=1000
-    ):
+):
     """
     Little utility method that handles pagination and returns
     all objects in given bucket.
@@ -58,7 +58,7 @@ def batch_delete_s3_objects(
         aws_bucket_name,
         chunk_size=100,
         s3_client=None
-    ):
+):
     """
     Utility method that batch deletes objects in given bucket.
     """
