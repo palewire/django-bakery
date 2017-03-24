@@ -112,7 +112,8 @@ class Command(BasePublishCommand):
             self.deleted_file_list = list(self.s3_obj_dict.keys())
             self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
-                logger.debug("deleting %s keys" % self.deleted_files)
+                if self.verbosity > 0:
+                    logger.debug("deleting %s keys" % self.deleted_files)
                 self.batch_delete_s3_objects(
                     self.deleted_file_list,
                     self.aws_bucket_name
@@ -128,11 +129,12 @@ class Command(BasePublishCommand):
 
         # We're finished, print the final output
         elapsed_time = time.time() - self.start_time
-        logger.info("publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
-            self.uploaded_files,
-            self.deleted_files,
-            elapsed_time
-        ))
+        if self.verbosity > 0:
+            logger.info("publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
+                self.uploaded_files,
+                self.deleted_files,
+                elapsed_time
+            ))
 
         if self.verbosity > 2:
             for f in self.uploaded_file_list:
@@ -201,7 +203,8 @@ class Command(BasePublishCommand):
         # set the --dry-run option
         if options.get('dry_run'):
             self.dry_run = True
-            logger.info("executing with the --dry-run option set.")
+            if self.verbosity > 0:
+                logger.info("executing with the --dry-run option set.")
         else:
             self.dry_run = False
 
@@ -301,7 +304,8 @@ class Command(BasePublishCommand):
 
         # access and write the contents from the file
         if not self.dry_run:
-            logger.debug("uploading %s" % filename)
+            if self.verbosity > 0:
+                logger.debug("uploading %s" % filename)
             s3_obj = s3.Object(self.aws_bucket_name, key)
             s3_obj.upload_file(filename, ExtraArgs=extra_args)
         self.uploaded_files += 1
