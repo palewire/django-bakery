@@ -6,3 +6,4 @@ celery
 Sphinx
 moto
 twine
+boto3

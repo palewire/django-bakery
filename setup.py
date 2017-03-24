@@ -51,6 +51,9 @@ class TestCommand(Command):
                 },
             ],
             BUILD_DIR = tempfile.mkdtemp(),
+            BAKERY_BUILD_ON_S3 = True,
+            BAKERY_AWS_BUILD_BUCKET = 'build-bucket',
+            BAKERY_AWS_PUBLISH_BUCKET = 'publish-bucket',
             STATIC_ROOT = os.path.abspath(
                  os.path.join(
                      os.path.dirname(__file__),
@@ -119,7 +122,7 @@ setup(
     ],
     install_requires=[
         'six>1.5.2',
-        'boto>2.28',
+        'boto3>=1.4.4',
     ],
     cmdclass={'test': TestCommand}
 )
