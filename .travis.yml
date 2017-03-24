@@ -8,6 +8,7 @@ cache:
 python:
  - "2.7"
  - "3.5"
+ - "3.6"
 
 env:
   global:
@@ -32,6 +33,7 @@ install:
 script:
  - flake8 bakery
  - coverage run setup.py test
+ - coverage report -m
 
 after_success:
  - coveralls
