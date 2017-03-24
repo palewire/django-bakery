@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BasePublishCommand):
     help = "Empties the Amazon S3 bucket defined in settings.py"
-    bucket_unconfig_msg = "AWS bucket name unconfigured. Set AWS_BUCKET_NAME \
-in settings.py or provide it with --aws-bucket-name"
+    bucket_unconfig_msg = "Bucket unconfigured. Set AWS_BUCKET_NAME in settings.py or provide it with --aws-bucket-name"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -17,8 +16,7 @@ in settings.py or provide it with --aws-bucket-name"
             action="store",
             dest="aws_bucket_name",
             default='',
-            help="Specify the AWS bucket to sync with. \
-                Will use settings.AWS_BUCKET_NAME by default."
+            help="Specify the AWS bucket to sync with. Will use settings.AWS_BUCKET_NAME by default."
         )
 
     def handle(self, *args, **options):
