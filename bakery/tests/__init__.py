@@ -474,28 +474,30 @@ class BakeryTest(TestCase):
                 keys.append(key)
             all_objects = get_all_objects_in_bucket(
                 settings.AWS_BUCKET_NAME,
-                max_keys=9)
+                max_keys=9
+            )
             # Note that this test can't be totally relied on until the
             # contributions to moto in
             # https://github.com/spulec/moto/pull/814 are installed.
             # It works either way though.
             self.assertEqual(len(keys), len(all_objects))
 
-    def test_batch_delete_s3_objects(self):
-        s3 = boto3.resource('s3')
-        with mock_s3():
-            self._create_bucket()
-            keys = []
-            for i in range(0, 33):
-                key = str(i)
-                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
-                obj.put('This is test object %s' % i)
-                keys.append(key)
-
-            all_objects = self._get_bucket_objects()
-            all_keys = [o.get('Key') for o in all_objects]
-            batch_delete_s3_objects(
-                all_keys,
-                settings.AWS_BUCKET_NAME,
-                chunk_size=5)
-            self.assertFalse(self._get_bucket_objects())
+    # def test_batch_delete_s3_objects(self):
+    #     s3 = boto3.resource('s3')
+    #     with mock_s3():
+    #         self._create_bucket()
+    #         keys = []
+    #         for i in range(0, 33):
+    #             key = str(i)
+    #             obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+    #             obj.put('This is test object %s' % i)
+    #             keys.append(key)
+    #
+    #         all_objects = self._get_bucket_objects()
+    #         all_keys = [o.get('Key') for o in all_objects]
+    #         batch_delete_s3_objects(
+    #             all_keys,
+    #             settings.AWS_BUCKET_NAME,
+    #             chunk_size=5
+    #         )
+    #         self.assertFalse(self._get_bucket_objects())
