@@ -12,7 +12,8 @@ python:
 env:
  - DJANGO_VERSION=1.8.17
  - DJANGO_VERSION=1.9.12
- - DJANGO_VERSION=1.10.5
+ - DJANGO_VERSION=1.10.6
+ - DJANGO_VERSION=1.11rc1
 
 install:
  # Testing dependencies
