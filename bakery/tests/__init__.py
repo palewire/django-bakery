@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import os
 import six
-import boto
+import boto3
 import json
 import random
 from moto import mock_s3
@@ -11,9 +11,13 @@ from django.db import models
 from .. import static_views
 from django.conf import settings
 from .. import models as bmodels
+from ..management.commands import (
+    get_s3_client,
+    get_all_objects_in_bucket,
+    batch_delete_s3_objects)
 from django.http import HttpResponse
 from django.core.management import call_command
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.core.exceptions import ImproperlyConfigured
 
 
@@ -337,10 +341,18 @@ class BakeryTest(TestCase):
     def test_buildserver_cmd(self):
         pass
 
+    def _create_bucket(self):
+        s3 = boto3.resource('s3')
+        s3.Bucket(settings.AWS_BUCKET_NAME).create()
+
+    def _get_bucket_objects(self):
+        s3_client = get_s3_client()
+        return s3_client.list_objects_v2(
+            Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
+
     def test_publish_cmd(self):
         with mock_s3():
-            conn = boto.connect_s3()
-            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            self._create_bucket()
             call_command("build")
             call_command("publish", no_pooling=True, verbosity=3)
             local_file_list = []
@@ -354,19 +366,19 @@ class BakeryTest(TestCase):
                     if local_key.startswith('./'):
                         local_key = local_key[2:]
                     local_file_list.append(local_key)
-            for key in bucket.list():
-                self.assertIn(key.name, local_file_list)
+
+            for obj in self._get_bucket_objects():
+                self.assertIn(obj.get('Key'), local_file_list)
             call_command("unbuild")
             os.makedirs(settings.BUILD_DIR)
             call_command("publish", no_pooling=True, verbosity=3)
 
     def test_unpublish_cmd(self):
         with mock_s3():
-            conn = boto.connect_s3()
-            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            self._create_bucket()
             call_command("build")
             call_command("unpublish", no_pooling=True, verbosity=3)
-            self.assertFalse(list(key for key in bucket.list()))
+            self.assertFalse(self._get_bucket_objects())
 
     # def test_tasks(self):
     #     from bakery import tasks
@@ -392,6 +404,7 @@ class BakeryTest(TestCase):
         )
 
     def test_cache_control(self):
+        s3 = boto3.resource('s3')
         with mock_s3():
             # Set random max-age for various content types
             with self.settings(BAKERY_CACHE_CONTROL={
@@ -399,30 +412,90 @@ class BakeryTest(TestCase):
                 "text/css": random.randint(0, 100000),
                 "text/html": random.randint(0, 100000),
             }):
-                conn = boto.connect_s3()
-                bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+                self._create_bucket()
                 call_command("build")
                 call_command("publish", no_pooling=True, verbosity=3)
-                for key in bucket:
-                    key = bucket.get_key(key.name)
-                    if key.content_type in settings.BAKERY_CACHE_CONTROL:
+
+                for obj in self._get_bucket_objects():
+                    s3_obj = s3.Object(
+                        settings.AWS_BUCKET_NAME, obj.get('Key'))
+
+                    if s3_obj.content_type in settings.BAKERY_CACHE_CONTROL:
                         # key.cache_control returns string
                         # with "max-age=" prefix
                         self.assertIn(
                             str(settings.BAKERY_CACHE_CONTROL.get(
-                                key.content_type)),
-                            key.cache_control
+                                s3_obj.content_type)),
+                            s3_obj.cache_control
                         )
 
     def test_batch_unpublish(self):
+        s3 = boto3.resource('s3')
         with mock_s3():
-            conn = boto.connect_s3()
-            bucket = conn.create_bucket(settings.AWS_BUCKET_NAME)
+            self._create_bucket()
             keys = []
-            for i in range(0, 10000):
-                k = boto.s3.key.Key(bucket)
-                k.key = i
-                k.set_contents_from_string('This is test object %s' % i)
-                keys.append(k)
+            for i in range(0, 377):
+                key = str(i)
+                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+                obj.put('This is test object %s' % i)
+                keys.append(key)
             call_command("unpublish", no_pooling=True, verbosity=3)
-            self.assertFalse(list(key for key in bucket.list()))
+            self.assertFalse(self._get_bucket_objects())
+
+    def test_get_s3_client_honors_settings_over_environ(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'env_access'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'env_secret'
+        with self.settings(
+            AWS_ACCESS_KEY_ID='settings_access',
+            AWS_SECRET_ACCESS_KEY='settings_secret'
+        ):
+            get_s3_client()
+            credentials = boto3.DEFAULT_SESSION.get_credentials()
+            self.assertEqual(credentials.access_key, 'settings_access')
+            self.assertEqual(credentials.secret_key, 'settings_secret')
+
+    @override_settings()
+    def test_get_s3_client_handles_no_settings_gracefully(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'env_access'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'env_secret'
+        del settings.AWS_ACCESS_KEY_ID
+        del settings.AWS_SECRET_ACCESS_KEY
+        get_s3_client()
+
+    def test_get_all_objects_in_bucket(self):
+        s3 = boto3.resource('s3')
+        with mock_s3():
+            self._create_bucket()
+            keys = []
+            for i in range(0, 33):
+                key = str(i)
+                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+                obj.put('This is test object %s' % i)
+                keys.append(key)
+            all_objects = get_all_objects_in_bucket(
+                settings.AWS_BUCKET_NAME,
+                max_keys=9)
+            # Note that this test can't be totally relied on until the
+            # contributions to moto in
+            # https://github.com/spulec/moto/pull/814 are installed.
+            # It works either way though.
+            self.assertEqual(len(keys), len(all_objects))
+
+    def test_batch_delete_s3_objects(self):
+        s3 = boto3.resource('s3')
+        with mock_s3():
+            self._create_bucket()
+            keys = []
+            for i in range(0, 33):
+                key = str(i)
+                obj = s3.Object(settings.AWS_BUCKET_NAME, key)
+                obj.put('This is test object %s' % i)
+                keys.append(key)
+
+            all_objects = self._get_bucket_objects()
+            all_keys = [o.get('Key') for o in all_objects]
+            batch_delete_s3_objects(
+                all_keys,
+                settings.AWS_BUCKET_NAME,
+                chunk_size=5)
+            self.assertFalse(self._get_bucket_objects())
