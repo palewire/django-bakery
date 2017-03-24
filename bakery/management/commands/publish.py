@@ -97,7 +97,9 @@ class Command(BasePublishCommand):
 
         # Get a list of all keys in our s3 bucket
         self.s3_obj_dict = self.get_all_objects_in_bucket(
-            self.aws_bucket_name, self.s3_client)
+            self.aws_bucket_name,
+            self.s3_client
+        )
 
         # Get a list of all the local files in our build directory
         self.local_file_list = self.get_local_file_list()
@@ -112,7 +114,9 @@ class Command(BasePublishCommand):
             if self.deleted_files:
                 logger.debug("deleting %s keys" % self.deleted_files)
                 self.batch_delete_s3_objects(
-                    self.deleted_file_list, self.aws_bucket_name)
+                    self.deleted_file_list,
+                    self.aws_bucket_name
+                )
 
         # Run any post publish hooks on the views
         if not hasattr(settings, 'BAKERY_VIEWS'):
