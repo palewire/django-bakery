@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.8.14
+------
+
+* Management command drops six.print for self.output.write
+* Only strip first slash of urls with lstrip
+
 0.8.13
 ------
 
