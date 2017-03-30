@@ -1,10 +1,18 @@
 Changelog
 =========
 
+0.9.0
+-----
+
+* Replaced ``boto`` dependency with ``boto3`` and refactored publish command to adjust
+* More verbose logging of gzipped paths during build routine
+* Reduced some logging in management commands when verbosity=0
+* Added testing for Django 1.11
+
 0.8.14
 ------
 
-* Management command drops six.print for self.output.write
+* Management command drops ``six.print`` for ``self.output.write``
 * Only strip first slash of urls with lstrip
 
 0.8.13
