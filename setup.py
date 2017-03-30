@@ -91,7 +91,7 @@ class TestCommand(Command):
 
 setup(
     name='django-bakery',
-    version='0.8.14',
+    version='0.9.0',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
@@ -119,7 +119,6 @@ setup(
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Framework :: Django :: 1.10',
-        'Framework :: Django :: 1.11',
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
