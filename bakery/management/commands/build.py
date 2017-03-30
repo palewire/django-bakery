@@ -221,14 +221,16 @@ Will use settings.BUILD_DIR by default."
 
                 # If it is one we want to gzip...
                 else:
-                    # ... let the world know...
-                    logger.debug("Gzipping %s" % filename)
+                    # ... work out the file path ...
+                    f_name = os.path.join(dest_path, filename)
+
+                    # ... let the world know ...
+                    logger.debug("Gzipping %s" % f_name)
                     if self.verbosity > 1:
-                        self.stdout.write("Gzipping %s" % filename)
+                        self.stdout.write("Gzipping %s" % f_name)
 
                     # ... create the new file in the build directory ...
                     f_in = open(og_file, 'rb')
-                    f_name = os.path.join(dest_path, filename)
 
                     # ... copy the file to gzip compressed output ...
                     if float(sys.version[:3]) >= 2.7:
