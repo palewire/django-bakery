@@ -14,10 +14,8 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
-    build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in \
-settings.py or provide it with --build-dir"
-    views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in \
-settings.py or provide a list as arguments."
+    build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in settings.py or provide it with --build-dir"
+    views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in settings.py or provide a list as arguments."
 
     def add_arguments(self, parser):
         parser.add_argument('view_list', nargs='*', type=str, default=[])
