@@ -20,8 +20,17 @@ def get_s3_client():
     boto3.setup_default_session(**session_kwargs)
 
     s3_kwargs = {}
-    if hasattr(settings, 'AWS_S3_HOST'):
-        s3_kwargs['endpoint_url'] = settings.AWS_S3_HOST
+    if hasattr(settings, 'AWS_S3_ENDPOINT'):
+        s3_kwargs['endpoint_url'] = settings.AWS_S3_ENDPOINT
+    elif hasattr(settings, 'AWS_S3_HOST'):
+        if hasattr(settings, 'AWS_S3_USE_SSL') and settings.AWS_S3_USE_SSL is False:
+            protocol = "http://"
+        else:
+            protocol = "https://"
+        s3_kwargs['endpoint_url'] = "{}{}".format(
+            protocol,
+            settings.AWS_S3_HOST
+        )
     s3_client = boto3.client('s3', **s3_kwargs)
     s3_resource = boto3.resource('s3', **s3_kwargs)
     return s3_client, s3_resource

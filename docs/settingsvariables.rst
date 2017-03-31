@@ -81,20 +81,20 @@ AWS_SECRET_ACCESS_KEY
 
     AWS_SECRET_ACCESS_KEY = 'your-secret-key'
 
-AWS_S3_HOST
+AWS_S3_ENDPOINT
 -----------
 
-.. envvar:: AWS_S3_HOST
+.. envvar:: AWS_S3_ENDPOINT
 
-    The hostname to use when connecting with Amazon Web Service's S3 system. If the
+    The URL to use when connecting with Amazon Web Service's S3 system. If the
     setting is not provided the boto package's default is used.
 
 .. code-block:: python
 
     # Substitute in Amazon's accelerated upload service
-    AWS_S3_HOST = 's3-accelerate.amazonaws.com'
+    AWS_S3_ENDPOINT = 'https://s3-accelerate.amazonaws.com'
     # Specify the region of the bucket to work around bugs with S3 in certain version of boto
-    AWS_S3_HOST = 's3-%s.amazonaws.com' % AWS_REGION
+    AWS_S3_ENDPOINT = 'https://s3-%s.amazonaws.com' % AWS_REGION
 
 BAKERY_GZIP
 -----------
@@ -115,9 +115,9 @@ GZIP_CONTENT_TYPES
 
     A list of file mime types used to determine which files to add the
     'Content-Encoding: gzip' metadata header when syncing to Amazon S3.
-    
+
     Defaults to include all 'text/css', 'text/html', 'application/javascript',
-    'application/x-javascript' and everything else recommended by the HTML5 
+    'application/x-javascript' and everything else recommended by the HTML5
     `boilerplate guide <https://github.com/h5bp/server-configs-apache>`_.
 
     Only matters if you have set ``BAKERY_GZIP`` to ``True``.

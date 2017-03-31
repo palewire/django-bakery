@@ -127,11 +127,13 @@ class Command(BasePublishCommand):
         # We're finished, print the final output
         elapsed_time = time.time() - self.start_time
         if self.verbosity > 0:
-            logger.info("publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
+            msg = "publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
                 self.uploaded_files,
                 self.deleted_files,
                 elapsed_time
-            ))
+            )
+            self.stdout.write(msg)
+            logger.info(msg)
 
         if self.verbosity > 2:
             for f in self.uploaded_file_list:
