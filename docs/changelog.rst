@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.9.1
+-----
+
+* Added ``S3_ENDPOINT_URL`` for boto3 configuration and a fallback so we can continue to support the boto convention of ``S3_AWS_HOST``
+
 0.9.0
 -----
 
