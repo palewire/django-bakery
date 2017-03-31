@@ -347,7 +347,7 @@ class BakeryTest(TestCase):
         s3.Bucket(settings.AWS_BUCKET_NAME).create()
 
     def _get_bucket_objects(self):
-        s3_client = get_s3_client()
+        s3_client, s3_resource = get_s3_client()
         return s3_client.list_objects_v2(
             Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
 
@@ -462,6 +462,12 @@ class BakeryTest(TestCase):
         del settings.AWS_ACCESS_KEY_ID
         del settings.AWS_SECRET_ACCESS_KEY
         get_s3_client()
+
+    @override_settings(AWS_S3_HOST='http://example.com')
+    def test_aws_s3_host_can_be_set(self):
+        s3_client, s3_resource = get_s3_client()
+        self.assertEqual(s3_client.meta.endpoint_url, 'http://example.com')
+        self.assertEqual(s3_resource.meta.client._endpoint.host, 'http://example.com')
 
     def test_get_all_objects_in_bucket(self):
         s3 = boto3.resource('s3')
