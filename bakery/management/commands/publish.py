@@ -3,7 +3,6 @@ import time
 import hashlib
 import logging
 import mimetypes
-import boto3
 
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
@@ -15,8 +14,6 @@ from bakery.management.commands import (
 from django.core.urlresolvers import get_callable
 from django.core.management.base import CommandError
 logger = logging.getLogger(__name__)
-
-s3 = boto3.resource('s3')
 
 
 class Command(BasePublishCommand):
@@ -90,10 +87,10 @@ class Command(BasePublishCommand):
         self.set_options(options)
 
         # Initialize the boto connection
-        self.s3_client = get_s3_client()
+        self.s3_client, self.s3_resource = get_s3_client()
 
         # Grab our bucket
-        self.bucket = s3.Bucket(self.aws_bucket_name)
+        self.bucket = self.s3_resource.Bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket
         self.s3_obj_dict = self.get_all_objects_in_bucket(
@@ -306,7 +303,7 @@ class Command(BasePublishCommand):
         if not self.dry_run:
             if self.verbosity > 0:
                 logger.debug("uploading %s" % filename)
-            s3_obj = s3.Object(self.aws_bucket_name, key)
+            s3_obj = self.s3_resource.Object(self.aws_bucket_name, key)
             s3_obj.upload_file(filename, ExtraArgs=extra_args)
         self.uploaded_files += 1
         self.uploaded_file_list.append(filename)
