@@ -11,15 +11,20 @@ def get_s3_client():
     environment based credentials.  Boto3 will fall back to:
     http://boto3.readthedocs.io/en/latest/guide/configuration.html
     """
-    kwargs = {}
+    session_kwargs = {}
     if hasattr(settings, 'AWS_ACCESS_KEY_ID'):
-        kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID
+        session_kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID
 
     if hasattr(settings, 'AWS_SECRET_ACCESS_KEY'):
-        kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY
+        session_kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY
+    boto3.setup_default_session(**session_kwargs)
 
-    boto3.setup_default_session(**kwargs)
-    return boto3.client('s3')
+    s3_kwargs = {}
+    if hasattr(settings, 'AWS_S3_HOST'):
+        s3_kwargs['endpoint_url'] = settings.AWS_S3_HOST
+    s3_client = boto3.client('s3', **s3_kwargs)
+    s3_resource = boto3.resource('s3', **s3_kwargs)
+    return s3_client, s3_resource
 
 
 def get_all_objects_in_bucket(
@@ -32,7 +37,7 @@ def get_all_objects_in_bucket(
     all objects in given bucket.
     """
     if not s3_client:
-        s3_client = get_s3_client()
+        s3_client, s3_resource = get_s3_client()
 
     obj_dict = {}
     continuation_token = ''
@@ -63,7 +68,7 @@ def batch_delete_s3_objects(
     Utility method that batch deletes objects in given bucket.
     """
     if s3_client is None:
-        s3_client = get_s3_client()
+        s3_client, s3_resource = get_s3_client()
 
     key_chunks = []
     for i in range(0, len(keys), chunk_size):
