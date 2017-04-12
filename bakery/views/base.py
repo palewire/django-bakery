@@ -195,8 +195,9 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
         return url
 
     def post_publish(self, bucket):
-        logger.debug("Adding S3 redirect header from %s to %s" % (
+        logger.debug("Adding S3 redirect header from {} to in {} to {}".format(
             self.build_path,
+            bucket,
             self.get_redirect_url()
         ))
         s3_client, s3_resource = get_s3_client()
