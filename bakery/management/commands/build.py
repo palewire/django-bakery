@@ -7,6 +7,7 @@ import logging
 import mimetypes
 from django.conf import settings
 from django.core import management
+from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
@@ -48,6 +49,13 @@ Will use settings.BUILD_DIR by default."
             dest="skip_media",
             default=False,
             help="Skip collecting the media files when building."
+        )
+        parser.add_argument(
+            "--no-pooling",
+            action="store_true",
+            dest="no_pooling",
+            default=False,
+            help=("Run builds one by one rather than pooling them to run concurrently.")
         )
 
     def handle(self, *args, **options):
@@ -99,6 +107,8 @@ Will use settings.BUILD_DIR by default."
             if not hasattr(settings, 'BAKERY_VIEWS'):
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
+
+        self.no_pooling = options.get('no_pooling')
 
         # regex to match against for gzipping. CSS, JS, JSON, HTML, etc.
         self.gzip_file_match = getattr(
@@ -196,13 +206,32 @@ Will use settings.BUILD_DIR by default."
 
         Gzips JavaScript, CSS and HTML and other files along the way.
         """
+        # Figure out what we're building...
+        build_list = []
         # Walk through the source directory...
         for (dirpath, dirnames, filenames) in os.walk(source_dir):
             for f in filenames:
+                # Figure out what is going where
                 source_path = os.path.join(dirpath, f)
                 rel_path = os.path.relpath(dirpath, source_dir)
-                target_dir = os.path.join(target_dir, rel_path)
-                self.copyfile_and_gzip(source_path, target_dir)
+                target_path = os.path.join(target_dir, rel_path)
+                # Add it to our list to build
+                build_list.append((source_path, target_path))
+
+        # Build em all
+        if self.no_pooling:
+            [self.copyfile_and_gzip(*u) for u in build_list]
+        else:
+            pool = ThreadPool(processes=10)
+            pool.map(self.pooled_copyfile_and_gzip, build_list)
+
+    def pooled_copyfile_and_gzip(self, payload):
+        """
+        A passthrough for our ThreadPool because it can't take two arguments.
+
+        So all we're doing here is split the list into args for the real function.
+        """
+        self.copyfile_and_gzip(*payload)
 
     def copyfile_and_gzip(self, source_path, target_dir):
         """
