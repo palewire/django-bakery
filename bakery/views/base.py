@@ -197,15 +197,15 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
     def post_publish(self, bucket):
         logger.debug("Adding S3 redirect header from {} to in {} to {}".format(
             self.build_path,
-            bucket,
+            bucket.name,
             self.get_redirect_url()
         ))
         s3_client, s3_resource = get_s3_client()
         s3_client.copy_object(
             ACL='public-read',
-            Bucket=bucket,
+            Bucket=bucket.name,
             CopySource={
-                 'Bucket': bucket,
+                 'Bucket': bucket.name,
                  'Key': self.build_path
             },
             Key=self.build_path,
