@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.9.2
+-----
+
+* Removed boto code from RedirectView until we can figure out a boto3 replacement. 
+
 0.9.1
 -----
 

@@ -192,18 +192,3 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
         else:
             return None
         return url
-
-    def post_publish(self, bucket):
-        logger.debug("Adding S3 redirect header from %s to %s" % (
-            self.build_path,
-            self.get_redirect_url()
-        ))
-        key = bucket.get_key(self.build_path)
-        key.copy(
-            key.bucket,
-            key.name,
-            preserve_acl=True,
-            metadata={'Content-Type': 'text/html'}
-        )
-        key.set_redirect(self.get_redirect_url())
-        key.make_public()
