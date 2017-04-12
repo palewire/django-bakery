@@ -268,6 +268,8 @@ class BakeryTest(TestCase):
             "detail/badurl.html"
         )
         self.assertTrue(os.path.exists(build_path))
+        # with mock_s3():
+        #     MockRedirectView().post_publish(settings.AWS_BUCKET_NAME)
 
     def test_404_view(self):
         v = views.Buildable404View()
@@ -349,7 +351,8 @@ class BakeryTest(TestCase):
     def _get_bucket_objects(self):
         s3_client, s3_resource = get_s3_client()
         return s3_client.list_objects_v2(
-            Bucket=settings.AWS_BUCKET_NAME).get('Contents', [])
+            Bucket=settings.AWS_BUCKET_NAME
+        ).get('Contents', [])
 
     def test_publish_cmd(self):
         with mock_s3():

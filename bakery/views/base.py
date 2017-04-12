@@ -11,6 +11,7 @@ import mimetypes
 from django.conf import settings
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
+from bakery.management.commands import get_s3_client
 from django.views.generic import RedirectView, TemplateView
 from django.core.urlresolvers import reverse, NoReverseMatch
 logger = logging.getLogger(__name__)
@@ -192,3 +193,20 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
         else:
             return None
         return url
+
+    def post_publish(self, bucket):
+        logger.debug("Adding S3 redirect header from %s to %s" % (
+            self.build_path,
+            self.get_redirect_url()
+        ))
+        s3_client, s3_resource = get_s3_client()
+        s3_client.copy_object(
+            ACL='public-read',
+            Bucket=bucket,
+            CopySource={
+                 'Bucket': bucket,
+                 'Key': self.build_path
+            },
+            Key=self.build_path,
+            WebsiteRedirectLocation=self.get_redirect_url()
+        )
