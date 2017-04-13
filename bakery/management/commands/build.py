@@ -220,7 +220,7 @@ Will use settings.BUILD_DIR by default."
                 build_list.append((source_path, target_path))
 
         # Build em all
-        if self.no_pooling:
+        if getattr(self, 'no_pooling', False):
             [self.copyfile_and_gzip(*u) for u in build_list]
         else:
             cpu_count = multiprocessing.cpu_count()
