@@ -20,7 +20,7 @@ class Command(BaseCommand):
     build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in settings.py or provide a list as arguments."
     # regex to match against for gzipping. CSS, JS, JSON, HTML, etc.
-    self.gzip_file_match = getattr(
+    gzip_file_match = getattr(
         settings,
         'GZIP_CONTENT_TYPES',
         DEFAULT_GZIP_CONTENT_TYPES
