@@ -19,6 +19,12 @@ class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
     build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in settings.py or provide a list as arguments."
+    # regex to match against for gzipping. CSS, JS, JSON, HTML, etc.
+    self.gzip_file_match = getattr(
+        settings,
+        'GZIP_CONTENT_TYPES',
+        DEFAULT_GZIP_CONTENT_TYPES
+    )
 
     def add_arguments(self, parser):
         parser.add_argument('view_list', nargs='*', type=str, default=[])
@@ -110,13 +116,6 @@ Will use settings.BUILD_DIR by default."
             self.view_list = settings.BAKERY_VIEWS
 
         self.no_pooling = options.get('no_pooling')
-
-        # regex to match against for gzipping. CSS, JS, JSON, HTML, etc.
-        self.gzip_file_match = getattr(
-            settings,
-            'GZIP_CONTENT_TYPES',
-            DEFAULT_GZIP_CONTENT_TYPES
-        )
 
     def init_build_dir(self):
         """
