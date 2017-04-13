@@ -241,7 +241,10 @@ Will use settings.BUILD_DIR by default."
         """
         # And then where we want to copy it to.
         if not os.path.exists(target_dir):
-            os.makedirs(target_dir)
+            try:
+                os.makedirs(target_dir)
+            except OSError:
+                pass
 
         # determine the mimetype of the file
         content_type = mimetypes.guess_type(source_path)[0]
