@@ -5,6 +5,7 @@ import shutil
 import ntpath
 import logging
 import mimetypes
+import multiprocessing
 from django.conf import settings
 from django.core import management
 from multiprocessing.pool import ThreadPool
@@ -222,6 +223,8 @@ Will use settings.BUILD_DIR by default."
         if self.no_pooling:
             [self.copyfile_and_gzip(*u) for u in build_list]
         else:
+            cpu_count = multiprocessing.cpu_count()
+            logger.debug("Pooling build on {} CPUs".format(cpu_count))
             pool = ThreadPool(processes=10)
             pool.map(self.pooled_copyfile_and_gzip, build_list)
 
