@@ -224,7 +224,7 @@ Will use settings.BUILD_DIR by default."
         else:
             cpu_count = multiprocessing.cpu_count()
             logger.debug("Pooling build on {} CPUs".format(cpu_count))
-            pool = ThreadPool(processes=10)
+            pool = ThreadPool(processes=cpu_count)
             pool.map(self.pooled_copyfile_and_gzip, build_list)
 
     def pooled_copyfile_and_gzip(self, payload):
