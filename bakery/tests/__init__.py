@@ -358,7 +358,7 @@ class BakeryTest(TestCase):
         with mock_s3():
             self._create_bucket()
             call_command("build")
-            call_command("publish", no_pooling=True, verbosity=3)
+            call_command("publish", verbosity=3)
             local_file_list = []
             for (dirpath, dirnames, filenames) in os.walk(
                     settings.BUILD_DIR):
@@ -375,13 +375,13 @@ class BakeryTest(TestCase):
                 self.assertIn(obj.get('Key'), local_file_list)
             call_command("unbuild")
             os.makedirs(settings.BUILD_DIR)
-            call_command("publish", no_pooling=True, verbosity=3)
+            call_command("publish", verbosity=3)
 
     def test_unpublish_cmd(self):
         with mock_s3():
             self._create_bucket()
             call_command("build")
-            call_command("unpublish", no_pooling=True, verbosity=3)
+            call_command("unpublish", verbosity=3)
             self.assertFalse(self._get_bucket_objects())
 
     # def test_tasks(self):
@@ -418,7 +418,7 @@ class BakeryTest(TestCase):
             }):
                 self._create_bucket()
                 call_command("build")
-                call_command("publish", no_pooling=True, verbosity=3)
+                call_command("publish", verbosity=3)
 
                 for obj in self._get_bucket_objects():
                     s3_obj = s3.Object(
@@ -443,7 +443,7 @@ class BakeryTest(TestCase):
                 obj = s3.Object(settings.AWS_BUCKET_NAME, key)
                 obj.put('This is test object %s' % i)
                 keys.append(key)
-            call_command("unpublish", no_pooling=True, verbosity=3)
+            call_command("unpublish", verbosity=3)
             self.assertFalse(self._get_bucket_objects())
 
     def test_get_s3_client_honors_settings_over_environ(self):
