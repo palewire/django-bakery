@@ -87,21 +87,31 @@ class Command(BasePublishCommand):
         self.set_options(options)
 
         # Initialize the boto connection
+        if self.verbosity > 2:
+            self.stdout.write("Connecting to s3")
         self.s3_client, self.s3_resource = get_s3_client()
 
         # Grab our bucket
+        if self.verbosity > 2:
+            self.stdout.write("Retriving bucket {}".format(self.aws_bucket_name))
         self.bucket = self.s3_resource.Bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket
+        if self.verbosity > 2:
+            self.stdout.write("Retrieving objects now published in bucket")
         self.s3_obj_dict = self.get_all_objects_in_bucket(
             self.aws_bucket_name,
             self.s3_client
         )
 
         # Get a list of all the local files in our build directory
+        if self.verbosity > 2:
+            self.stdout.write("Retrieving files built locally")
         self.local_file_list = self.get_local_file_list()
 
         # Sync the two
+        if self.verbosity > 2:
+            self.stdout.write("Syncing local files with bucket")
         self.sync_with_s3()
 
         # Delete anything that's left in our keys dict
