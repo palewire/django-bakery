@@ -258,12 +258,18 @@ class Command(BasePublishCommand):
         self.update_list = []
 
         # Figure out which files need to be updated and upload all these files
+        logger.debug("Comparing {} local files with bucket".format(len(self.update_list)))
         if self.no_pooling:
             [self.compare_local_file(f) for f in self.local_file_list]
-            [self.upload_to_s3(*u) for u in self.update_list]
         else:
             pool = ThreadPool(processes=10)
             pool.map(self.compare_local_file, self.local_file_list)
+
+        logger.debug("Uploading {} new or updated files to bucket".format(len(self.update_list)))
+        if self.no_pooling:
+            [self.upload_to_s3(*u) for u in self.update_list]
+        else:
+            pool = ThreadPool(processes=10)
             pool.map(self.pooled_upload_to_s3, self.update_list)
 
     def compare_local_file(self, file_key):
@@ -288,12 +294,14 @@ class Command(BasePublishCommand):
 
             # If their md5 hexdigests match, do nothing
             if s3_md5 == local_md5 and not self.force_publish:
+                logger.debug("{} has not changed".format(file_key))
                 pass
             # Unless we want ot publish everything no matter what, then add it to the update list
             elif self.force_publish:
                 self.update_list.append((file_key, file_path))
             # And if they don't match, we want to add it as well
             else:
+                logger.debug("{} has changed".format(file_key))
                 self.update_list.append((file_key, file_path))
 
             # Remove the file from the s3 dict, we don't need it anymore
@@ -301,6 +309,7 @@ class Command(BasePublishCommand):
 
         # if the file doesn't exist, queue it for creation
         else:
+            logger.debug("{} has been added".format(file_key))
             self.update_list.append((file_key, file_path))
 
     def pooled_upload_to_s3(self, payload):
