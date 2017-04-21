@@ -163,7 +163,7 @@ class Command(BasePublishCommand):
         if self.dry_run:
             logger.info("Publish executed with the --dry-run option. No content was changed on S3.")
             if self.verbosity > 0:
-                logger.info("Publish executed with the --dry-run option. No content was changed on S3.")
+                self.stdout.write("Publish executed with the --dry-run option. No content was changed on S3.")
 
     def set_options(self, options):
         """
