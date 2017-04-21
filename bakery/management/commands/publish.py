@@ -87,16 +87,19 @@ class Command(BasePublishCommand):
         self.set_options(options)
 
         # Initialize the boto connection
+        logger.debug("Connecting to s3")
         if self.verbosity > 2:
             self.stdout.write("Connecting to s3")
         self.s3_client, self.s3_resource = get_s3_client()
 
         # Grab our bucket
+        logger.debug("Retriving bucket {}".format(self.aws_bucket_name))
         if self.verbosity > 2:
             self.stdout.write("Retriving bucket {}".format(self.aws_bucket_name))
         self.bucket = self.s3_resource.Bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket
+        logger.debug("Retrieving objects now published in bucket")
         if self.verbosity > 2:
             self.stdout.write("Retrieving objects now published in bucket")
         self.s3_obj_dict = self.get_all_objects_in_bucket(
@@ -105,11 +108,13 @@ class Command(BasePublishCommand):
         )
 
         # Get a list of all the local files in our build directory
+        logger.debug("Retrieving files built locally")
         if self.verbosity > 2:
             self.stdout.write("Retrieving files built locally")
         self.local_file_list = self.get_local_file_list()
 
-        # Sync the two
+        # Sync local files with s3 bucket
+        logger.debug("Syncing local files with bucket")
         if self.verbosity > 2:
             self.stdout.write("Syncing local files with bucket")
         self.sync_with_s3()
@@ -119,8 +124,9 @@ class Command(BasePublishCommand):
             self.deleted_file_list = list(self.s3_obj_dict.keys())
             self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
+                logger.debug("Deleting %s keys" % self.deleted_files)
                 if self.verbosity > 0:
-                    logger.debug("deleting %s keys" % self.deleted_files)
+                    self.stdout.write("Deleting %s keys" % self.deleted_files)
                 self.batch_delete_s3_objects(
                     self.deleted_file_list,
                     self.aws_bucket_name
@@ -136,23 +142,29 @@ class Command(BasePublishCommand):
 
         # We're finished, print the final output
         elapsed_time = time.time() - self.start_time
+        msg = "Publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
+            self.uploaded_files,
+            self.deleted_files,
+            elapsed_time
+        )
+        logger.info(msg)
         if self.verbosity > 0:
-            msg = "publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
-                self.uploaded_files,
-                self.deleted_files,
-                elapsed_time
-            )
             self.stdout.write(msg)
-            logger.info(msg)
 
         if self.verbosity > 2:
             for f in self.uploaded_file_list:
-                logger.info("updated file: %s" % f)
+                logger.info("Updated file: %s" % f)
+                if self.verbosity > 0:
+                    self.stdout.write("Updated file: %s" % f)
             for f in self.deleted_file_list:
-                logger.info("deleted file: %s" % f)
+                logger.info("Deleted file: %s" % f)
+                if self.verbosity > 0:
+                    self.stdout.write("Deleted file: %s" % f)
 
         if self.dry_run:
-            logger.info("publish executed with the --dry-run option. No content was changed on S3.")
+            logger.info("Publish executed with the --dry-run option. No content was changed on S3.")
+            if self.verbosity > 0:
+                logger.info("Publish executed with the --dry-run option. No content was changed on S3.")
 
     def set_options(self, options):
         """
@@ -213,7 +225,7 @@ class Command(BasePublishCommand):
         if options.get('dry_run'):
             self.dry_run = True
             if self.verbosity > 0:
-                logger.info("executing with the --dry-run option set.")
+                logger.info("Executing with the --dry-run option set.")
         else:
             self.dry_run = False
 
