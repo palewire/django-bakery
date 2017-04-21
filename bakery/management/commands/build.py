@@ -2,10 +2,13 @@ import os
 import sys
 import gzip
 import shutil
+import ntpath
 import logging
 import mimetypes
+import multiprocessing
 from django.conf import settings
 from django.core import management
+from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.core.urlresolvers import get_callable
 from django.core.management.base import BaseCommand, CommandError
@@ -16,6 +19,12 @@ class Command(BaseCommand):
     help = 'Bake out a site as flat files in the build directory'
     build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in settings.py or provide a list as arguments."
+    # regex to match against for gzipping. CSS, JS, JSON, HTML, etc.
+    gzip_file_match = getattr(
+        settings,
+        'GZIP_CONTENT_TYPES',
+        DEFAULT_GZIP_CONTENT_TYPES
+    )
 
     def add_arguments(self, parser):
         parser.add_argument('view_list', nargs='*', type=str, default=[])
@@ -47,6 +56,13 @@ Will use settings.BUILD_DIR by default."
             dest="skip_media",
             default=False,
             help="Skip collecting the media files when building."
+        )
+        parser.add_argument(
+            "--no-pooling",
+            action="store_true",
+            dest="no_pooling",
+            default=False,
+            help=("Run builds one by one rather than pooling them to run concurrently.")
         )
 
     def handle(self, *args, **options):
@@ -98,6 +114,8 @@ Will use settings.BUILD_DIR by default."
             if not hasattr(settings, 'BAKERY_VIEWS'):
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
+
+        self.no_pooling = options.get('no_pooling')
 
     def init_build_dir(self):
         """
@@ -184,59 +202,79 @@ Will use settings.BUILD_DIR by default."
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
-        Copies the provided source directory to the provided target directory
-        and gzips JavaScript, CSS and HTML files along the way.
-        """
-        # regex to match against. CSS, JS, JSON, HTML files
-        gzip_file_match = getattr(
-            settings,
-            'GZIP_CONTENT_TYPES',
-            DEFAULT_GZIP_CONTENT_TYPES
-        )
+        Copies the provided source directory to the provided target directory.
 
+        Gzips JavaScript, CSS and HTML and other files along the way.
+        """
+        # Figure out what we're building...
+        build_list = []
         # Walk through the source directory...
         for (dirpath, dirnames, filenames) in os.walk(source_dir):
-
-            # And for each file...
-            for filename in filenames:
-
-                # ... figure out the path to the file...
-                og_file = os.path.join(dirpath, filename)
-
-                # And then where we want to copy it to.
+            for f in filenames:
+                # Figure out what is going where
+                source_path = os.path.join(dirpath, f)
                 rel_path = os.path.relpath(dirpath, source_dir)
-                dest_path = os.path.join(target_dir, rel_path)
-                if not os.path.exists(dest_path):
-                    os.makedirs(dest_path)
+                target_path = os.path.join(target_dir, rel_path)
+                # Add it to our list to build
+                build_list.append((source_path, target_path))
 
-                # determine the mimetype of the file
-                content_type = mimetypes.guess_type(og_file)[0]
+        # Build em all
+        if getattr(self, 'no_pooling', False):
+            [self.copyfile_and_gzip(*u) for u in build_list]
+        else:
+            cpu_count = multiprocessing.cpu_count()
+            logger.debug("Pooling build on {} CPUs".format(cpu_count))
+            pool = ThreadPool(processes=cpu_count)
+            pool.map(self.pooled_copyfile_and_gzip, build_list)
 
-                # If it isn't a file want to gzip...
-                if content_type not in gzip_file_match:
-                    # just copy it to the target.
-                    shutil.copy(og_file, dest_path)
+    def pooled_copyfile_and_gzip(self, payload):
+        """
+        A passthrough for our ThreadPool because it can't take two arguments.
 
-                # If it is one we want to gzip...
+        So all we're doing here is split the list into args for the real function.
+        """
+        self.copyfile_and_gzip(*payload)
+
+    def copyfile_and_gzip(self, source_path, target_dir):
+        """
+        Copies the provided file to the provided target directory.
+
+        Gzips JavaScript, CSS and HTML and other files along the way.
+        """
+        # And then where we want to copy it to.
+        if not os.path.exists(target_dir):
+            try:
+                os.makedirs(target_dir)
+            except OSError:
+                pass
+
+        # determine the mimetype of the file
+        content_type = mimetypes.guess_type(source_path)[0]
+
+        # If it isn't a file want to gzip...
+        if content_type not in self.gzip_file_match:
+            # just copy it to the target.
+            shutil.copy(source_path, target_dir)
+
+        # If it is one we want to gzip...
+        else:
+            # ... work out the file path ...
+            source_filename = ntpath.basename(source_path)
+            target_path = os.path.join(target_dir, source_filename)
+
+            # ... let the world know ...
+            logger.debug("Gzipping %s" % target_path)
+            if self.verbosity > 1:
+                self.stdout.write("Gzipping %s" % target_path)
+
+            # ... create the new file in the build directory ...
+            with open(source_path, 'rb') as source_file:
+                # ... copy the file to gzip compressed output ...
+                if float(sys.version[:3]) >= 2.7:
+                    target_file = gzip.GzipFile(target_path, 'wb', mtime=0)
                 else:
-                    # ... work out the file path ...
-                    f_name = os.path.join(dest_path, filename)
+                    target_file = gzip.GzipFile(target_path, 'wb')
 
-                    # ... let the world know ...
-                    logger.debug("Gzipping %s" % f_name)
-                    if self.verbosity > 1:
-                        self.stdout.write("Gzipping %s" % f_name)
-
-                    # ... create the new file in the build directory ...
-                    f_in = open(og_file, 'rb')
-
-                    # ... copy the file to gzip compressed output ...
-                    if float(sys.version[:3]) >= 2.7:
-                        f_out = gzip.GzipFile(f_name, 'wb', mtime=0)
-                    else:
-                        f_out = gzip.GzipFile(f_name, 'wb')
-
-                    # ... and shut it down.
-                    f_out.writelines(f_in)
-                    f_out.close()
-                    f_in.close()
+                # ... and shut it down.
+                target_file.writelines(source_file)
+                target_file.close()

@@ -3,7 +3,6 @@ import time
 import hashlib
 import logging
 import mimetypes
-
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
