@@ -255,40 +255,54 @@ class Command(BasePublishCommand):
         of keys in the S3 bucket.
         """
         # Create a list to put all the files we're going to update
-        update_list = []
+        self.update_list = []
 
-        for file_key in self.local_file_list:
-            # store a reference to the absolute path, if we have to open it
-            abs_file_path = os.path.join(self.build_dir, file_key)
-
-            # check if the file exists
-            if file_key in self.s3_obj_dict:
-                s3_etag = self.s3_obj_dict[file_key].get('ETag').strip('"')
-                local_md5 = hashlib.md5(
-                    open(abs_file_path, "rb").read()
-                ).hexdigest()
-
-                # don't upload if the md5 sums are the same
-                if s3_etag == local_md5 and not self.force_publish:
-                    pass
-                elif self.force_publish:
-                    update_list.append((file_key, abs_file_path))
-                else:
-                    update_list.append((file_key, abs_file_path))
-
-                # remove the file from the dict, we don't need it anymore
-                del self.s3_obj_dict[file_key]
-
-            # if the file doesn't exist, create it
-            else:
-                update_list.append((file_key, abs_file_path))
+        # Figure out which files need to be updated
+        [self.compare_local_file(f) for f in self.local_file_list]
 
         # Upload all these files
         if self.no_pooling:
-            [self.upload_to_s3(*u) for u in update_list]
+            [self.upload_to_s3(*u) for u in self.update_list]
         else:
             pool = ThreadPool(processes=10)
-            pool.map(self.pooled_upload_to_s3, update_list)
+            pool.map(self.pooled_upload_to_s3, self.update_list)
+
+    def compare_local_file(self, file_key):
+        """
+        Compares a local version of a file with what's already published.
+
+        If an update is needed, the file's key is added self.update_list.
+        """
+        # Where is the file?
+        file_path = os.path.join(self.build_dir, file_key)
+
+        # Does it exist in our s3 object list?
+        if file_key in self.s3_obj_dict:
+
+            # If so, let's open it and convert it a hexdigest.
+            local_md5 = hashlib.md5(
+                open(file_path, "rb").read()
+            ).hexdigest()
+
+            # Now lets compare it to the hexdigest of what's on s3
+            s3_md5 = self.s3_obj_dict[file_key].get('ETag').strip('"')
+
+            # If their md5 hexdigests match, do nothing
+            if s3_md5 == local_md5 and not self.force_publish:
+                pass
+            # Unless we want ot publish everything no matter what, then add it to the update list
+            elif self.force_publish:
+                self.update_list.append((file_key, file_path))
+            # And if they don't match, we want to add it as well
+            else:
+                self.update_list.append((file_key, file_path))
+
+            # Remove the file from the s3 dict, we don't need it anymore
+            del self.s3_obj_dict[file_key]
+
+        # if the file doesn't exist, queue it for creation
+        else:
+            self.update_list.append((file_key, file_path))
 
     def pooled_upload_to_s3(self, payload):
         """
