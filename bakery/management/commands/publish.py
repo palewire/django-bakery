@@ -3,6 +3,7 @@ import time
 import hashlib
 import logging
 import mimetypes
+import multiprocessing
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
@@ -258,18 +259,21 @@ class Command(BasePublishCommand):
         self.update_list = []
 
         # Figure out which files need to be updated and upload all these files
-        logger.debug("Comparing {} local files with bucket".format(len(self.update_list)))
+        logger.debug("Comparing {} local files with bucket".format(len(self.local_file_list)))
         if self.no_pooling:
             [self.compare_local_file(f) for f in self.local_file_list]
         else:
-            pool = ThreadPool(processes=10)
+            cpu_count = multiprocessing.cpu_count()
+            logger.debug("Pooling local file comparison on {} CPUs".format(cpu_count))
+            pool = ThreadPool(processes=cpu_count)
             pool.map(self.compare_local_file, self.local_file_list)
 
         logger.debug("Uploading {} new or updated files to bucket".format(len(self.update_list)))
         if self.no_pooling:
             [self.upload_to_s3(*u) for u in self.update_list]
         else:
-            pool = ThreadPool(processes=10)
+            logger.debug("Pooling s3 uploads on {} CPUs".format(cpu_count))
+            pool = ThreadPool(processes=cpu_count)
             pool.map(self.pooled_upload_to_s3, self.update_list)
 
     def compare_local_file(self, file_key):
