@@ -257,15 +257,22 @@ class Command(BasePublishCommand):
         # Create a list to put all the files we're going to update
         self.update_list = []
 
-        # Figure out which files need to be updated
-        [self.compare_local_file(f) for f in self.local_file_list]
-
-        # Upload all these files
+        # Figure out which files need to be updated and upload all these files
         if self.no_pooling:
+            [self.compare_local_file(f) for f in self.local_file_list]
             [self.upload_to_s3(*u) for u in self.update_list]
         else:
             pool = ThreadPool(processes=10)
+            pool.map(self.pooled_compare_local_file, self.local_file_list)
             pool.map(self.pooled_upload_to_s3, self.update_list)
+
+    def pooled_compare_local_file(self, payload):
+        """
+        A passthrough for our ThreadPool because it can't take two arguments.
+
+        So all we're doing here is split the list into args for the real comparison function.
+        """
+        self.compare_local_file(*payload)
 
     def compare_local_file(self, file_key):
         """
