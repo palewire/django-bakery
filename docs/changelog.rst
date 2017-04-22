@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.10.0
+------
+
+* Default pooling of file comparisons between published and local files for faster performance
+* Option to opt-in to pooling of building of files locally for faster performance
+* When ``--force`` and ``--no-delete`` options are both passed to publish command the s3 object list is not retrieved for faster performance
+
 0.9.3
 -----
 

@@ -51,9 +51,6 @@ class TestCommand(Command):
                 },
             ],
             BUILD_DIR = tempfile.mkdtemp(),
-            BAKERY_BUILD_ON_S3 = True,
-            BAKERY_AWS_BUILD_BUCKET = 'build-bucket',
-            BAKERY_AWS_PUBLISH_BUCKET = 'publish-bucket',
             STATIC_ROOT = os.path.abspath(
                  os.path.join(
                      os.path.dirname(__file__),
@@ -91,7 +88,7 @@ class TestCommand(Command):
 
 setup(
     name='django-bakery',
-    version='0.10.0-rc.5',
+    version='0.10.0',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',
