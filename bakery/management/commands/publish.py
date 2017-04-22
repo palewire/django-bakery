@@ -98,14 +98,21 @@ class Command(BasePublishCommand):
             self.stdout.write("Retriving bucket {}".format(self.aws_bucket_name))
         self.bucket = self.s3_resource.Bucket(self.aws_bucket_name)
 
-        # Get a list of all keys in our s3 bucket
-        logger.debug("Retrieving objects now published in bucket")
-        if self.verbosity > 2:
-            self.stdout.write("Retrieving objects now published in bucket")
-        self.s3_obj_dict = self.get_all_objects_in_bucket(
-            self.aws_bucket_name,
-            self.s3_client
-        )
+        # Get a list of all keys in our s3 bucket ...
+        # ...nunless you're this is case where we're blindly pushing
+        if self.force_publish and self.no_delete:
+            self.blind_upload = True
+            logger.debug("Skipping object retrieval. We won't need to because we're blinding uploading everything.")
+            self.s3_obj_dict = {}
+        else:
+            self.blind_upload = False
+            logger.debug("Retrieving objects now published in bucket")
+            if self.verbosity > 2:
+                self.stdout.write("Retrieving objects now published in bucket")
+            self.s3_obj_dict = self.get_all_objects_in_bucket(
+                self.aws_bucket_name,
+                self.s3_client
+            )
 
         # Get a list of all the local files in our build directory
         logger.debug("Retrieving files built locally")
@@ -299,7 +306,8 @@ class Command(BasePublishCommand):
                     self.update_list.append((file_key, file_path))
 
             # Remove the file from the s3 dict, we don't need it anymore
-            del self.s3_obj_dict[file_key]
+            if not self.blind_upload:
+                del self.s3_obj_dict[file_key]
 
         # if the file doesn't exist, queue it for creation
         else:

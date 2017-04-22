@@ -268,8 +268,6 @@ class BakeryTest(TestCase):
             "detail/badurl.html"
         )
         self.assertTrue(os.path.exists(build_path))
-        # with mock_s3():
-        #     MockRedirectView().post_publish(settings.AWS_BUCKET_NAME)
 
     def test_404_view(self):
         v = views.Buildable404View()
@@ -376,6 +374,8 @@ class BakeryTest(TestCase):
             call_command("unbuild")
             os.makedirs(settings.BUILD_DIR)
             call_command("publish", verbosity=3)
+
+            call_command("publish", no_delete=True, force_publish=True)
 
     def test_unpublish_cmd(self):
         with mock_s3():
