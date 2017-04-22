@@ -45,6 +45,8 @@ def get_all_objects_in_bucket(
     Little utility method that handles pagination and returns
     all objects in given bucket.
     """
+    logger.debug("Retrieving bucket object list")
+
     if not s3_client:
         s3_client, s3_resource = get_s3_client()
 
@@ -54,15 +56,21 @@ def get_all_objects_in_bucket(
         kwargs = {'Bucket': aws_bucket_name, 'MaxKeys': max_keys}
         if continuation_token:
             kwargs['ContinuationToken'] = continuation_token
+
+        logger.debug("Calling s3_client.list_objects_v2 with {}".format(kwargs))
         list_objects_response = s3_client.list_objects_v2(**kwargs)
-        for obj in list_objects_response.get('Contents', []):
+
+        key_list = list_objects_response.get('Contents', [])
+        logger.debug("Returning {} new keys".format(len(key_list)))
+        for obj in key_list:
             obj_dict[obj.get('Key')] = obj
 
         if not list_objects_response.get('IsTruncated'):
             break
 
         continuation_token = list_objects_response.get(
-            'NextContinuationToken')
+            'NextContinuationToken'
+        )
 
     return obj_dict
 
