@@ -57,11 +57,11 @@ def get_all_objects_in_bucket(
         if continuation_token:
             kwargs['ContinuationToken'] = continuation_token
 
-        logger.debug("Calling s3_client.list_objects_v2 with {}".format(kwargs))
         list_objects_response = s3_client.list_objects_v2(**kwargs)
 
         key_list = list_objects_response.get('Contents', [])
         logger.debug("Returning {} new keys".format(len(key_list)))
+
         for obj in key_list:
             obj_dict[obj.get('Key')] = obj
 
