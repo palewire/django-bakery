@@ -288,25 +288,25 @@ class Command(BasePublishCommand):
         # Does it exist in our s3 object list?
         if file_key in self.s3_obj_dict:
 
-            # If so, let's open it and convert it a hexdigest.
-            local_md5 = hashlib.md5(
-                open(file_path, "rb").read()
-            ).hexdigest()
-
-            # Now lets compare it to the hexdigest of what's on s3
-            s3_md5 = self.s3_obj_dict[file_key].get('ETag').strip('"')
-
-            # If their md5 hexdigests match, do nothing
-            if s3_md5 == local_md5 and not self.force_publish:
-                logger.debug("{} has not changed".format(file_key))
-                pass
-            # Unless we want ot publish everything no matter what, then add it to the update list
-            elif self.force_publish:
+            # If force_publish is true, we don't need to bother opening the files
+            if self.force_publish:
                 self.update_list.append((file_key, file_path))
-            # And if they don't match, we want to add it as well
             else:
-                logger.debug("{} has changed".format(file_key))
-                self.update_list.append((file_key, file_path))
+                # If it's not (the default) let's open it up and convert it to a hexdigest
+                local_data = open(file_path, "rb").read()
+                local_md5 = hashlib.md5(local_data).hexdigest()
+
+                # Now lets compare it to the hexdigest of what's on s3
+                s3_md5 = self.s3_obj_dict[file_key].get('ETag').strip('"')
+
+                # If their md5 hexdigests match, do nothing
+                if s3_md5 == local_md5:
+                    logger.debug("{} has not changed".format(file_key))
+                # Unless we want ot publish everything no matter what, then add it to the update list
+                # And if they don't match, we want to add it as well
+                else:
+                    logger.debug("{} has changed".format(file_key))
+                    self.update_list.append((file_key, file_path))
 
             # Remove the file from the s3 dict, we don't need it anymore
             del self.s3_obj_dict[file_key]
