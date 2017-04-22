@@ -151,16 +151,6 @@ class Command(BasePublishCommand):
         if self.verbosity > 0:
             self.stdout.write(msg)
 
-        if self.verbosity > 2:
-            for f in self.uploaded_file_list:
-                logger.info("Updated file: %s" % f)
-                if self.verbosity > 0:
-                    self.stdout.write("Updated file: %s" % f)
-            for f in self.deleted_file_list:
-                logger.info("Deleted file: %s" % f)
-                if self.verbosity > 0:
-                    self.stdout.write("Deleted file: %s" % f)
-
         if self.dry_run:
             logger.info("Publish executed with the --dry-run option. No content was changed on S3.")
             if self.verbosity > 0:
@@ -350,8 +340,9 @@ class Command(BasePublishCommand):
 
         # access and write the contents from the file
         if not self.dry_run:
+            logger.debug("Uploading %s" % filename)
             if self.verbosity > 0:
-                logger.debug("uploading %s" % filename)
+                self.stdout.write("Uploading %s" % filename)
             s3_obj = self.s3_resource.Object(self.aws_bucket_name, key)
             s3_obj.upload_file(filename, ExtraArgs=extra_args)
         self.uploaded_files += 1
