@@ -54,6 +54,7 @@ def get_all_objects_in_bucket(
     paginator = s3_client.get_paginator('list_objects')
     page_iterator = paginator.paginate(Bucket=aws_bucket_name)
     for page in page_iterator:
+        logger.debug("Loading page {}".format(page))
         for obj in page.get('Contents', []):
             obj_dict[obj.get('Key')] = obj
     return obj_dict
