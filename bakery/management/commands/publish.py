@@ -1,6 +1,5 @@
 import os
 import time
-import boto3
 import hashlib
 import logging
 import mimetypes
