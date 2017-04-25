@@ -1,5 +1,6 @@
 import os
 import time
+import boto3
 import hashlib
 import logging
 import mimetypes
@@ -109,10 +110,8 @@ class Command(BasePublishCommand):
             logger.debug("Retrieving objects now published in bucket")
             if self.verbosity > 2:
                 self.stdout.write("Retrieving objects now published in bucket")
-            self.s3_obj_dict = self.get_all_objects_in_bucket(
-                self.aws_bucket_name,
-                self.s3_client
-            )
+            self.s3_obj_dict = {}
+            self.get_all_objects_in_bucket()
 
         # Get a list of all the local files in our build directory
         logger.debug("Retrieving files built locally")
@@ -228,6 +227,31 @@ class Command(BasePublishCommand):
 
         self.no_delete = options.get('no_delete')
         self.no_pooling = options.get('no_pooling')
+
+    def get_bucket_page(self, page):
+        """
+        Returns all the keys in a s3 bucket paginator page.
+        """
+        key_list = page.get('Contents', [])
+        logger.debug("Loading page with {} keys".format(len(key_list)))
+        for obj in key_list:
+            self.s3_obj_dict[obj.get('Key')] = obj
+
+    def get_all_objects_in_bucket(self, max_keys=1000):
+        """
+        Little utility method that handles pagination and returns
+        all objects in given bucket.
+        """
+        logger.debug("Retrieving bucket object list")
+        paginator = self.s3_client.get_paginator('list_objects')
+        page_iterator = paginator.paginate(Bucket=self.aws_bucket_name)
+        if self.no_pooling:
+            [self.get_bucket_page(f) for f in page_iterator]
+        else:
+            cpu_count = multiprocessing.cpu_count()
+            logger.debug("Pooling s3 key retrieval on {} CPUs".format(cpu_count))
+            pool = ThreadPool(processes=cpu_count)
+            pool.map(self.get_bucket_page, page_iterator)
 
     def get_local_file_list(self):
         """
