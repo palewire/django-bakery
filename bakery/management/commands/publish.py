@@ -3,6 +3,7 @@ import time
 import hashlib
 import logging
 import mimetypes
+import multiprocessing
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
@@ -86,21 +87,43 @@ class Command(BasePublishCommand):
         self.set_options(options)
 
         # Initialize the boto connection
+        logger.debug("Connecting to s3")
+        if self.verbosity > 2:
+            self.stdout.write("Connecting to s3")
         self.s3_client, self.s3_resource = get_s3_client()
 
         # Grab our bucket
+        logger.debug("Retriving bucket {}".format(self.aws_bucket_name))
+        if self.verbosity > 2:
+            self.stdout.write("Retriving bucket {}".format(self.aws_bucket_name))
         self.bucket = self.s3_resource.Bucket(self.aws_bucket_name)
 
-        # Get a list of all keys in our s3 bucket
-        self.s3_obj_dict = self.get_all_objects_in_bucket(
-            self.aws_bucket_name,
-            self.s3_client
-        )
+        # Get a list of all keys in our s3 bucket ...
+        # ...nunless you're this is case where we're blindly pushing
+        if self.force_publish and self.no_delete:
+            self.blind_upload = True
+            logger.debug("Skipping object retrieval. We won't need to because we're blinding uploading everything.")
+            self.s3_obj_dict = {}
+        else:
+            self.blind_upload = False
+            logger.debug("Retrieving objects now published in bucket")
+            if self.verbosity > 2:
+                self.stdout.write("Retrieving objects now published in bucket")
+            self.s3_obj_dict = self.get_all_objects_in_bucket(
+                self.aws_bucket_name,
+                self.s3_client
+            )
 
         # Get a list of all the local files in our build directory
+        logger.debug("Retrieving files built locally")
+        if self.verbosity > 2:
+            self.stdout.write("Retrieving files built locally")
         self.local_file_list = self.get_local_file_list()
 
-        # Sync the two
+        # Sync local files with s3 bucket
+        logger.debug("Syncing local files with bucket")
+        if self.verbosity > 2:
+            self.stdout.write("Syncing local files with bucket")
         self.sync_with_s3()
 
         # Delete anything that's left in our keys dict
@@ -108,8 +131,9 @@ class Command(BasePublishCommand):
             self.deleted_file_list = list(self.s3_obj_dict.keys())
             self.deleted_files = len(self.deleted_file_list)
             if self.deleted_files:
+                logger.debug("Deleting %s keys" % self.deleted_files)
                 if self.verbosity > 0:
-                    logger.debug("deleting %s keys" % self.deleted_files)
+                    self.stdout.write("Deleting %s keys" % self.deleted_files)
                 self.batch_delete_s3_objects(
                     self.deleted_file_list,
                     self.aws_bucket_name
@@ -125,23 +149,19 @@ class Command(BasePublishCommand):
 
         # We're finished, print the final output
         elapsed_time = time.time() - self.start_time
+        msg = "Publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
+            self.uploaded_files,
+            self.deleted_files,
+            elapsed_time
+        )
+        logger.info(msg)
         if self.verbosity > 0:
-            msg = "publish completed, %d uploaded and %d deleted files in %.2f seconds" % (
-                self.uploaded_files,
-                self.deleted_files,
-                elapsed_time
-            )
             self.stdout.write(msg)
-            logger.info(msg)
-
-        if self.verbosity > 2:
-            for f in self.uploaded_file_list:
-                logger.info("updated file: %s" % f)
-            for f in self.deleted_file_list:
-                logger.info("deleted file: %s" % f)
 
         if self.dry_run:
-            logger.info("publish executed with the --dry-run option. No content was changed on S3.")
+            logger.info("Publish executed with the --dry-run option. No content was changed on S3.")
+            if self.verbosity > 0:
+                self.stdout.write("Publish executed with the --dry-run option. No content was changed on S3.")
 
     def set_options(self, options):
         """
@@ -202,7 +222,7 @@ class Command(BasePublishCommand):
         if options.get('dry_run'):
             self.dry_run = True
             if self.verbosity > 0:
-                logger.info("executing with the --dry-run option set.")
+                logger.info("Executing with the --dry-run option set.")
         else:
             self.dry_run = False
 
@@ -233,40 +253,66 @@ class Command(BasePublishCommand):
         of keys in the S3 bucket.
         """
         # Create a list to put all the files we're going to update
-        update_list = []
+        self.update_list = []
 
-        for file_key in self.local_file_list:
-            # store a reference to the absolute path, if we have to open it
-            abs_file_path = os.path.join(self.build_dir, file_key)
-
-            # check if the file exists
-            if file_key in self.s3_obj_dict:
-                s3_etag = self.s3_obj_dict[file_key].get('ETag').strip('"')
-                local_md5 = hashlib.md5(
-                    open(abs_file_path, "rb").read()
-                ).hexdigest()
-
-                # don't upload if the md5 sums are the same
-                if s3_etag == local_md5 and not self.force_publish:
-                    pass
-                elif self.force_publish:
-                    update_list.append((file_key, abs_file_path))
-                else:
-                    update_list.append((file_key, abs_file_path))
-
-                # remove the file from the dict, we don't need it anymore
-                del self.s3_obj_dict[file_key]
-
-            # if the file doesn't exist, create it
-            else:
-                update_list.append((file_key, abs_file_path))
-
-        # Upload all these files
+        # Figure out which files need to be updated and upload all these files
+        logger.debug("Comparing {} local files with bucket".format(len(self.local_file_list)))
         if self.no_pooling:
-            [self.upload_to_s3(*u) for u in update_list]
+            [self.compare_local_file(f) for f in self.local_file_list]
         else:
-            pool = ThreadPool(processes=10)
-            pool.map(self.pooled_upload_to_s3, update_list)
+            cpu_count = multiprocessing.cpu_count()
+            logger.debug("Pooling local file comparison on {} CPUs".format(cpu_count))
+            pool = ThreadPool(processes=cpu_count)
+            pool.map(self.compare_local_file, self.local_file_list)
+
+        logger.debug("Uploading {} new or updated files to bucket".format(len(self.update_list)))
+        if self.no_pooling:
+            [self.upload_to_s3(*u) for u in self.update_list]
+        else:
+            logger.debug("Pooling s3 uploads on {} CPUs".format(cpu_count))
+            pool = ThreadPool(processes=cpu_count)
+            pool.map(self.pooled_upload_to_s3, self.update_list)
+
+    def compare_local_file(self, file_key):
+        """
+        Compares a local version of a file with what's already published.
+
+        If an update is needed, the file's key is added self.update_list.
+        """
+        # Where is the file?
+        file_path = os.path.join(self.build_dir, file_key)
+
+        # If we're in force_publish mode just add it
+        if self.force_publish:
+            self.update_list.append((file_key, file_path))
+            # And quit now
+            return
+
+        # Does it exist in our s3 object list?
+        if file_key in self.s3_obj_dict:
+
+            # If it does, open up the local file and convert it to a hexdigest
+            local_data = open(file_path, "rb").read()
+            local_md5 = hashlib.md5(local_data).hexdigest()
+
+            # Now lets compare it to the hexdigest of what's on s3
+            s3_md5 = self.s3_obj_dict[file_key].get('ETag').strip('"')
+
+            # If their md5 hexdigests match, do nothing
+            if s3_md5 == local_md5:
+                pass
+            # If they don't match, we want to add it
+            else:
+                logger.debug("{} has changed".format(file_key))
+                self.update_list.append((file_key, file_path))
+
+            # Remove the file from the s3 dict, we don't need it anymore
+            del self.s3_obj_dict[file_key]
+
+        # If the file doesn't exist, queue it for creation
+        else:
+            logger.debug("{} has been added".format(file_key))
+            self.update_list.append((file_key, file_path))
 
     def pooled_upload_to_s3(self, payload):
         """
@@ -302,8 +348,9 @@ class Command(BasePublishCommand):
 
         # access and write the contents from the file
         if not self.dry_run:
+            logger.debug("Uploading %s" % filename)
             if self.verbosity > 0:
-                logger.debug("uploading %s" % filename)
+                self.stdout.write("Uploading %s" % filename)
             s3_obj = self.s3_resource.Object(self.aws_bucket_name, key)
             s3_obj.upload_file(filename, ExtraArgs=extra_args)
         self.uploaded_files += 1

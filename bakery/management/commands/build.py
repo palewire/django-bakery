@@ -58,11 +58,11 @@ Will use settings.BUILD_DIR by default."
             help="Skip collecting the media files when building."
         )
         parser.add_argument(
-            "--no-pooling",
+            "--pooling",
             action="store_true",
-            dest="no_pooling",
+            dest="pooling",
             default=False,
-            help=("Run builds one by one rather than pooling them to run concurrently.")
+            help=("Pool builds to run concurrently rather than running them one by one.")
         )
 
     def handle(self, *args, **options):
@@ -115,7 +115,7 @@ Will use settings.BUILD_DIR by default."
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
 
-        self.no_pooling = options.get('no_pooling')
+        self.pooling = options.get('pooling')
 
     def init_build_dir(self):
         """
@@ -219,7 +219,7 @@ Will use settings.BUILD_DIR by default."
                 build_list.append((source_path, target_path))
 
         # Build em all
-        if getattr(self, 'no_pooling', False):
+        if not getattr(self, 'pooling', False):
             [self.copyfile_and_gzip(*u) for u in build_list]
         else:
             cpu_count = multiprocessing.cpu_count()

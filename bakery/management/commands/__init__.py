@@ -45,6 +45,8 @@ def get_all_objects_in_bucket(
     Little utility method that handles pagination and returns
     all objects in given bucket.
     """
+    logger.debug("Retrieving bucket object list")
+
     if not s3_client:
         s3_client, s3_resource = get_s3_client()
 
