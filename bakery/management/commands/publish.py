@@ -2,8 +2,10 @@ import os
 import time
 import hashlib
 import logging
+import threading
 import mimetypes
 import multiprocessing
+from concurrent import futures
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
@@ -249,7 +251,7 @@ class Command(BasePublishCommand):
         else:
             cpu_count = multiprocessing.cpu_count()
             logger.debug("Pooling s3 key retrieval on {} CPUs".format(cpu_count))
-            pool = ThreadPool(processes=cpu_count)
+            pool = futures.ThreadPoolExecutor(max_workers=cpu_count)
             pool.map(self.get_bucket_page, page_iterator)
 
     def get_local_file_list(self):
