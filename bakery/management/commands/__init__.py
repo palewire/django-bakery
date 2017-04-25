@@ -49,21 +49,11 @@ def get_all_objects_in_bucket(
         s3_client, s3_resource = get_s3_client()
 
     obj_dict = {}
-    continuation_token = ''
-    while True:
-        kwargs = {'Bucket': aws_bucket_name, 'MaxKeys': max_keys}
-        if continuation_token:
-            kwargs['ContinuationToken'] = continuation_token
-        list_objects_response = s3_client.list_objects_v2(**kwargs)
-        for obj in list_objects_response.get('Contents', []):
+    paginator = s3_client.get_paginator('list_objects')
+    page_iterator = paginator.paginate(Bucket=aws_bucket_name)
+    for page in page_iterator:
+        for obj in page.get('Contents', []):
             obj_dict[obj.get('Key')] = obj
-
-        if not list_objects_response.get('IsTruncated'):
-            break
-
-        continuation_token = list_objects_response.get(
-            'NextContinuationToken')
-
     return obj_dict
 
 
@@ -88,7 +78,8 @@ def batch_delete_s3_objects(
     for chunk in key_chunks:
         s3_client.delete_objects(
             Bucket=aws_bucket_name,
-            Delete={'Objects': chunk})
+            Delete={'Objects': chunk}
+        )
 
 
 class BasePublishCommand(BaseCommand):

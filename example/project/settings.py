@@ -131,3 +131,9 @@ BAKERY_VIEWS = (
 )
 BUILD_DIR = os.path.join(BASE_DIR, '.build/')
 STATIC_ROOT = os.path.join(BASE_DIR, '.static/')
+
+
+try:
+    from settings_local import *
+except ImportError:
+    pass
