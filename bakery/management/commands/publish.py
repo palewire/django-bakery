@@ -2,7 +2,6 @@ import os
 import time
 import hashlib
 import logging
-import threading
 import mimetypes
 import multiprocessing
 from concurrent import futures
@@ -234,8 +233,7 @@ class Command(BasePublishCommand):
         Returns all the keys in a s3 bucket paginator page.
         """
         key_list = page.get('Contents', [])
-        logger.debug("Loading page in {} with {} keys".format(
-            threading.current_thread().name,
+        logger.debug("Loading page with {} keys".format(
             len(key_list)
         ))
         for obj in key_list:
