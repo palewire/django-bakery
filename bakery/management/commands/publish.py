@@ -4,16 +4,17 @@ import hashlib
 import logging
 import mimetypes
 import multiprocessing
-from concurrent import futures
 from django.conf import settings
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from bakery.management.commands import (
     BasePublishCommand,
-    get_s3_client
+    get_s3_client,
+    get_bucket_page
 )
 from django.core.urlresolvers import get_callable
 from django.core.management.base import CommandError
+from concurrent.futures import ProcessPoolExecutor, as_completed
 logger = logging.getLogger(__name__)
 
 
@@ -111,7 +112,7 @@ class Command(BasePublishCommand):
             if self.verbosity > 2:
                 self.stdout.write("Retrieving objects now published in bucket")
             self.s3_obj_dict = {}
-            self.get_all_objects_in_bucket()
+            self.s3_obj_dict = self.get_all_objects_in_bucket()
 
         # Get a list of all the local files in our build directory
         logger.debug("Retrieving files built locally")
@@ -228,32 +229,29 @@ class Command(BasePublishCommand):
         self.no_delete = options.get('no_delete')
         self.no_pooling = options.get('no_pooling')
 
-    def get_bucket_page(self, page):
-        """
-        Returns all the keys in a s3 bucket paginator page.
-        """
-        key_list = page.get('Contents', [])
-        logger.debug("Loading page with {} keys".format(
-            len(key_list)
-        ))
-        for obj in key_list:
-            self.s3_obj_dict[obj.get('Key')] = obj
-
-    def get_all_objects_in_bucket(self, max_keys=1000):
+    def get_all_objects_in_bucket(self):
         """
         Little utility method that handles pagination and returns
         all objects in given bucket.
         """
         logger.debug("Retrieving bucket object list")
+
         paginator = self.s3_client.get_paginator('list_objects')
         page_iterator = paginator.paginate(Bucket=self.aws_bucket_name)
-        if self.no_pooling:
-            [self.get_bucket_page(f) for f in page_iterator]
-        else:
-            cpu_count = multiprocessing.cpu_count()
-            logger.debug("Pooling s3 key retrieval on {} CPUs".format(cpu_count))
-            pool = futures.ProcessPoolExecutor(max_workers=cpu_count)
-            pool.map(self.get_bucket_page, page_iterator)
+
+        cpu_count = multiprocessing.cpu_count()
+        logger.debug("Pooling s3 key retrieval on {} CPUs".format(cpu_count))
+
+        futures = []
+        with ProcessPoolExecutor(max_workers=cpu_count) as pool:
+            for page in page_iterator:
+                futures.append(pool.submit(get_bucket_page, page))
+
+        key_dict = {}
+        for f in as_completed(futures):
+            key_dict.update(f.result())
+
+        return key_dict
 
     def get_local_file_list(self):
         """

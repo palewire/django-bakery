@@ -1,3 +1,4 @@
+import os
 import boto3
 import logging
 from django.conf import settings
@@ -34,6 +35,18 @@ def get_s3_client():
     s3_client = boto3.client('s3', **s3_kwargs)
     s3_resource = boto3.resource('s3', **s3_kwargs)
     return s3_client, s3_resource
+
+
+def get_bucket_page(page):
+    """
+    Returns all the keys in a s3 bucket paginator page.
+    """
+    key_list = page.get('Contents', [])
+    logger.debug("Retrieving page with {} keys using process {}".format(
+        len(key_list),
+        os.getpid(),
+    ))
+    return dict((k.get('Key'), k) for k in key_list)
 
 
 def get_all_objects_in_bucket(
