@@ -234,7 +234,7 @@ class Command(BasePublishCommand):
         Returns all the keys in a s3 bucket paginator page.
         """
         key_list = page.get('Contents', [])
-        logger.debug("Loading page in thread {} with {} keys".format(
+        logger.debug("Loading page in {} with {} keys".format(
             threading.current_thread().name,
             len(key_list)
         ))
@@ -254,7 +254,7 @@ class Command(BasePublishCommand):
         else:
             cpu_count = multiprocessing.cpu_count()
             logger.debug("Pooling s3 key retrieval on {} CPUs".format(cpu_count))
-            pool = futures.ThreadPoolExecutor(max_workers=cpu_count)
+            pool = futures.ProcessPoolExecutor(max_workers=cpu_count)
             pool.map(self.get_bucket_page, page_iterator)
 
     def get_local_file_list(self):
