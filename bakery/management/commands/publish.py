@@ -14,7 +14,6 @@ from bakery.management.commands import (
 )
 from django.core.urlresolvers import get_callable
 from django.core.management.base import CommandError
-from concurrent.futures import ProcessPoolExecutor, as_completed
 logger = logging.getLogger(__name__)
 
 
@@ -44,6 +43,13 @@ class Command(BasePublishCommand):
             dest="aws_bucket_name",
             default='',
             help="Specify the AWS bucket to sync with. Will use settings.AWS_BUCKET_NAME by default."
+        )
+        parser.add_argument(
+            "--aws-bucket-prefix",
+            action="store",
+            dest="aws_bucket_prefix",
+            default='',
+            help="Specify a prefix for the AWS bucket keys to sync with. None by default."
         )
         parser.add_argument(
             "--force",
@@ -112,7 +118,7 @@ class Command(BasePublishCommand):
             if self.verbosity > 2:
                 self.stdout.write("Retrieving objects now published in bucket")
             self.s3_obj_dict = {}
-            self.s3_obj_dict = self.get_all_objects_in_bucket()
+            self.s3_obj_dict = self.get_bucket_file_list()
 
         # Get a list of all the local files in our build directory
         logger.debug("Retrieving files built locally")
@@ -212,6 +218,9 @@ class Command(BasePublishCommand):
                 raise CommandError(self.bucket_unconfig_msg)
             self.aws_bucket_name = settings.AWS_BUCKET_NAME
 
+        # The bucket prefix, if it exists
+        self.aws_bucket_prefix = options.get("aws_bucket_prefix")
+
         # If the user sets the --force option
         if options.get('force'):
             self.force_publish = True
@@ -229,7 +238,7 @@ class Command(BasePublishCommand):
         self.no_delete = options.get('no_delete')
         self.no_pooling = options.get('no_pooling')
 
-    def get_all_objects_in_bucket(self):
+    def get_bucket_file_list(self):
         """
         Little utility method that handles pagination and returns
         all objects in given bucket.
@@ -237,21 +246,18 @@ class Command(BasePublishCommand):
         logger.debug("Retrieving bucket object list")
 
         paginator = self.s3_client.get_paginator('list_objects')
-        page_iterator = paginator.paginate(Bucket=self.aws_bucket_name)
+        options = {
+            'Bucket': self.aws_bucket_name
+        }
+        if self.aws_bucket_prefix:
+            options['Prefix'] = self.aws_bucket_prefix
+        page_iterator = paginator.paginate(**options)
 
-        cpu_count = multiprocessing.cpu_count()
-        logger.debug("Pooling s3 key retrieval on {} CPUs".format(cpu_count))
+        obj_dict = {}
+        for page in page_iterator:
+            obj_dict.update(get_bucket_page(page))
 
-        futures = []
-        with ProcessPoolExecutor(max_workers=cpu_count) as pool:
-            for page in page_iterator:
-                futures.append(pool.submit(get_bucket_page, page))
-
-        key_dict = {}
-        for f in as_completed(futures):
-            key_dict.update(f.result())
-
-        return key_dict
+        return obj_dict
 
     def get_local_file_list(self):
         """
