@@ -287,7 +287,10 @@ class Command(BasePublishCommand):
         self.update_list = []
 
         # Figure out which files need to be updated and upload all these files
-        logger.debug("Comparing {} local files with bucket".format(len(self.local_file_list)))
+        logger.debug("Comparing {} local files with {} bucket files".format(
+            len(self.local_file_list),
+            len(self.s3_obj_dict.keys())
+        ))
         if self.no_pooling:
             [self.compare_local_file(f) for f in self.local_file_list]
         else:
