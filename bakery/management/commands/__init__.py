@@ -1,4 +1,3 @@
-import os
 import boto3
 import logging
 from django.conf import settings
@@ -42,9 +41,8 @@ def get_bucket_page(page):
     Returns all the keys in a s3 bucket paginator page.
     """
     key_list = page.get('Contents', [])
-    logger.debug("Retrieving page with {} keys using process {}".format(
+    logger.debug("Retrieving page with {} keys".format(
         len(key_list),
-        os.getpid(),
     ))
     return dict((k.get('Key'), k) for k in key_list)
 
