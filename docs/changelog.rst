@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.10.2
+------
+
+- Added a ``--aws-bucket-prefix`` option to the ``publish`` command. When specified, the local files will be synced with only those files in the bucket that have that prefix. 
+
 0.10.0
 ------
 
