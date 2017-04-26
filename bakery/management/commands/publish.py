@@ -250,6 +250,7 @@ class Command(BasePublishCommand):
             'Bucket': self.aws_bucket_name
         }
         if self.aws_bucket_prefix:
+            logger.debug("Adding prefix {} to bucket list as a filter".format(self.aws_bucket_prefix))
             options['Prefix'] = self.aws_bucket_prefix
         page_iterator = paginator.paginate(**options)
 
