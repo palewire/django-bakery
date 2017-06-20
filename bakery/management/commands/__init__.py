@@ -31,6 +31,8 @@ def get_s3_client():
             protocol,
             settings.AWS_S3_HOST
         )
+    if hasattr(settings, "AWS_REGION"):
+        s3_kwargs['region_name'] = settings.AWS_REGION
     s3_client = boto3.client('s3', **s3_kwargs)
     s3_resource = boto3.resource('s3', **s3_kwargs)
     return s3_client, s3_resource
