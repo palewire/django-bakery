@@ -88,7 +88,7 @@ AWS_REGION
 
     The name of the Amazon Web Services' region where the S3 bucket is stored. Results depend on the endpoint and region, but if you are not using the default ``us-east-1`` region you may need to set this variable.
 
-.. code-block::
+.. code-block:: python
 
     AWS_REGION = 'us-west-2'
 
