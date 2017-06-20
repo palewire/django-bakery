@@ -1,10 +1,15 @@
 Changelog
 =========
 
+0.10.3
+------
+
+* ``AWS_REGION`` setting now passed on to the s3 connection as an initialization option.
+
 0.10.2
 ------
 
-- Added a ``--aws-bucket-prefix`` option to the ``publish`` command. When specified, the local files will be synced with only those files in the bucket that have that prefix. 
+* Added a ``--aws-bucket-prefix`` option to the ``publish`` command. When specified, the local files will be synced with only those files in the bucket that have that prefix.
 
 0.10.0
 ------
