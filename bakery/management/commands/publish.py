@@ -307,6 +307,44 @@ class Command(BasePublishCommand):
             pool = ThreadPool(processes=cpu_count)
             pool.map(self.pooled_upload_to_s3, self.update_list)
 
+    def get_md5(self, filename):
+        """
+        Returns the md5 checksum of the provided file name.
+        """
+        with open(filename, 'rb') as f:
+            m = hashlib.md5(f.read())
+        return m.hexdigest()
+
+    def get_multipart_md5(self, filename, chunk_size=8 * 1024 * 1024):
+        """
+        Returns the md5 checksum of the provided file name after breaking it into chunks.
+
+        This is done to mirror the method used by Amazon S3 after a multipart upload.
+        """
+        # Loop through the file contents ...
+        md5s = []
+        with open(filename, 'rb') as fp:
+            while True:
+                # Break it into chunks
+                data = fp.read(chunk_size)
+                # Finish when there are no more
+                if not data:
+                    break
+                # Generate a md5 hash for each chunk
+                md5s.append(hashlib.md5(data))
+
+        # Combine the chunks
+        digests = b"".join(m.digest() for m in md5s)
+
+        # Generate a new hash using them
+        new_md5 = hashlib.md5(digests)
+
+        # Create the ETag as Amazon will
+        new_etag = '"%s-%s"' % (new_md5.hexdigest(), len(md5s))
+
+        # Trim it down and pass it back for comparison
+        return new_etag.strip('"').strip("'")
+
     def compare_local_file(self, file_key):
         """
         Compares a local version of a file with what's already published.
@@ -325,18 +363,23 @@ class Command(BasePublishCommand):
         # Does it exist in our s3 object list?
         if file_key in self.s3_obj_dict:
 
-            # If it does, open up the local file and convert it to a hexdigest
-            local_data = open(file_path, "rb").read()
-            local_md5 = hashlib.md5(local_data).hexdigest()
+            # Get the md5 stored in Amazon's header
+            s3_md5 = self.s3_obj_dict[file_key].get('ETag').strip('"').strip("'")
 
-            # Now lets compare it to the hexdigest of what's on s3
-            s3_md5 = self.s3_obj_dict[file_key].get('ETag').strip('"')
+            # If there is a multipart ETag on S3, compare that to our local file after its chunked up.
+            # We are presuming this file was uploaded in multiple parts.
+            if "-" in s3_md5:
+                local_md5 = self.get_multipart_md5(file_path)
+            # Other, do it straight for the whole file
+            else:
+                local_md5 = self.get_md5(file_path)
 
             # If their md5 hexdigests match, do nothing
             if s3_md5 == local_md5:
                 pass
             # If they don't match, we want to add it
             else:
+                print s3_md5, local_md5,
                 logger.debug("{} has changed".format(file_key))
                 self.update_list.append((file_key, file_path))
 
@@ -387,5 +430,7 @@ class Command(BasePublishCommand):
                 self.stdout.write("Uploading %s" % filename)
             s3_obj = self.s3_resource.Object(self.aws_bucket_name, key)
             s3_obj.upload_file(filename, ExtraArgs=extra_args)
+
+        # Update counts
         self.uploaded_files += 1
         self.uploaded_file_list.append(filename)
