@@ -17,7 +17,7 @@ env:
   matrix:
     - DJANGO_VERSION=1.8.18
     - DJANGO_VERSION=1.10.7
-    - DJANGO_VERSION=1.11.2
+    - DJANGO_VERSION=1.11.3
 
 install:
  # Testing dependencies
