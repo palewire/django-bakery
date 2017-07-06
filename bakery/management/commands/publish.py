@@ -379,7 +379,6 @@ class Command(BasePublishCommand):
                 pass
             # If they don't match, we want to add it
             else:
-                print s3_md5, local_md5,
                 logger.debug("{} has changed".format(file_key))
                 self.update_list.append((file_key, file_path))
 
