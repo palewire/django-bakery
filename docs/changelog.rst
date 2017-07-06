@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.10.4
+------
+
+* Patched the ``publish`` command to calculate multipart md5 checksums for uploads large enough to trigger boto3's automatic multipart upload. This prevents large files from being improperly reuploaded during syncs.
+
 0.10.3
 ------
 
