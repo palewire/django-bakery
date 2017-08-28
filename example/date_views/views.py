@@ -40,6 +40,12 @@ class MyDayArchiveView(BuildableDayArchiveView):
 class MyDetailView(BuildableDetailView):
     queryset = Dateline.objects.all()
 
+    def set_kwargs(self, obj):
+        self.kwargs = {
+            'state_slug': obj.state_slug,
+            'city_slug': obj.city_slug,
+        }
+
     def get_object(self, queryset=None):
         return self.queryset.get(
             state_slug=self.kwargs['state_slug'],
