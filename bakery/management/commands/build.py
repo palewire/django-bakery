@@ -188,6 +188,12 @@ Will use settings.BUILD_DIR by default."
                 os.path.join(self.build_dir, settings.MEDIA_URL.lstrip('/'))
             )
 
+    def get_view_instance(self, view):
+        """
+        Given a view class, get an instance of it.
+        """
+        return view()
+
     def build_views(self):
         """
         Bake out specified buildable views.
@@ -198,7 +204,7 @@ Will use settings.BUILD_DIR by default."
             if self.verbosity > 1:
                 self.stdout.write("Building %s" % view_str)
             view = get_callable(view_str)
-            view().build_method()
+            self.get_view_instance(view).build_method()
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
