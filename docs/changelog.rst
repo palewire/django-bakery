@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.10.5
+------
+
+* Added `get_view_instance` method to the `build` command to allow for more creative subclassing.
+
 0.10.4
 ------
 
