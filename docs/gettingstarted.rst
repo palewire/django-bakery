@@ -32,7 +32,7 @@ Also in ``settings.py``, add a build directory where the site will be built as f
 
     BUILD_DIR = '/home/you/code/your-site/build/'
 
-The trickest step is to re­fact­or your views to in­her­it our 
+The trickiest step is to re­fact­or your views to in­her­it our 
 :doc:`buildable class-based views </buildableviews>`. They are similar to 
 Django's `generic class-based views <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_, 
 except extended to know how to auto­mat­ic­ally build them­selves as flat files. 
@@ -118,7 +118,7 @@ Fi­nally, now that everything is set up, pub­lish­ing your files to S3 is as 
 
     $ python manage.py publish
 
-You should be able to vist your bucket's live URLs and see the site in action. 
+You should be able to visit your bucket's live URLs and see the site in action. 
 To make your bucket act more like a normal website or connect it to a domain you 
 control `follow these instructions <http://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html>`_.
 
