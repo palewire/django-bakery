@@ -13,7 +13,10 @@ from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
 from bakery.management.commands import get_s3_client
 from django.views.generic import RedirectView, TemplateView
-from django.core.urlresolvers import reverse, NoReverseMatch
+try:
+    from django.core.urlresolvers import reverse, NoReverseMatch
+except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+    from django.urls import reverse, NoReverseMatch
 logger = logging.getLogger(__name__)
 
 

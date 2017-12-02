@@ -22,7 +22,10 @@ class BuildableModel(models.Model):
     detail_views = []
 
     def _get_view(self, name):
-        from django.core.urlresolvers import get_callable
+        try:
+            from django.core.urlresolvers import get_callable
+        except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+            from django.urls import get_callable
         return get_callable(name)
 
     def _build_related(self):

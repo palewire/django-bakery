@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.core.urlresolvers import reverse
+try:
+    from django.core.urlresolvers import reverse
+except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+    from django.urls import reverse
 
 
 class Article(models.Model):

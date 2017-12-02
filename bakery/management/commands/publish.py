@@ -12,7 +12,10 @@ from bakery.management.commands import (
     get_s3_client,
     get_bucket_page
 )
-from django.core.urlresolvers import get_callable
+try:
+    from django.core.urlresolvers import get_callable
+except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+    from django.urls import get_callable
 from django.core.management.base import CommandError
 logger = logging.getLogger(__name__)
 
