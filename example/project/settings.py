@@ -132,6 +132,7 @@ BAKERY_VIEWS = (
 )
 BUILD_DIR = os.path.join(BASE_DIR, '.build/')
 STATIC_ROOT = os.path.join(BASE_DIR, '.static/')
+BAKERY_GZIP = True
 
 
 try:

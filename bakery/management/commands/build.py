@@ -258,11 +258,19 @@ Will use settings.BUILD_DIR by default."
                 pass
 
         # determine the mimetype of the file
-        content_type = mimetypes.guess_type(source_path)[0]
+        guess = mimetypes.guess_type(source_path)
+        content_type = guess[0]
+        encoding = guess[1]
 
         # If it isn't a file want to gzip...
         if content_type not in self.gzip_file_match:
             # just copy it to the target.
+            logger.debug("Not gzipping %s" % source_path)
+            shutil.copy(source_path, target_dir)
+
+        # # if the file is already gzipped
+        elif encoding == 'gzip':
+            logger.debug("Not gzipping %s" % source_path)
             shutil.copy(source_path, target_dir)
 
         # If it is one we want to gzip...
