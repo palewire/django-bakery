@@ -7,6 +7,7 @@ cache:
 
 python:
  - "2.7"
+ - "3.4"
  - "3.5"
  - "3.6"
 
@@ -15,9 +16,15 @@ env:
     - AWS_ACCESS_KEY_ID="MOCK_ACCESS_KEY_ID"
     - AWS_SECRET_ACCESS_KEY="MOCK_SECRET_ACCESS_KEY"
   matrix:
-    - DJANGO_VERSION=1.8.18
-    - DJANGO_VERSION=1.10.7
-    - DJANGO_VERSION=1.11.3
+    - DJANGO_VERSION=1.8.*
+    - DJANGO_VERSION=1.10.*
+    - DJANGO_VERSION=1.11.*
+    - DJANGO_VERSION=2.0.*
+
+matrix:
+  exclude:
+  - python: "2.7"
+    env: DJANGO_VERSION=2.0.*
 
 install:
  # Testing dependencies
