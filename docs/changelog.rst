@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.11.0
+------
+
+* Django 2.0 testing and support.
+
 0.10.5
 ------
 

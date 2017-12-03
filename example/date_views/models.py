@@ -12,7 +12,7 @@ class Article(models.Model):
     """
     title = models.CharField(max_length=200)
     pub_date = models.DateField()
-    dateline = models.ForeignKey('Dateline', null=True)
+    dateline = models.ForeignKey('Dateline', null=True, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('article-detail', kwargs={'pk': self.pk})

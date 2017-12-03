@@ -10,7 +10,7 @@ from date_views.views import (
 
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    # url(r'^admin/', include(admin.site.urls)),
     url(
         r'^dateline/(?P<state_slug>[-\w]+)/(?P<city_slug>[-\w]+)/$',
         MyDetailView.as_view(),
