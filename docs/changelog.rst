@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.11.1
+------
+
+* Skip gzipping of static files that are already gzipped.
+
 0.11.0
 ------
 
