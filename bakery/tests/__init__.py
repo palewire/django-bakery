@@ -374,7 +374,7 @@ class BakeryTest(TestCase):
             call_command("unbuild")
             os.makedirs(settings.BUILD_DIR)
             call_command("publish", verbosity=3)
-            call_command("publish", no_delete=True, force_publish=True)
+            call_command("publish", no_delete=True, force=True)
             call_command("publish", aws_bucket_prefix='my-branch')
 
     def test_unpublish_cmd(self):
