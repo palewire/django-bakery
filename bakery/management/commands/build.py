@@ -10,7 +10,10 @@ from django.conf import settings
 from django.core import management
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
-from django.core.urlresolvers import get_callable
+try:
+    from django.core.urlresolvers import get_callable
+except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+    from django.urls import get_callable
 from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
 
