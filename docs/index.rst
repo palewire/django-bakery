@@ -6,8 +6,7 @@ A set of helpers for baking your Django site out as flat files
 Why and what for
 ----------------
 
-The code documented here is intended to make it easier to save every page gen­er­ated by a data­base-backed site as a flat file. This allows
-you to host the site us­ing a stat­ic-file ser­vice like `Amazon S3 <http://en.wikipedia.org/wiki/Amazon_S3>`_.
+The code documented here is intended to make it easier to save every page gen­er­ated by a data­base-backed site as a flat file. This allows you to host the site us­ing a stat­ic-file ser­vice like `Amazon S3 <http://en.wikipedia.org/wiki/Amazon_S3>`_.
 
 At the Los Angeles Times Data Desk, we call this pro­cess “bak­ing.” It’s our path to cheap­, stable host­ing for simple sites. We've used it for pub­lish­ing `elec­tion res­ults <http://graphics.latimes.com/2012-election-gop-results-map-iowa/>`_, `timelines <http://timelines.latimes.com/complete-guide-lafd-hiring-controversy/>`_, `doc­u­ments <http://documents.latimes.com/barack-obama-long-form-birth-certificate/>`_, `in­ter­act­ive tables <http://spreadsheets.latimes.com/city-appointees-tied-garcetti/>`_, `spe­cial pro­jects <http://graphics.latimes.com/flight-from-rage/>`_ and `numerous <http://graphics.latimes.com/towergraphic-washington-landslide-victims/>`_ `other <http://graphics.latimes.com/how-fast-is-lafd/>`_ `things <http://graphics.latimes.com/picksheet-critics-picks-april-4-10-2014/>`_.
 
@@ -41,6 +40,20 @@ Documentation
    managementcommands
    changelog
    credits
+
+In the wild
+-----------
+
+* Hundreds of Los Angeles Times custom pages at `latimes.com/projects <http://www.latimes.com/projects/>`_
+* The California Civic Data Coalition's `data downloads <https://calaccess.californiacivicdata.org/downloads/latest/>`_
+* The Dallas Morning News' `legislative tracker <http://interactives.dallasnews.com/2017/the-85th/>`_
+* Newsday's `police misconduct investigation <http://data.newsday.com/crime/police-misconduct/>`_
+* Southern California Public Radio's `water report tracker <http://projects.scpr.org/applications/monthly-water-use/>`_
+* The Daily Californian's `sexual misconduct case tracker <http://projects.dailycal.org/misconduct/>`_
+* The `pretalx <https://pretalx.org>`_ open-source conference management system
+* The `static-site extension <https://github.com/moorinteractive/wagtail-bakery>`_ to the Wagtail content management system
+
+Have you used django bakery for something cool? Send a link to `ben.welsh@gmail.com <mailto:ben.welsh@gmail.com>`_ and we will add it to this list.
 
 Considering alternatives
 ------------------------
