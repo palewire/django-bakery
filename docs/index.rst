@@ -44,7 +44,7 @@ Documentation
 In the wild
 -----------
 
-* Hundreds of Los Angeles Times custom pages at `latimes.com/projects <http://www.latimes.com/projects/>`_ and `graphics.latimes.com <http://graphics.latimes.com/>`_, including some awarded the Pulitzer Prize.
+* Hundreds of Los Angeles Times custom pages at `latimes.com/projects <http://www.latimes.com/projects/>`_ and `graphics.latimes.com <http://graphics.latimes.com/>`_, including some awarded the Pulitzer Prize
 * The California Civic Data Coalition's `data downloads <https://calaccess.californiacivicdata.org/downloads/latest/>`_
 * `A <https://apps.statesman.com/votetracker/entities/austin-city-council/>`_ `series <https://apps.statesman.com/sxsw/2017/>`_ `of <https://apps.statesman.com/question-of-restraint/data/>`_ `projects <https://apps.statesman.com/homicides/>`_ `by <https://apps.statesman.com/council-candidate-explorer/election/2016/>`_ `the <https://apps.statesman.com/austin360/eats/>`_ `Austin American Statesman <https://apps.statesman.com/austin360/booze-guide/>`_
 * The Dallas Morning News' `legislative tracker <http://interactives.dallasnews.com/2017/the-85th/>`_
