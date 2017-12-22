@@ -7,3 +7,4 @@ Sphinx
 moto
 twine
 boto3
+fs

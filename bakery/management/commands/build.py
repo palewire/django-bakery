@@ -1,18 +1,21 @@
-import os
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import sys
 import gzip
-import shutil
 import ntpath
 import logging
 import mimetypes
 import multiprocessing
+from fs import open_fs, path
 from django.conf import settings
 from django.core import management
 from multiprocessing.pool import ThreadPool
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 try:
     from django.core.urlresolvers import get_callable
-except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+except ImportError:
+    # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
     from django.urls import get_callable
 from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
@@ -110,6 +113,18 @@ Will use settings.BUILD_DIR by default."
                 raise CommandError(self.build_unconfig_msg)
             self.build_dir = settings.BUILD_DIR
 
+        # Get the datatypes right so fs will be happy
+        self.build_dir = unicode(self.build_dir)
+        self.static_root = unicode(settings.STATIC_ROOT)
+        self.media_root = unicode(settings.MEDIA_ROOT)
+
+        # Connect the BUILD_DIR with our filesystem backend
+        self.fs = open_fs("osfs://")
+
+        # If the build dir doesn't exist make it
+        if not self.fs.exists(self.build_dir):
+            self.fs.makedirs(self.build_dir)
+
         # Figure out what views we'll be using
         if options['view_list']:
             self.view_list = options['view_list']
@@ -128,11 +143,11 @@ Will use settings.BUILD_DIR by default."
         logger.debug("Initializing %s" % self.build_dir)
         if self.verbosity > 1:
             self.stdout.write("Initializing build directory")
-        if os.path.exists(self.build_dir):
-            shutil.rmtree(self.build_dir)
+        if self.fs.exists(self.build_dir):
+            self.fs.removetree(self.build_dir)
 
         # Then recreate it from scratch
-        os.makedirs(self.build_dir)
+        self.fs.makedirs(self.build_dir)
 
     def build_static(self, *args, **options):
         """
@@ -147,48 +162,37 @@ Will use settings.BUILD_DIR by default."
             interactive=False,
             verbosity=0
         )
-        target_dir = os.path.join(
-            self.build_dir,
-            settings.STATIC_URL.lstrip('/')
-        )
+        target_dir = path.join(self.build_dir, settings.STATIC_URL.lstrip('/'))
 
-        if os.path.exists(settings.STATIC_ROOT) and settings.STATIC_URL:
+        if self.fs.exists(self.static_root) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
-                self.copytree_and_gzip(settings.STATIC_ROOT, target_dir)
+                self.copytree_and_gzip(self.static_root, target_dir)
             # if gzip isn't enabled, just copy the tree straight over
             else:
-                shutil.copytree(settings.STATIC_ROOT, target_dir)
+                self.fs.copydir(self.static_root, target_dir)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
         # on the live website.
-        robot_src = os.path.join(target_dir, 'robots.txt')
-        if os.path.exists(robot_src):
-            shutil.copy(robot_src, os.path.join(
-                settings.BUILD_DIR,
-                'robots.txt'
-                )
-            )
+        robot_src = path.join(target_dir, 'robots.txt')
+        if self.fs.exists(robot_src):
+            self.fs.copy(robot_src, 'robots.txt')
 
-        favicon_src = os.path.join(target_dir, 'favicon.ico')
-        if os.path.exists(favicon_src):
-            shutil.copy(favicon_src, os.path.join(
-                settings.BUILD_DIR,
-                'favicon.ico',
-                )
-            )
+        favicon_src = path.join(target_dir, 'favicon.ico')
+        if self.fs.exists(favicon_src):
+            self.fs.copy(favicon_src, 'favicon.ico')
 
     def build_media(self):
         """
         Build the media files.
         """
-        logger.debug("Building static directory")
+        logger.debug("Building media directory")
         if self.verbosity > 1:
             self.stdout.write("Building media directory")
-        if os.path.exists(settings.MEDIA_ROOT) and settings.MEDIA_URL:
-            shutil.copytree(
+        if self.fs.exists(self.media_root) and settings.MEDIA_URL:
+            self.fs.copydir(
                 settings.MEDIA_ROOT,
-                os.path.join(self.build_dir, settings.MEDIA_URL.lstrip('/'))
+                path.join(self.build_dir, settings.MEDIA_URL.lstrip('/'))
             )
 
     def get_view_instance(self, view):
@@ -218,12 +222,12 @@ Will use settings.BUILD_DIR by default."
         # Figure out what we're building...
         build_list = []
         # Walk through the source directory...
-        for (dirpath, dirnames, filenames) in os.walk(source_dir):
+        for (dirpath, dirnames, filenames) in self.fs.walk(source_dir):
             for f in filenames:
                 # Figure out what is going where
-                source_path = os.path.join(dirpath, f)
-                rel_path = os.path.relpath(dirpath, source_dir)
-                target_path = os.path.join(target_dir, rel_path)
+                source_path = path.join(dirpath, f)
+                rel_path = path.relpath(dirpath, source_dir)
+                target_path = path.join(target_dir, rel_path)
                 # Add it to our list to build
                 build_list.append((source_path, target_path))
 
@@ -251,9 +255,9 @@ Will use settings.BUILD_DIR by default."
         Gzips JavaScript, CSS and HTML and other files along the way.
         """
         # And then where we want to copy it to.
-        if not os.path.exists(target_dir):
+        if not self.fs.exists(target_dir):
             try:
-                os.makedirs(target_dir)
+                self.fs.makedirs(target_dir)
             except OSError:
                 pass
 
@@ -266,18 +270,18 @@ Will use settings.BUILD_DIR by default."
         if content_type not in self.gzip_file_match:
             # just copy it to the target.
             logger.debug("Not gzipping %s" % source_path)
-            shutil.copy(source_path, target_dir)
+            self.fs.copy(source_path, target_dir)
 
         # # if the file is already gzipped
         elif encoding == 'gzip':
             logger.debug("Not gzipping %s" % source_path)
-            shutil.copy(source_path, target_dir)
+            self.fs.copy(source_path, target_dir)
 
         # If it is one we want to gzip...
         else:
             # ... work out the file path ...
             source_filename = ntpath.basename(source_path)
-            target_path = os.path.join(target_dir, source_filename)
+            target_path = path.join(target_dir, source_filename)
 
             # ... let the world know ...
             logger.debug("Gzipping %s" % target_path)
@@ -285,7 +289,7 @@ Will use settings.BUILD_DIR by default."
                 self.stdout.write("Gzipping %s" % target_path)
 
             # ... create the new file in the build directory ...
-            with open(source_path, 'rb') as source_file:
+            with self.fs.open(source_path, 'rb') as source_file:
                 # ... copy the file to gzip compressed output ...
                 if float(sys.version[:3]) >= 2.7:
                     target_file = gzip.GzipFile(target_path, 'wb', mtime=0)
