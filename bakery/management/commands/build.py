@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
 import sys
 import gzip
-import ntpath
 import logging
 import mimetypes
 import multiprocessing
@@ -119,7 +119,7 @@ Will use settings.BUILD_DIR by default."
         self.media_root = unicode(settings.MEDIA_ROOT)
 
         # Connect the BUILD_DIR with our filesystem backend
-        self.fs = open_fs("osfs://")
+        self.fs = open_fs("osfs:///")
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
@@ -169,18 +169,18 @@ Will use settings.BUILD_DIR by default."
                 self.copytree_and_gzip(self.static_root, target_dir)
             # if gzip isn't enabled, just copy the tree straight over
             else:
-                self.fs.copydir(self.static_root, target_dir)
+                self.fs.copydir(self.static_root, target_dir, create=True)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
         # on the live website.
         robot_src = path.join(target_dir, 'robots.txt')
         if self.fs.exists(robot_src):
-            self.fs.copy(robot_src, 'robots.txt')
+            self.fs.copy(robot_src, path.join(self.build_dir, 'robots.txt'))
 
         favicon_src = path.join(target_dir, 'favicon.ico')
         if self.fs.exists(favicon_src):
-            self.fs.copy(favicon_src, 'favicon.ico')
+            self.fs.copy(favicon_src, path.join(self.build_dir, 'favicon.ico'))
 
     def build_media(self):
         """
@@ -191,8 +191,9 @@ Will use settings.BUILD_DIR by default."
             self.stdout.write("Building media directory")
         if self.fs.exists(self.media_root) and settings.MEDIA_URL:
             self.fs.copydir(
-                settings.MEDIA_ROOT,
-                path.join(self.build_dir, settings.MEDIA_URL.lstrip('/'))
+                self.media_root,
+                path.join(self.build_dir, settings.MEDIA_URL.lstrip('/')),
+                create=True,
             )
 
     def get_view_instance(self, view):
@@ -225,9 +226,9 @@ Will use settings.BUILD_DIR by default."
         for (dirpath, dirnames, filenames) in self.fs.walk(source_dir):
             for f in filenames:
                 # Figure out what is going where
-                source_path = path.join(dirpath, f)
-                rel_path = path.relpath(dirpath, source_dir)
-                target_path = path.join(target_dir, rel_path)
+                source_path = path.join(dirpath, f.name)
+                rel_path = os.path.relpath(dirpath, source_dir)
+                target_path = path.join(target_dir, rel_path, f.name)
                 # Add it to our list to build
                 build_list.append((source_path, target_path))
 
@@ -248,13 +249,14 @@ Will use settings.BUILD_DIR by default."
         """
         self.copyfile_and_gzip(*payload)
 
-    def copyfile_and_gzip(self, source_path, target_dir):
+    def copyfile_and_gzip(self, source_path, target_path):
         """
         Copies the provided file to the provided target directory.
 
         Gzips JavaScript, CSS and HTML and other files along the way.
         """
         # And then where we want to copy it to.
+        target_dir = path.dirname(target_path)
         if not self.fs.exists(target_dir):
             try:
                 self.fs.makedirs(target_dir)
@@ -270,19 +272,15 @@ Will use settings.BUILD_DIR by default."
         if content_type not in self.gzip_file_match:
             # just copy it to the target.
             logger.debug("Not gzipping %s" % source_path)
-            self.fs.copy(source_path, target_dir)
+            self.fs.copy(source_path, target_path, overwrite=True)
 
         # # if the file is already gzipped
         elif encoding == 'gzip':
             logger.debug("Not gzipping %s" % source_path)
-            self.fs.copy(source_path, target_dir)
+            self.fs.copy(source_path, target_path, overwrite=True)
 
         # If it is one we want to gzip...
         else:
-            # ... work out the file path ...
-            source_filename = ntpath.basename(source_path)
-            target_path = path.join(target_dir, source_filename)
-
             # ... let the world know ...
             logger.debug("Gzipping %s" % target_path)
             if self.verbosity > 1:
