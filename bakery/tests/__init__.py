@@ -523,3 +523,11 @@ class BakeryTest(TestCase):
                 chunk_size=5
             )
             self.assertFalse(self._get_bucket_objects())
+
+
+@override_settings(BAKERY_FILESYSTEM='mem://')
+class MemTest(BakeryTest):
+    """
+    Run all the tests again with a memory backend.
+    """
+    pass

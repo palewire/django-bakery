@@ -117,10 +117,11 @@ Will use settings.BUILD_DIR by default."
         # Get the datatypes right so fs will be happy
         self.build_dir = six.u(self.build_dir)
         self.static_root = six.u(settings.STATIC_ROOT)
-        self.media_root = six.u(settings.MEDIA_ROOT)
+        self.media_root = settings.MEDIA_ROOT
+        self.filesystem = getattr(settings, 'BAKERY_FILESYSTEM', "osfs:///")
 
         # Connect the BUILD_DIR with our filesystem backend
-        self.fs = open_fs("osfs:///")
+        self.fs = open_fs(self.filesystem)
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):

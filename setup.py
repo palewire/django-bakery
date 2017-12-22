@@ -123,6 +123,7 @@ setup(
     install_requires=[
         'six>1.5.2',
         'boto3>=1.4.4',
+        'fs>=2.0.17',
     ],
     cmdclass={'test': TestCommand}
 )
