@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import os
+import six
 import sys
 import gzip
 import logging
@@ -114,9 +115,9 @@ Will use settings.BUILD_DIR by default."
             self.build_dir = settings.BUILD_DIR
 
         # Get the datatypes right so fs will be happy
-        self.build_dir = unicode(self.build_dir)
-        self.static_root = unicode(settings.STATIC_ROOT)
-        self.media_root = unicode(settings.MEDIA_ROOT)
+        self.build_dir = six.u(self.build_dir)
+        self.static_root = six.u(settings.STATIC_ROOT)
+        self.media_root = six.u(settings.MEDIA_ROOT)
 
         # Connect the BUILD_DIR with our filesystem backend
         self.fs = open_fs("osfs:///")
