@@ -10,4 +10,6 @@ ship:
 
 build:
 	clear
+	rm -rf example/.build
 	python example/manage.py build --verbosity=3
+	ls example/.build
