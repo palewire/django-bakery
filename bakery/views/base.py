@@ -11,6 +11,7 @@ import sys
 import gzip
 import logging
 import mimetypes
+from fs import path
 from django.apps import apps
 from django.conf import settings
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
@@ -28,6 +29,8 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
+    fs = apps.get_app_config("bakery").filesystem
+
     def create_request(self, path):
         """
         Returns a GET request object for use when building views.
@@ -47,15 +50,16 @@ class BuildableMixin(object):
         """
         return self.get(self.request).render().content
 
-    def prep_directory(self, path):
+    def prep_directory(self, target_dir):
         """
-        Prepares a new directory to store the file at the provided path,
-        if needed.
+        Prepares a new directory to store the file at the provided path, if needed.
         """
-        dirname = os.path.dirname(path)
+        dirname = path.dirname(target_dir)
         if dirname:
-            dirname = os.path.join(settings.BUILD_DIR, dirname)
-            os.path.exists(dirname) or os.makedirs(dirname)
+            dirname = path.join(settings.BUILD_DIR, dirname)
+            if not self.fs.exists(dirname):
+                logger.debug("Creating directory {}".format(dirname))
+                self.fs.makedirs(dirname)
 
     def build_file(self, path, html):
         if self.is_gzippable(path):
@@ -68,8 +72,7 @@ class BuildableMixin(object):
         Writes out the provided HTML to the provided path.
         """
         logger.debug("Building HTML file to %s" % path)
-        fs = apps.get_app_config("bakery").filesystem
-        with fs.open(six.u(path), 'wb') as outfile:
+        with self.fs.open(six.u(path), 'wb') as outfile:
             outfile.write(six.binary_type(html))
             outfile.close()
 

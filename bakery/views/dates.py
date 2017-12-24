@@ -5,6 +5,7 @@ for building flat files.
 import os
 import shutil
 import logging
+from fs import path
 from datetime import date
 from django.conf import settings
 from bakery.views import BuildableMixin
@@ -49,8 +50,8 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
         logger.debug("Building %s" % self.build_path)
         self.request = self.create_request(self.build_path)
         self.prep_directory(self.build_path)
-        path = os.path.join(settings.BUILD_DIR, self.build_path)
-        self.build_file(path, self.get_content())
+        target_path = path.join(settings.BUILD_DIR, self.build_path)
+        self.build_file(target_path, self.get_content())
 
 
 class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
@@ -94,9 +95,11 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
-        os.path.exists(path) or os.makedirs(path)
-        return os.path.join(path, 'index.html')
+        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
+        if not self.fs.exists(target_path):
+            logger.debug("Creating {}".format(target_path))
+            self.fs.makedirs(target_path)
+        return path.join(target_path, 'index.html')
 
     def build_year(self, dt):
         """
@@ -105,8 +108,8 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         self.year = str(dt.year)
         logger.debug("Building %s" % self.year)
         self.request = self.create_request(self.get_url())
-        path = self.get_build_path()
-        self.build_file(path, self.get_content())
+        target_path = self.get_build_path()
+        self.build_file(target_path, self.get_content())
 
     def build_dated_queryset(self):
         """
@@ -122,9 +125,10 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         self.year = str(dt.year)
         logger.debug("Unbuilding %s" % self.year)
-        path = os.path.split(self.get_build_path())[0]
-        if os.path.exists(path):
-            shutil.rmtree(path)
+        target_path = os.path.split(self.get_build_path())[0]
+        if self.fs.exists(target_path):
+            logger.debug("Removing {}".format(target_path))
+            self.fs.removetree(target_path)
 
 
 class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
@@ -177,9 +181,11 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
-        os.path.exists(path) or os.makedirs(path)
-        return os.path.join(path, 'index.html')
+        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
+        if not self.fs.exists(target_path):
+            logger.debug("Creating {}".format(target_path))
+            self.fs.makedirs(target_path)
+        return path.join(target_path, 'index.html')
 
     def build_month(self, dt):
         """
@@ -281,9 +287,11 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
-        os.path.exists(path) or os.makedirs(path)
-        return os.path.join(path, 'index.html')
+        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
+        if not self.fs.exists(target_path):
+            logger.debug("Creating {}".format(target_path))
+            self.fs.makedirs(target_path)
+        return os.path.join(target_path, 'index.html')
 
     def build_day(self, dt):
         """
@@ -313,6 +321,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         self.month = str(dt.month)
         self.day = str(dt.day)
         logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
-        path = os.path.split(self.get_build_path())[0]
-        if os.path.exists(path):
-            shutil.rmtree(path)
+        target_path = os.path.split(self.get_build_path())[0]
+        if self.fs.exists(target_path):
+            logger.debug("Removing {}".format(target_path))
+            self.fs.removetree(target_path)

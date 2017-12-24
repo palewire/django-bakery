@@ -3,8 +3,8 @@ Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
 import os
-import shutil
 import logging
+from fs import path
 from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import DetailView
@@ -45,9 +45,11 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
         would like your detail page at a different location. By default it
         will be built at get_url() + "index.html"
         """
-        path = os.path.join(settings.BUILD_DIR, self.get_url(obj).lstrip('/'))
-        os.path.exists(path) or os.makedirs(path)
-        return os.path.join(path, 'index.html')
+        target_path = path.join(settings.BUILD_DIR, self.get_url(obj).lstrip('/'))
+        if not self.fs.exists(target_path):
+            logger.debug("Creating {}".format(target_path))
+            self.fs.makedirs(target_path)
+        return path.join(target_path, 'index.html')
 
     def set_kwargs(self, obj):
         slug_field = self.get_slug_field()
@@ -63,8 +65,8 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
         logger.debug("Building %s" % obj)
         self.request = self.create_request(self.get_url(obj))
         self.set_kwargs(obj)
-        path = self.get_build_path(obj)
-        self.build_file(path, self.get_content())
+        target_path = self.get_build_path(obj)
+        self.build_file(target_path, self.get_content())
 
     def build_queryset(self):
         [self.build_object(o) for o in self.get_queryset().all()]
@@ -74,6 +76,7 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
         Deletes the directory at self.get_build_path.
         """
         logger.debug("Unbuilding %s" % obj)
-        path = os.path.split(self.get_build_path(obj))[0]
-        if os.path.exists(path):
-            shutil.rmtree(path)
+        target_path = os.path.split(self.get_build_path(obj))[0]
+        if self.fs.exists(target_path):
+            logger.debug("Removing {}".format(target_path))
+            self.fs.removetree(target_path)

@@ -2,8 +2,8 @@
 Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
-import os
 import logging
+from fs import path
 from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import ListView
@@ -40,5 +40,5 @@ class BuildableListView(ListView, BuildableMixin):
         logger.debug("Building %s" % self.build_path)
         self.request = self.create_request(self.build_path)
         self.prep_directory(self.build_path)
-        path = os.path.join(settings.BUILD_DIR, self.build_path)
-        self.build_file(path, self.get_content())
+        target_path = path.join(settings.BUILD_DIR, self.build_path)
+        self.build_file(target_path, self.get_content())
