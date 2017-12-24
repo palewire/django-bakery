@@ -1,5 +1,6 @@
-from django.apps import AppConfig
+import fs
 from django.conf import settings
+from django.apps import AppConfig
 
 
 class BakeryConfig(AppConfig):
@@ -7,4 +8,4 @@ class BakeryConfig(AppConfig):
     verbose_name = "Bakery"
 
     def ready(self):
-        pass
+        self.filesystem = fs.open_fs(getattr(settings, 'BAKERY_FILESYSTEM', "osfs:///"))

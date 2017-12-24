@@ -11,7 +11,7 @@ import sys
 import gzip
 import logging
 import mimetypes
-from fs import open_fs
+from django.apps import apps
 from django.conf import settings
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
@@ -28,8 +28,6 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
-    filesystem = open_fs(getattr(settings, 'BAKERY_FILESYSTEM', "osfs:///"))
-
     def create_request(self, path):
         """
         Returns a GET request object for use when building views.
@@ -70,7 +68,8 @@ class BuildableMixin(object):
         Writes out the provided HTML to the provided path.
         """
         logger.debug("Building HTML file to %s" % path)
-        with self.filesystem.open(six.u(path), 'wb') as outfile:
+        fs = apps.get_app_config("bakery").filesystem
+        with fs.open(six.u(path), 'wb') as outfile:
             outfile.write(six.binary_type(html))
             outfile.close()
 

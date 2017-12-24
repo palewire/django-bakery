@@ -7,8 +7,9 @@ import sys
 import gzip
 import logging
 import mimetypes
+from fs import path
 import multiprocessing
-from fs import open_fs, path
+from django.apps import apps
 from django.conf import settings
 from django.core import management
 from multiprocessing.pool import ThreadPool
@@ -118,10 +119,9 @@ Will use settings.BUILD_DIR by default."
         self.build_dir = six.u(self.build_dir)
         self.static_root = six.u(settings.STATIC_ROOT)
         self.media_root = settings.MEDIA_ROOT
-        self.filesystem = getattr(settings, 'BAKERY_FILESYSTEM', "osfs:///")
 
         # Connect the BUILD_DIR with our filesystem backend
-        self.fs = open_fs(self.filesystem)
+        self.fs = apps.get_app_config("bakery").filesystem
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
