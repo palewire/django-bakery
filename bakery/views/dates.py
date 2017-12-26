@@ -3,7 +3,6 @@ Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
 import os
-import shutil
 import logging
 from fs import path
 from datetime import date
@@ -213,9 +212,10 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         self.year = str(dt.year)
         self.month = str(dt.month)
         logger.debug("Building %s-%s" % (self.year, self.month))
-        path = os.path.split(self.get_build_path())[0]
-        if os.path.exists(path):
-            shutil.rmtree(path)
+        target_path = os.path.split(self.get_build_path())[0]
+        if self.fs.exists(target_path):
+            logger.debug("Removing {}".format(target_path))
+            self.fs.removetree(target_path)
 
 
 class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
