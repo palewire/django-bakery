@@ -115,7 +115,7 @@ class BuildableMixin(object):
         )
         if float(sys.version[:3]) >= 2.7:
             kwargs['mtime'] = 0
-        with gzip.GzipFile(fileobj=data_buffer, mode="w") as f:
+        with gzip.GzipFile(fileobj=data_buffer, mode="wb") as f:
             f.write(six.binary_type(html))
 
         # Write that buffer out to the filesystem
