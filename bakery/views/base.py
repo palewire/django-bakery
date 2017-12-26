@@ -93,7 +93,7 @@ class BuildableMixin(object):
         )
         return mimetypes.guess_type(path)[0] in whitelist
 
-    def gzip_file(self, path, html):
+    def gzip_file(self, target_path, html):
         """
         Zips up the provided HTML as a companion for the provided path.
 
@@ -104,13 +104,24 @@ class BuildableMixin(object):
         is set to 0, to avoid having s3cmd do unnecessary uploads because
         of differences in the timestamp
         """
-        logger.debug("Building gzipped HTML file to %s" % path)
+        logger.debug("Building gzipped HTML file to %s" % target_path)
+
+        # Write GZIP data to an in-memory buffer
+        data_buffer = six.StringIO()
+        kwargs = dict(
+            filename=path.basename(target_path),
+            mode='rb',
+            fileobj=data_buffer
+        )
         if float(sys.version[:3]) >= 2.7:
-            outfile = gzip.GzipFile(path, 'wb', mtime=0)
-        else:
-            outfile = gzip.GzipFile(path, 'wb')
-        outfile.write(six.binary_type(html))
-        outfile.close()
+            kwargs['mtime'] = 0
+        with gzip.GzipFile(fileobj=data_buffer, mode="w") as f:
+            f.write(six.binary_type(html))
+
+        # Write that buffer out to the filesystem
+        with self.fs.open(smart_text(target_path), 'wb') as outfile:
+            outfile.write(data_buffer.getvalue())
+            outfile.close()
 
 
 class BuildableTemplateView(TemplateView, BuildableMixin):
