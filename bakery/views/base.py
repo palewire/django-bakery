@@ -107,7 +107,7 @@ class BuildableMixin(object):
         logger.debug("Building gzipped HTML file to %s" % target_path)
 
         # Write GZIP data to an in-memory buffer
-        data_buffer = six.StringIO()
+        data_buffer = six.BytesIO()
         kwargs = dict(
             filename=path.basename(target_path),
             mode='wb',
