@@ -110,12 +110,12 @@ class BuildableMixin(object):
         data_buffer = six.StringIO()
         kwargs = dict(
             filename=path.basename(target_path),
-            mode='rb',
+            mode='wb',
             fileobj=data_buffer
         )
         if float(sys.version[:3]) >= 2.7:
             kwargs['mtime'] = 0
-        with gzip.GzipFile(fileobj=data_buffer, mode="wb") as f:
+        with gzip.GzipFile(**kwargs) as f:
             f.write(six.binary_type(html))
 
         # Write that buffer out to the filesystem
