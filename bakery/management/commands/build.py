@@ -128,7 +128,7 @@ Will use settings.BUILD_DIR by default."
             self.fs.makedirs(self.build_dir)
 
         # Figure out what views we'll be using
-        if options['view_list']:
+        if options.get('view_list'):
             self.view_list = options['view_list']
         else:
             if not hasattr(settings, 'BAKERY_VIEWS'):
