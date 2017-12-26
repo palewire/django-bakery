@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import os
-import six
 import sys
 import gzip
 import logging
@@ -19,6 +18,7 @@ try:
 except ImportError:
     # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
     from django.urls import get_callable
+from django.utils.encoding import smart_text
 from django.core.management.base import BaseCommand, CommandError
 logger = logging.getLogger(__name__)
 
@@ -116,9 +116,9 @@ Will use settings.BUILD_DIR by default."
             self.build_dir = settings.BUILD_DIR
 
         # Get the datatypes right so fs will be happy
-        self.build_dir = six.u(self.build_dir)
-        self.static_root = six.u(settings.STATIC_ROOT)
-        self.media_root = settings.MEDIA_ROOT
+        self.build_dir = smart_text(self.build_dir)
+        self.static_root = smart_text(settings.STATIC_ROOT)
+        self.media_root = smart_text(settings.MEDIA_ROOT)
 
         # Connect the BUILD_DIR with our filesystem backend
         self.fs = apps.get_app_config("bakery").filesystem
