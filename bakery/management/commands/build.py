@@ -1,25 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+# File handling
 import os
 import sys
 import gzip
-import logging
 import mimetypes
+from bakery import DEFAULT_GZIP_CONTENT_TYPES
+
+# Filesystem
 from fs import path
+from fs import copy
+from django.utils.encoding import smart_text
+
+# Pooling
 import multiprocessing
+from multiprocessing.pool import ThreadPool
+
+# Django settings and tricks
 from django.apps import apps
 from django.conf import settings
 from django.core import management
-from multiprocessing.pool import ThreadPool
-from bakery import DEFAULT_GZIP_CONTENT_TYPES
 try:
     from django.core.urlresolvers import get_callable
 except ImportError:
     # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
     from django.urls import get_callable
-from django.utils.encoding import smart_text
 from django.core.management.base import BaseCommand, CommandError
+
+# Logging
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -121,7 +132,9 @@ Will use settings.BUILD_DIR by default."
         self.media_root = smart_text(settings.MEDIA_ROOT)
 
         # Connect the BUILD_DIR with our filesystem backend
-        self.fs = apps.get_app_config("bakery").filesystem
+        self.app = apps.get_app_config("bakery")
+        self.fs = self.app.filesystem
+        self.fs_name  = self.app.filesystem_name
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
@@ -135,6 +148,7 @@ Will use settings.BUILD_DIR by default."
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
 
+        # Are we pooling?
         self.pooling = options.get('pooling')
 
     def init_build_dir(self):
@@ -147,7 +161,6 @@ Will use settings.BUILD_DIR by default."
             self.stdout.write("Initializing build directory")
         if self.fs.exists(self.build_dir):
             self.fs.removetree(self.build_dir)
-
         # Then recreate it from scratch
         self.fs.makedirs(self.build_dir)
 
@@ -158,31 +171,40 @@ Will use settings.BUILD_DIR by default."
         logger.debug("Building static directory")
         if self.verbosity > 1:
             self.stdout.write("Building static directory")
-
         management.call_command(
             "collectstatic",
             interactive=False,
             verbosity=0
         )
-        target_dir = path.join(self.build_dir, settings.STATIC_URL.lstrip('/'))
 
-        if self.fs.exists(self.static_root) and settings.STATIC_URL:
+        # Set the target directory inside the filesystem.
+        target_dir = path.join(
+            self.build_dir,
+            settings.STATIC_URL.lstrip('/')
+        )
+
+        if os.path.exists(self.static_root) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
                 self.copytree_and_gzip(self.static_root, target_dir)
             # if gzip isn't enabled, just copy the tree straight over
             else:
-                self.fs.copydir(self.static_root, target_dir, create=True)
+                logger.debug("Copying {}{} to {}{}".format("osfs://", self.static_root, self.fs_name, target_dir))
+                copy.copy_dir("osfs:///", self.static_root, self.fs, target_dir)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
         # on the live website.
-        robot_src = path.join(target_dir, 'robots.txt')
-        if self.fs.exists(robot_src):
-            self.fs.copy(robot_src, path.join(self.build_dir, 'robots.txt'))
+        robots_src = path.join(target_dir, 'robots.txt')
+        if self.fs.exists(robots_src):
+            robots_target = path.join(self.build_dir, 'robots.txt')
+            logger.debug("Copying {}{} to {}{}".format(self.fs_name, robots_src, self.fs_name, robots_target))
+            self.fs.copy(robots_src, robots_target)
 
         favicon_src = path.join(target_dir, 'favicon.ico')
         if self.fs.exists(favicon_src):
-            self.fs.copy(favicon_src, path.join(self.build_dir, 'favicon.ico'))
+            favicon_target = path.join(self.build_dir, 'favicon.ico')
+            logger.debug("Copying {}{} to {}{}".format(self.fs_name, favicon_src, self.fs_name, favicon_target))
+            self.fs.copy(favicon_src, favicon_target)
 
     def build_media(self):
         """
@@ -191,12 +213,10 @@ Will use settings.BUILD_DIR by default."
         logger.debug("Building media directory")
         if self.verbosity > 1:
             self.stdout.write("Building media directory")
-        if self.fs.exists(self.media_root) and settings.MEDIA_URL:
-            self.fs.copydir(
-                self.media_root,
-                path.join(self.build_dir, settings.MEDIA_URL.lstrip('/')),
-                create=True,
-            )
+        if os.path.exists(self.media_root) and settings.MEDIA_URL:
+            target_dir = path.join(self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip('/'))
+            logger.debug("Copying {}{} to {}{}".format("osfs://", self.media_root, self.fs_name, target_dir))
+            copy.copy_dir("osfs:///", self.media_root, self.fs, target_dir)
 
     def get_view_instance(self, view):
         """
