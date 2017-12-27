@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.12.0
+------
+
+* Refactored the build methods to write to files using the `PyFilesystem <https://docs.pyfilesystem.org/en/latest/index.html>`_ interface
+
 0.11.1
 ------
 
