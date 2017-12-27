@@ -22,7 +22,7 @@ BUILD_DIR
 
 .. envvar:: BUILD_DIR
 
-    The location where you want the flat files to be built.
+    The location on the filesystem where you want the flat files to be built.
 
 .. code-block:: python
 
@@ -31,6 +31,24 @@ BUILD_DIR
     # I like something a little snappier like...
     import os
     BUILD_DIR = os.path.join(__file__, 'build')
+
+BAKERY_FILESYSTEM
+-----------------
+
+.. envvar:: BAKERY_FILESYSTEM
+
+    Files are built using `PyFilesystem <https://docs.pyfilesystem.org/en/latest/index.html>`_, a module that provides a common interface to a variety of filesystem backends. The default setting is the `OS filesystem <https://docs.pyfilesystem.org/en/latest/reference/osfs.html>`_ backend that saves files to the local directory structure. If you don't set the variable, it will operates as follows:
+
+    .. code-block:: python
+
+        BAKERY_FILESYSTEM = 'osfs:///'
+
+    Here's how you could change to an `in-memory backend <https://docs.pyfilesystem.org/en/latest/reference/memoryfs.html>`_ instead. The complete list of alternatives are documented `here <https://docs.pyfilesystem.org/en/latest/builtin.html>`_.
+
+    .. code-block:: python
+
+        BAKERY_FILESYSTEM = 'mem://'
+
 
 BAKERY_VIEWS
 ------------
