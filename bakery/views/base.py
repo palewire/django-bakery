@@ -30,6 +30,7 @@ class BuildableMixin(object):
     """
     Common methods we will use in buildable views.
     """
+    fs_name = apps.get_app_config("bakery").filesystem_name
     fs = apps.get_app_config("bakery").filesystem
 
     def create_request(self, path):
@@ -68,12 +69,12 @@ class BuildableMixin(object):
         else:
             self.write_file(path, html)
 
-    def write_file(self, path, html):
+    def write_file(self, target_path, html):
         """
         Writes out the provided HTML to the provided path.
         """
-        logger.debug("Building HTML file to %s" % path)
-        with self.fs.open(smart_text(path), 'wb') as outfile:
+        logger.debug("Building to {}{}".format(self.fs_name, target_path))
+        with self.fs.open(smart_text(target_path), 'wb') as outfile:
             outfile.write(six.binary_type(html))
             outfile.close()
 
@@ -104,7 +105,7 @@ class BuildableMixin(object):
         is set to 0, to avoid having s3cmd do unnecessary uploads because
         of differences in the timestamp
         """
-        logger.debug("Building gzipped HTML file to %s" % target_path)
+        logger.debug("Gzipping to {}{}".format(self.fs_name, target_path))
 
         # Write GZIP data to an in-memory buffer
         data_buffer = six.BytesIO()

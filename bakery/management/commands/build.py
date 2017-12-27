@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# File handling
+# Env
 import os
 import sys
+import six
+
+# Files
 import gzip
 import mimetypes
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
@@ -18,7 +21,7 @@ from django.utils.encoding import smart_text
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-# Django settings and tricks
+# Django tricks
 from django.apps import apps
 from django.conf import settings
 from django.core import management
@@ -245,14 +248,16 @@ Will use settings.BUILD_DIR by default."
         # Figure out what we're building...
         build_list = []
         # Walk through the source directory...
-        for (dirpath, dirnames, filenames) in self.fs.walk(source_dir):
+        for (dirpath, dirnames, filenames) in os.walk(source_dir):
             for f in filenames:
                 # Figure out what is going where
-                source_path = path.join(dirpath, f.name)
+                source_path = os.path.join(dirpath, f)
                 rel_path = os.path.relpath(dirpath, source_dir)
-                target_path = path.join(target_dir, rel_path, f.name)
+                target_path = os.path.join(target_dir, rel_path, f)
                 # Add it to our list to build
                 build_list.append((source_path, target_path))
+
+        logger.debug("Gzipping {} files".format(len(build_list)))
 
         # Build em all
         if not getattr(self, 'pooling', False):
@@ -293,29 +298,48 @@ Will use settings.BUILD_DIR by default."
         # If it isn't a file want to gzip...
         if content_type not in self.gzip_file_match:
             # just copy it to the target.
-            logger.debug("Not gzipping %s" % source_path)
-            self.fs.copy(source_path, target_path, overwrite=True)
+            logger.debug("Copying {}{} to {}{} because its filetype isn't on the whitelist".format(
+                "osfs://",
+                source_path,
+                self.fs_name,
+                target_path
+            ))
+            copy.copy_file("osfs:///", source_path, self.fs, target_path)
 
         # # if the file is already gzipped
         elif encoding == 'gzip':
-            logger.debug("Not gzipping %s" % source_path)
-            self.fs.copy(source_path, target_path, overwrite=True)
+            logger.debug("Copying {}{} to {}{} because it's already gzipped".format(
+                "osfs://",
+                source_path,
+                self.fs_name,
+                target_path
+            ))
+            copy.copy_file("osfs:///", source_path, self.fs, target_path)
 
         # If it is one we want to gzip...
         else:
             # ... let the world know ...
-            logger.debug("Gzipping %s" % target_path)
-            if self.verbosity > 1:
-                self.stdout.write("Gzipping %s" % target_path)
-
-            # ... create the new file in the build directory ...
-            with self.fs.open(source_path, 'rb') as source_file:
-                # ... copy the file to gzip compressed output ...
+            logger.debug("Gzipping {}{} to {}{}".format(
+                "osfs://",
+                source_path,
+                self.fs_name,
+                target_path
+            ))
+            # Open up the source file from the OS
+            with open(source_path, 'rb') as source_file:
+                # Write GZIP data to an in-memory buffer
+                data_buffer = six.BytesIO()
+                kwargs = dict(
+                    filename=path.basename(target_path),
+                    mode='wb',
+                    fileobj=data_buffer
+                )
                 if float(sys.version[:3]) >= 2.7:
-                    target_file = gzip.GzipFile(target_path, 'wb', mtime=0)
-                else:
-                    target_file = gzip.GzipFile(target_path, 'wb')
+                    kwargs['mtime'] = 0
+                with gzip.GzipFile(**kwargs) as f:
+                    f.write(six.binary_type(source_file.read()))
 
-                # ... and shut it down.
-                target_file.writelines(source_file)
-                target_file.close()
+                # Write that buffer out to the filesystem
+                with self.fs.open(smart_text(target_path), 'wb') as outfile:
+                    outfile.write(data_buffer.getvalue())
+                    outfile.close()
