@@ -137,7 +137,7 @@ Will use settings.BUILD_DIR by default."
         # Connect the BUILD_DIR with our filesystem backend
         self.app = apps.get_app_config("bakery")
         self.fs = self.app.filesystem
-        self.fs_name  = self.app.filesystem_name
+        self.fs_name = self.app.filesystem_name
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
