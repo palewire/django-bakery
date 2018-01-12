@@ -10,7 +10,7 @@ class BakeryConfig(AppConfig):
     verbose_name = "Bakery"
     filesystem_name = getattr(settings, 'BAKERY_FILESYSTEM', "osfs:///")
     logger.debug("Loading filesystem at {}".format(filesystem_name))
-    filesystem = fs.open_fs(self.filesystem_name)
+    filesystem = fs.open_fs(filesystem_name)
     
     def ready(self):
         pass
