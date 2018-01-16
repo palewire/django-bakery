@@ -408,14 +408,16 @@ class Command(BasePublishCommand):
         and upload the item to S3
         """
         extra_args = {'ACL': self.acl}
-        # guess and add the mimetype to header
-        content_type = mimetypes.guess_type(filename)[0]
+        # determine the mimetype of the file
+        guess = mimetypes.guess_type(filename)
+        content_type = guess[0]
+        encoding = guess[1]
 
         if content_type:
             extra_args['ContentType'] = content_type
 
         # add the gzip headers, if necessary
-        if self.gzip and content_type in self.gzip_content_types:
+        if (self.gzip and content_type in self.gzip_content_types) or encoding == 'gzip':
             extra_args['ContentEncoding'] = 'gzip'
 
         # add the cache-control headers if necessary

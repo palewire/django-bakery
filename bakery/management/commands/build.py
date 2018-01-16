@@ -185,6 +185,7 @@ Will use settings.BUILD_DIR by default."
             self.build_dir,
             settings.STATIC_URL.lstrip('/')
         )
+        target_dir = smart_text(target_dir)
 
         if os.path.exists(self.static_root) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
@@ -219,7 +220,7 @@ Will use settings.BUILD_DIR by default."
         if os.path.exists(self.media_root) and settings.MEDIA_URL:
             target_dir = path.join(self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip('/'))
             logger.debug("Copying {}{} to {}{}".format("osfs://", self.media_root, self.fs_name, target_dir))
-            copy.copy_dir("osfs:///", self.media_root, self.fs, target_dir)
+            copy.copy_dir("osfs:///", smart_text(self.media_root), self.fs, smart_text(target_dir))
 
     def get_view_instance(self, view):
         """
@@ -304,7 +305,7 @@ Will use settings.BUILD_DIR by default."
                 self.fs_name,
                 target_path
             ))
-            copy.copy_file("osfs:///", source_path, self.fs, target_path)
+            copy.copy_file("osfs:///", smart_text(source_path), self.fs, smart_text(target_path))
 
         # # if the file is already gzipped
         elif encoding == 'gzip':
@@ -314,7 +315,7 @@ Will use settings.BUILD_DIR by default."
                 self.fs_name,
                 target_path
             ))
-            copy.copy_file("osfs:///", source_path, self.fs, target_path)
+            copy.copy_file("osfs:///", smart_text(source_path), self.fs, smart_text(target_path))
 
         # If it is one we want to gzip...
         else:
