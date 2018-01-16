@@ -88,7 +88,7 @@ class TestCommand(Command):
 
 setup(
     name='django-bakery',
-    version='0.12.3',
+    version='0.12.4',
     description='A set of helpers for baking your Django site out as flat files',
     author='The Los Angeles Times Data Desk',
     author_email='datadesk@latimes.com',

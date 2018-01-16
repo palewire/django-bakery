@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.12.4
+------
+
+* Moved fs config from the AppConfig's out of the ready method and set it as a base attribute on the class.
+
 0.12.0
 ------
 
