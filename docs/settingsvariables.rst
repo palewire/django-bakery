@@ -188,6 +188,13 @@ GZIP_CONTENT_TYPES
         "text/xml"
     )
 
+GZIP_SUFFIX
+------------------
+
+.. envvar:: GZIP_SUFFIX
+
+    Opt in to add '.gz' suffix to your gzipped files. Useful when using nginx with `http_gzip_static_module <http://nginx.org/en/docs/http/ngx_http_gzip_static_module.html>`_.
+
 DEFAULT_ACL
 ---------------
 .. envvar:: DEFAULT_ACL

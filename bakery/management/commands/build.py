@@ -199,14 +199,22 @@ Will use settings.BUILD_DIR by default."
         # and favicon.ico files down to the root so they will work
         # on the live website.
         robots_src = path.join(target_dir, 'robots.txt')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            robots_src += '.gz'
         if self.fs.exists(robots_src):
             robots_target = path.join(self.build_dir, 'robots.txt')
+            if getattr(settings, 'GZIP_SUFFIX', False):
+                robots_target += '.gz'
             logger.debug("Copying {}{} to {}{}".format(self.fs_name, robots_src, self.fs_name, robots_target))
             self.fs.copy(robots_src, robots_target)
 
         favicon_src = path.join(target_dir, 'favicon.ico')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            favicon_src += '.gz'
         if self.fs.exists(favicon_src):
             favicon_target = path.join(self.build_dir, 'favicon.ico')
+            if getattr(settings, 'GZIP_SUFFIX', False):
+                favicon_target += '.gz'
             logger.debug("Copying {}{} to {}{}".format(self.fs_name, favicon_src, self.fs_name, favicon_target))
             self.fs.copy(favicon_src, favicon_target)
 
@@ -255,6 +263,8 @@ Will use settings.BUILD_DIR by default."
                 source_path = os.path.join(dirpath, f)
                 rel_path = os.path.relpath(dirpath, source_dir)
                 target_path = os.path.join(target_dir, rel_path, f)
+                if getattr(settings, 'GZIP_SUFFIX', False):
+                    target_path += '.gz'
                 # Add it to our list to build
                 build_list.append((source_path, target_path))
 

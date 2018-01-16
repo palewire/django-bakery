@@ -143,6 +143,8 @@ class BakeryTest(TestCase):
         v.build_method
         v.build()
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
         v = views.BuildableTemplateView(
@@ -152,6 +154,8 @@ class BakeryTest(TestCase):
         v.build_method
         v.build()
         build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -164,6 +168,8 @@ class BakeryTest(TestCase):
         v.build_method
         v.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
         v = views.BuildableListView(
@@ -174,6 +180,8 @@ class BakeryTest(TestCase):
         v.build_method
         v.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, 'foo', 'bar.html')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -191,6 +199,8 @@ class BakeryTest(TestCase):
                 o.get_absolute_url().lstrip('/'),
                 'index.html',
             )
+            if getattr(settings, 'GZIP_SUFFIX', False):
+                build_path += '.gz'
             self.assertTrue(os.path.exists(build_path))
             v.unbuild_object(o)
             self.assertTrue(v.kwargs['slug'] == v.kwargs['this_slug'])
@@ -204,6 +214,8 @@ class BakeryTest(TestCase):
         v.build_method
         v.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, v.build_path)
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
 
     def test_year_view(self):
@@ -218,6 +230,8 @@ class BakeryTest(TestCase):
                 '%s' % y,
                 'index.html'
             )
+            if getattr(settings, 'GZIP_SUFFIX', False):
+                build_path += '.gz'
             self.assertTrue(os.path.exists(build_path))
 
     def test_month_view(self):
@@ -233,6 +247,8 @@ class BakeryTest(TestCase):
                 month,
                 'index.html'
             )
+            if getattr(settings, 'GZIP_SUFFIX', False):
+                build_path += '.gz'
             self.assertTrue(os.path.exists(build_path))
 
     def test_day_view(self):
@@ -253,6 +269,8 @@ class BakeryTest(TestCase):
                 day,
                 'index.html'
             )
+            if getattr(settings, 'GZIP_SUFFIX', False):
+                build_path += '.gz'
             self.assertTrue(os.path.exists(build_path))
 
     def test_redirect_view(self):
@@ -267,6 +285,8 @@ class BakeryTest(TestCase):
             settings.BUILD_DIR,
             "detail/badurl.html"
         )
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
 
     def test_404_view(self):
@@ -274,6 +294,8 @@ class BakeryTest(TestCase):
         v.build_method
         v.build()
         build_path = os.path.join(settings.BUILD_DIR, '404.html')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -281,6 +303,8 @@ class BakeryTest(TestCase):
         v = MockJSONView()
         v.build()
         build_path = os.path.join(settings.BUILD_DIR, 'jsonview.json')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         self.assertEqual(
             json.loads(open(build_path, 'rb').read().decode()),
@@ -293,6 +317,8 @@ class BakeryTest(TestCase):
         f.build_method
         f.build_queryset()
         build_path = os.path.join(settings.BUILD_DIR, 'feed.xml')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            build_path += '.gz'
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -316,14 +342,20 @@ class BakeryTest(TestCase):
             'static',
             'foo.bar'
         )
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            foobar_path += '.gz'
         self.assertTrue(os.path.exists(foobar_path))
         self.assertEqual(
             open(foobar_path, 'rb').read().strip(),
             six.b('Hello tests')
         )
         robots_path = os.path.join(settings.BUILD_DIR, 'robots.txt')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            robots_path += '.gz'
         self.assertTrue(os.path.exists(robots_path))
         favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            favicon_path += '.gz'
         self.assertTrue(os.path.exists(favicon_path))
 
     def test_unbuild_cmd(self):
@@ -332,6 +364,16 @@ class BakeryTest(TestCase):
     def test_gzipped(self):
         with self.settings(BAKERY_GZIP=True):
             six.print_("testing gzipped files")
+            self.test_models()
+            self.test_template_view()
+            self.test_list_view()
+            self.test_detail_view()
+            self.test_404_view()
+            self.test_build_cmd()
+
+    def test_gzipped_with_suffix(self):
+        with self.settings(BAKERY_GZIP=True, GZIP_SUFFIX=True):
+            six.print_("testing gzipped files with suffix")
             self.test_models()
             self.test_template_view()
             self.test_list_view()

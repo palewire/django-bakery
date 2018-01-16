@@ -107,6 +107,9 @@ class BuildableMixin(object):
         """
         logger.debug("Gzipping to {}{}".format(self.fs_name, target_path))
 
+        if getattr(settings, 'GZIP_SUFFIX', False):
+            target_path += '.gz'
+
         # Write GZIP data to an in-memory buffer
         data_buffer = six.BytesIO()
         kwargs = dict(
