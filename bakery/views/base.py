@@ -60,7 +60,7 @@ class BuildableMixin(object):
         if dirname:
             dirname = path.join(settings.BUILD_DIR, dirname)
             if not self.fs.exists(dirname):
-                logger.debug("Creating directory {}".format(dirname))
+                logger.debug("Creating directory at {}{}".format(self.fs_name, dirname))
                 self.fs.makedirs(dirname)
 
     def build_file(self, path, html):
