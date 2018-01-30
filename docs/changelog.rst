@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.12.5
+------
+
+* Small logging improvement
+
 0.12.4
 ------
 
