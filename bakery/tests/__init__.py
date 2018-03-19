@@ -20,7 +20,6 @@ from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory, override_settings
 from django.core.exceptions import ImproperlyConfigured
-from unittest.mock import Mock
 
 try:
     from django.urls import reverse_lazy
@@ -33,10 +32,15 @@ except ImportError:  # Django <2.0
     from django.conf.urls import url
 
 
+def mock_url_view(*args, **kwargs):
+    # url objects require a function
+    pass
+
+
 urlpatterns = [
-    url('filename.html', Mock(), name='filename'),
-    url('directory/filename.html', Mock(), name='directory_and_filename'),
-    url('nested/directory/filename.html', Mock(), name='nested_directory_and_filename'),
+    url('filename.html', mock_url_view, name='filename'),
+    url('directory/filename.html', mock_url_view, name='directory_and_filename'),
+    url('nested/directory/filename.html', mock_url_view, name='nested_directory_and_filename'),
 ]
 
 
