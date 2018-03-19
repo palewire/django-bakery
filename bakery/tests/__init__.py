@@ -36,7 +36,7 @@ except ImportError:  # Django <2.0
 urlpatterns = [
     url('filename.html', Mock(), name='filename'),
     url('directory/filename.html', Mock(), name='directory_and_filename'),
-    url('ntested/directory/filename.html', Mock(), name='nested_directory_and_filename'),
+    url('nested/directory/filename.html', Mock(), name='nested_directory_and_filename'),
 ]
 
 
