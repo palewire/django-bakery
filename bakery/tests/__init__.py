@@ -20,6 +20,24 @@ from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory, override_settings
 from django.core.exceptions import ImproperlyConfigured
+from unittest.mock import Mock
+
+try:
+    from django.urls import reverse_lazy
+except ImportError:  # Django <2.0
+    from django.core.urlresolvers import reverse_lazy
+
+try:
+    from django.urls import path as url
+except ImportError:  # Django <2.0
+    from django.conf.urls import url
+
+
+urlpatterns = [
+    url('filename.html', Mock(), name='filename'),
+    url('directory/filename.html', Mock(), name='directory_and_filename'),
+    url('ntested/directory/filename.html', Mock(), name='nested_directory_and_filename'),
+]
 
 
 class MockObject(bmodels.BuildableModel):
@@ -165,6 +183,42 @@ class BakeryTest(TestCase):
         v.build_method
         v.build()
         build_path = os.path.join(settings.BUILD_DIR, 'nested', 'foo', 'bar.html')
+        self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
+
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_template_view_with_reversed_explicit_filename(self):
+        v = views.BuildableTemplateView(
+            template_name='templateview.html',
+            build_path=reverse_lazy('filename'),
+        )
+        v.build_method
+        v.build()
+        build_path = os.path.join(settings.BUILD_DIR, 'filename.html')
+        self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
+
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_template_view_with_reversed_directory_and_explicit_filename(self):
+        v = views.BuildableTemplateView(
+            template_name='templateview.html',
+            build_path=reverse_lazy('directory_and_filename'),
+        )
+        v.build_method
+        v.build()
+        build_path = os.path.join(settings.BUILD_DIR, 'directory', 'filename.html')
+        self.assertTrue(os.path.exists(build_path))
+        os.remove(build_path)
+
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_template_view_with_reversed_nested_directory_and_explicit_filename(self):
+        v = views.BuildableTemplateView(
+            template_name='templateview.html',
+            build_path=reverse_lazy('nested_directory_and_filename'),
+        )
+        v.build_method
+        v.build()
+        build_path = os.path.join(settings.BUILD_DIR, 'nested', 'directory', 'filename.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
@@ -349,6 +403,9 @@ class BakeryTest(TestCase):
             self.test_template_view_with_explicit_filename()
             self.test_template_view_with_directory_and_explicit_filename()
             self.test_template_view_with_nested_directory_and_explicit_filename()
+            self.test_template_view_with_reversed_explicit_filename()
+            self.test_template_view_with_reversed_directory_and_explicit_filename()
+            self.test_template_view_with_reversed_nested_directory_and_explicit_filename()
             self.test_list_view()
             self.test_detail_view()
             self.test_404_view()
