@@ -135,7 +135,7 @@ class BakeryTest(TestCase):
             obj.unbuild()
             obj.get_absolute_url()
 
-    def test_template_view(self):
+    def test_template_view_with_explicit_filename(self):
         v = views.BuildableTemplateView(
             template_name='templateview.html',
             build_path='foo.html',
@@ -145,6 +145,8 @@ class BakeryTest(TestCase):
         build_path = os.path.join(settings.BUILD_DIR, 'foo.html')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+
+    def test_template_view_with_directory_and_explicit_filename(self):
         v = views.BuildableTemplateView(
             template_name='templateview.html',
             build_path='foo/bar.html',
@@ -333,7 +335,8 @@ class BakeryTest(TestCase):
         with self.settings(BAKERY_GZIP=True):
             six.print_("testing gzipped files")
             self.test_models()
-            self.test_template_view()
+            self.test_template_view_with_explicit_filename()
+            self.test_template_view_with_directory_and_explicit_filename()
             self.test_list_view()
             self.test_detail_view()
             self.test_404_view()
