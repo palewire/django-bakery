@@ -96,6 +96,26 @@ class MockRSSFeed(feeds.BuildableFeed):
         return MockObject.objects.all()
 
 
+class MockSubjectRSSFeed(feeds.BuildableFeed):
+    link = '/latest.xml'
+
+    def get_object(self, request, obj_id):
+        return MockObject.objects.get(pk=obj_id)
+
+    def get_queryset(self):
+        return MockObject.objects.all()
+
+    def get_content(self, obj):
+        return super().get_content(obj.id)
+
+    def build_path(self, obj):
+        return str(obj.id) + '/feed.xml'
+
+    def items(self, obj):
+        # Realistically there would be a second model here
+        return MockObject.objects.none()
+
+
 class JSONResponseMixin(object):
 
     def render_to_response(self, context, **response_kwargs):
@@ -290,11 +310,18 @@ class BakeryTest(TestCase):
 
     def test_rss_feed(self):
         f = MockRSSFeed()
-        f.build_method
-        f.build_queryset()
+        f.build_method()
         build_path = os.path.join(settings.BUILD_DIR, 'feed.xml')
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
+
+    def test_subject_rss_feed(self):
+        f = MockSubjectRSSFeed()
+        f.build_method()
+        for obj in MockObject.objects.all():
+            build_path = os.path.join(settings.BUILD_DIR, str(obj.id), 'feed.xml')
+            self.assertTrue(os.path.exists(build_path))
+            os.remove(build_path)
 
     def test_build_cmd(self):
         call_command("build", **{'skip_media': True, 'verbosity': 3})
