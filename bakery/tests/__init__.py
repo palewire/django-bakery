@@ -106,7 +106,7 @@ class MockSubjectRSSFeed(feeds.BuildableFeed):
         return MockObject.objects.all()
 
     def get_content(self, obj):
-        return super().get_content(obj.id)
+        return super(MockSubjectRSSFeed, self).get_content(obj.id)
 
     def build_path(self, obj):
         return str(obj.id) + '/feed.xml'
