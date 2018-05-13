@@ -48,11 +48,7 @@ class BuildableFeed(Feed, BuildableMixin):
                 code = six.get_function_code(attr.__call__)
             if code.co_argcount == 2 + len(args):  # one argument is 'self'
                 args.append(obj)
-                return attr(*args)
-            elif code.co_argcount == 1 + len(args):
-                return attr(*args)
-            else:
-                return attr()
+            return attr(*args)
 
         return attr
 
