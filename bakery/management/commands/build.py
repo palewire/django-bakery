@@ -25,6 +25,8 @@ from multiprocessing.pool import ThreadPool
 from django.apps import apps
 from django.conf import settings
 from django.core import management
+from fs.walk import Walker
+
 try:
     from django.core.urlresolvers import get_callable
 except ImportError:
@@ -187,13 +189,19 @@ Will use settings.BUILD_DIR by default."
         )
         target_dir = smart_text(target_dir)
 
+        exclude_dirs = getattr(settings, 'BAKERY_STATIC_EXCLUDE_DIRS', None)
+        if not exclude_dirs:
+            # explicitly set to None to make sure we don't get an empty list/tuple
+            exclude_dirs = None
+
         if os.path.exists(self.static_root) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
-                self.copytree_and_gzip(self.static_root, target_dir)
+                self.copytree_and_gzip(self.static_root, target_dir, exclude_dirs)
             # if gzip isn't enabled, just copy the tree straight over
             else:
                 logger.debug("Copying {}{} to {}{}".format("osfs://", self.static_root, self.fs_name, target_dir))
-                copy.copy_dir("osfs:///", self.static_root, self.fs, target_dir)
+                walker = Walker(exclude_dirs=exclude_dirs)
+                copy.copy_dir("osfs:///", self.static_root, self.fs, target_dir, walker=walker)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
@@ -240,7 +248,7 @@ Will use settings.BUILD_DIR by default."
             view = get_callable(view_str)
             self.get_view_instance(view).build_method()
 
-    def copytree_and_gzip(self, source_dir, target_dir):
+    def copytree_and_gzip(self, source_dir, target_dir, exclude_patterns=None):
         """
         Copies the provided source directory to the provided target directory.
 
@@ -249,7 +257,12 @@ Will use settings.BUILD_DIR by default."
         # Figure out what we're building...
         build_list = []
         # Walk through the source directory...
-        for (dirpath, dirnames, filenames) in os.walk(source_dir):
+        for (dirpath, dirnames, filenames) in os.walk(source_dir, topdown=True):
+            if exclude_patterns:
+                # Modifying dirs in-place will prune the (subsequent) files and directories visited by os.walk
+                # see: https://stackoverflow.com/questions/19859840/excluding-directories-in-os-walk
+                dirnames[:] = [d for d in dirnames if not self.fs.match(exclude_patterns, d)]
+
             for f in filenames:
                 # Figure out what is going where
                 source_path = os.path.join(dirpath, f)

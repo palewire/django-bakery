@@ -326,6 +326,28 @@ class BakeryTest(TestCase):
         favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
         self.assertTrue(os.path.exists(favicon_path))
 
+        # Folders should be here when BAKERY_STATIC_EXCLUDE_DIRS is unset
+        exclude_foo_path = os.path.join(settings.BUILD_DIR, 'static', 'exclude_foo', 'testfile')
+        self.assertTrue(os.path.exists(exclude_foo_path))
+        exclude_bar_baz_path = os.path.join(settings.BUILD_DIR, 'static', 'exclude_bar_baz', 'testfile')
+        self.assertTrue(os.path.exists(exclude_bar_baz_path))
+
+    @override_settings(BAKERY_STATIC_EXCLUDE_DIRS=['exclude_foo', 'exclude_bar*', 'foo.bar'])
+    def test_build_cmd_exclude(self):
+        call_command("build")
+        exclude_foo_path = os.path.join(settings.BUILD_DIR, 'static', 'exclude_foo', 'testfile')
+        self.assertFalse(os.path.exists(exclude_foo_path))
+        exclude_bar_baz_path = os.path.join(settings.BUILD_DIR, 'static', 'exclude_bar_baz', 'testfile')
+        self.assertFalse(os.path.exists(exclude_bar_baz_path))
+        # Shouldn't affect files
+        foobar_path = os.path.join(settings.BUILD_DIR, 'static', 'foo.bar')
+        self.assertTrue(os.path.exists(foobar_path))
+
+    @override_settings(BAKERY_GZIP=True)
+    def test_build_cmd_exclude_gzip(self):
+        # A different copying method is used when BAKERY_GZIP is enabled
+        self.test_build_cmd_exclude()
+
     def test_unbuild_cmd(self):
         call_command("unbuild")
 
