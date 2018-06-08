@@ -66,6 +66,23 @@ BAKERY_VIEWS
         'myapp.views.MySitemapView',
     )
 
+BAKERY_STATIC_EXCLUDE_DIRS
+--------------------------
+
+.. envvar:: BAKERY_STATIC_EXCLUDE_DIRS
+
+    Hosting a static site doesn't required e.g. the /admin/ directory to be hosted.
+    You can specify a list of directory names to exclude from ``settings.STATIC_ROOT`` when ``build`` :doc:`management command </managementcommands>` is executed.
+
+    Only matches directories. You can use wildcards.
+
+.. code-block:: python
+
+    BAKERY_STATIC_EXCLUDE_DIRS = [
+        'admin',
+        'cms_xyz*',
+    ]
+
 AWS_BUCKET_NAME
 ---------------
 

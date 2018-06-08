@@ -100,6 +100,23 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="bakery-static-exclude-dirs">
+<h2>BAKERY_STATIC_EXCLUDE_DIRS<a class="headerlink" href="#bakery-static-exclude-dirs" title="Permalink to this headline">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-BAKERY_STATIC_EXCLUDE_DIRS">
+<code class="descname">BAKERY_STATIC_EXCLUDE_DIRS</code><a class="headerlink" href="#envvar-BAKERY_STATIC_EXCLUDE_DIRS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hosting a static site doesn’t required e.g. the /admin/ directory to be hosted.
+You can specify a list of directory names to exclude from <code class="docutils literal notranslate"><span class="pre">settings.STATIC_ROOT</span></code> when <code class="docutils literal notranslate"><span class="pre">build</span></code> <a class="reference internal" href="managementcommands.html"><span class="doc">management command</span></a> is executed.</p>
+<p>Only matches directories. You can use wildcards.</p>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BAKERY_STATIC_EXCLUDE_DIRS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;admin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cms_xyz*&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="aws-bucket-name">
 <h2>AWS_BUCKET_NAME<a class="headerlink" href="#aws-bucket-name" title="Permalink to this headline">¶</a></h2>
 <dl class="envvar">
