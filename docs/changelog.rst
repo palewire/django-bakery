@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.12.6
+------
+
+* Refactored BuildableTemplateView to allow for using `reverse_lazy` to concoct the build path.
+
 0.12.5
 ------
 
