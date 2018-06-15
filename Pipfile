@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Django = "*"
+six = "*"
+"flake8" = "*"
+python-coveralls = "*"
+celery = "*"
+Sphinx = "*"
+moto = "*"
+twine = "*"
+"boto3" = "*"
+fs = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
