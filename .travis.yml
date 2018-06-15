@@ -20,14 +20,11 @@ env:
     - DJANGO_VERSION=1.10.*
     - DJANGO_VERSION=1.11.*
     - DJANGO_VERSION=2.0.*
-    - DJANGO_VERSION=2.1.*
 
 matrix:
   exclude:
   - python: "2.7"
     env: DJANGO_VERSION=2.0.*
-  - python: "2.7"
-    env: DJANGO_VERSION=2.1.*
 
 install:
  # Testing dependencies
