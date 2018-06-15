@@ -145,10 +145,14 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
 
     def build(self):
         logger.debug("Building %s" % self.template_name)
-        self.request = self.create_request(self.build_path)
-        path = os.path.join(settings.BUILD_DIR, self.build_path)
-        self.prep_directory(self.build_path)
+        build_path = self.get_build_path()
+        self.request = self.create_request(build_path)
+        path = os.path.join(settings.BUILD_DIR, build_path)
+        self.prep_directory(build_path)
         self.build_file(path, self.get_content())
+
+    def get_build_path(self):
+        return six.text_type(self.build_path).lstrip('/')
 
 
 class Buildable404View(BuildableTemplateView):
