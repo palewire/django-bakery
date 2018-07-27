@@ -42,7 +42,7 @@ for every state.
     from bakery.views import BuildableDetailView
 
 
-    class StateDetailView(BuildableListView):
+    class StateDetailView(BuildableDetailView):
         model = State
         template_name = 'state_detail.html'
 
@@ -79,7 +79,7 @@ override the ``get_url`` method on the ``BuildableDetailView``.
     from bakery.views import BuildableDetailView
 
 
-    class ExampleDetailView(BuildableListView):
+    class ExampleDetailView(BuildableDetailView):
         model = State
         template_name = 'state_detail.html'
 
