@@ -4,6 +4,8 @@ import six
 import boto3
 import json
 import random
+
+from django.shortcuts import render
 from moto import mock_s3
 from datetime import date
 from .. import views, feeds
@@ -35,6 +37,14 @@ except ImportError:  # Django <2.0
 def mock_url_view(*args, **kwargs):
     # url objects require a function
     pass
+
+
+def mock_function_view_http(request):
+    return render(request, 'dayview.html')
+
+
+def mock_function_view_str(request):
+    return 'test'
 
 
 urlpatterns = [
@@ -599,6 +609,32 @@ class BakeryTest(TestCase):
                 chunk_size=5
             )
             self.assertFalse(self._get_bucket_objects())
+
+    def _get_mock_buildable_function_view(self):
+        cls = views.BuildableFunctionView()
+        cls.build_path = 'test.html'
+        cls.request = self.factory.get(cls.build_path)
+
+        return cls
+
+    def test_buildable_function_view_http(self):
+        cls = self._get_mock_buildable_function_view()
+        cls.function = mock_function_view_http
+        content = cls.get_content()
+        self.assertEqual(content, b'Hello tests.\n')
+
+    def test_buildable_function_view_str(self):
+        cls = self._get_mock_buildable_function_view()
+        cls.function = mock_function_view_str
+        content = cls.get_content()
+        self.assertEqual(content, b'test')
+
+    def test_buildable_function_view_error(self):
+        cls = self._get_mock_buildable_function_view()
+        cls.build_path = 'test.html'
+
+        with self.assertRaises(NotImplementedError):
+            cls.build()
 
 
 @override_settings(BAKERY_FILESYSTEM='mem://')

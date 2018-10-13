@@ -2,6 +2,7 @@ from .base import (
     BuildableMixin,
     BuildableTemplateView,
     Buildable404View,
+    BuildableFunctionView,
     BuildableRedirectView
 )
 from .detail import BuildableDetailView
@@ -17,6 +18,7 @@ __all__ = (
     'BuildableMixin',
     'BuildableTemplateView',
     'Buildable404View',
+    'BuildableFunctionView',
     'BuildableRedirectView',
     'BuildableDetailView',
     'BuildableListView',

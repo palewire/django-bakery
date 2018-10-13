@@ -11,9 +11,11 @@ import sys
 import gzip
 import logging
 import mimetypes
+
 from fs import path
 from django.apps import apps
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.encoding import smart_text
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
@@ -161,6 +163,48 @@ class Buildable404View(BuildableTemplateView):
     """
     build_path = '404.html'
     template_name = '404.html'
+
+
+class BuildableFunctionView(BuildableMixin):
+    """
+    Render and build a function view.
+
+    Required attributes:
+
+        build_path:
+            The target location of the built file in the BUILD_DIR.
+            `index.html` would place it at the built site's root.
+            `foo/index.html` would place it inside a subdirectory.
+
+        function:
+            The function view being rendered.
+    """
+
+    def build(self):
+        self.request = self.create_request(self.build_path)
+        path = os.path.join(settings.BUILD_DIR, self.build_path)
+        self.prep_directory(self.build_path)
+        self.build_file(path, self.get_content())
+
+    @property
+    def build_method(self):
+        return self.build
+
+    def get_content(self):
+        """
+        Handle Django function views and render their content.
+
+        Django function views tend to return either strings (very basic views) or a
+        HttpResponse which have a `rendered_content` property giving their content.
+
+        This method does a small check to figure this out.
+        """
+        try:
+            response = self.function(self.request)
+            content = HttpResponse(response).content if isinstance(response, str) else response.content
+        except AttributeError:
+            raise NotImplementedError("BuildableFunctionView requires a function attribute.")
+        return content
 
 
 class BuildableRedirectView(RedirectView, BuildableMixin):
