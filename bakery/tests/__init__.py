@@ -131,7 +131,7 @@ class MockSubjectRSSFeed(feeds.BuildableFeed):
         return super(MockSubjectRSSFeed, self).get_content(obj.id)
 
     def build_path(self, obj):
-        return str(obj.id) + '/feed.xml'
+        return '{}/feed.xml'.format(obj.id)
 
     def items(self, obj):
         # Realistically there would be a second model here
