@@ -29,8 +29,6 @@ class TestCommand(Command):
                 'django.contrib.sessions',
                 'django.contrib.staticfiles',
                 'bakery',
-                # 'djkombu',
-                # 'djcelery',
             ),
             MIDDLEWARE_CLASSES=(),
             TEMPLATES = [
@@ -80,8 +78,6 @@ class TestCommand(Command):
         )
         import django
         django.setup()
-        # import djcelery
-        # djcelery.setup_loader()
         from django.core.management import call_command
         call_command('test', 'bakery.tests', verbosity=3)
 
