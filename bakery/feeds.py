@@ -63,9 +63,12 @@ class BuildableFeed(Feed, BuildableMixin):
             logger.debug("Building %s" % build_path)
 
             self.request = self._get_bakery_dynamic_attr(
-                'create_request', obj, args=[url or build_path])
+                'create_request',
+                obj,
+                args=[url or build_path]
+            )
 
-            self.prep_directory(build_path)
+            self.prep_directory(buld_path)
             path = os.path.join(settings.BUILD_DIR, build_path)
             content = self._get_bakery_dynamic_attr('get_content', obj)
             self.build_file(path, content)
