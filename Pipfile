@@ -4,18 +4,20 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-Django = "*"
 six = "*"
-"flake8" = "*"
-python-coveralls = "*"
 celery = "*"
-Sphinx = "*"
-moto = "*"
-twine = "*"
 "boto3" = "*"
 fs = "*"
 
 [dev-packages]
+django = ">=2.0.8"
+Sphinx = "*"
+"flake8" = "*"
+python-coveralls = "*"
+moto = "*"
+twine = "*"
+requests = ">=2.20.0"
+cryptography = ">=2.3"
 
 [requires]
 python_version = "3.6"
