@@ -1,7 +1,5 @@
 language: python
 
-sudo: false
-
 cache:
   - pip
 
@@ -25,6 +23,10 @@ matrix:
     env: DJANGO_VERSION=2.0.*
   - python: "2.7"
     env: DJANGO_VERSION=2.1.*
+
+before_install:
+    # Fix boto bug with Travis and sudo:required
+    sudo rm -f /etc/boto.cfg
 
 install:
  # Testing dependencies
