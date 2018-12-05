@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.12.7
+------
+
+* Expanded feeds framework support
+
 0.12.6
 ------
 
