@@ -21,7 +21,7 @@ at the build directory's root if discovered at the ``STATIC_ROOT``.
 
 Defaults can be modified with the following command options.
 
-.. cmdoption:: --build_dir <path>
+.. cmdoption:: --build-dir <path>
 
    Specify the path of the build directory. Will use ``settings.BUILD_DIR`` by default.
 
@@ -68,7 +68,7 @@ changed files are updated and absent files are deleted.
 
     Specify the AWS bucket to sync with. Will use settings.AWS_BUCKET_NAME by default.
 
-.. cmdoption:: --build_dir <path>
+.. cmdoption:: --build-dir <path>
 
     Specify the path of the build directory. Will use settings.BUILD_DIR by default.
 
