@@ -16,6 +16,7 @@ env:
     - DJANGO_VERSION=1.11.*
     - DJANGO_VERSION=2.0.*
     - DJANGO_VERSION=2.1.*
+    - DJANGO_VERSION=2.2.*
 
 matrix:
   exclude:
@@ -23,6 +24,8 @@ matrix:
     env: DJANGO_VERSION=2.0.*
   - python: "2.7"
     env: DJANGO_VERSION=2.1.*
+  - python: "2.7"
+    env: DJANGO_VERSION=2.2.*
 
 before_install:
     # Fix boto bug with Travis and sudo:required
