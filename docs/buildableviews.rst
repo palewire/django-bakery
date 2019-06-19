@@ -196,7 +196,7 @@ BuildableDetailView
         from bakery.views import BuildableDetailView
 
 
-        class ExampleDetailView(BuildableListView):
+        class ExampleDetailView(BuildableDetailView):
             queryset = MyModel.objects.filter(is_published=True)
             template_name = 'mymodel_detail.html'
 
