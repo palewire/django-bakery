@@ -268,6 +268,56 @@ class BakeryTest(TestCase):
         self.assertTrue(os.path.exists(build_path))
         os.remove(build_path)
 
+    def test_list_view_with_pagination(self):
+        v = views.BuildableListView(
+            queryset=[1, 2, 3],
+            template_name='listview.html',
+            build_path='foo.html',
+        )
+        v.paginate_by = 2
+        v.build_method()
+        page_default_path = os.path.join(settings.BUILD_DIR, 'foo.html')
+        page_1_path = os.path.join(settings.BUILD_DIR, 'page', '1', 'foo.html')
+        page_2_path = os.path.join(settings.BUILD_DIR, 'page', '2', 'foo.html')
+        self.assertTrue(os.path.exists(page_default_path))
+        self.assertTrue(os.path.exists(page_1_path))
+        self.assertTrue(os.path.exists(page_2_path))
+        os.remove(page_default_path)
+        os.remove(page_1_path)
+        os.remove(page_2_path)
+
+        v = views.BuildableListView(
+            queryset=[1, 2, 3, 4, 5, 6, 7, 8, 9],
+            template_name='listview.html',
+            build_path='foo.html',
+        )
+        v.paginate_by = 7
+        v.build_method()
+        page_default_path = os.path.join(settings.BUILD_DIR, 'foo.html')
+        page_1_path = os.path.join(settings.BUILD_DIR, 'page', '1', 'foo.html')
+        page_2_path = os.path.join(settings.BUILD_DIR, 'page', '2', 'foo.html')
+        self.assertTrue(os.path.exists(page_default_path))
+        self.assertTrue(os.path.exists(page_1_path))
+        self.assertTrue(os.path.exists(page_2_path))
+        os.remove(page_default_path)
+        os.remove(page_1_path)
+        os.remove(page_2_path)
+        v.paginate_by = 3
+        v.build_method()
+        page_default_path = os.path.join(settings.BUILD_DIR, 'foo.html')
+        page_1_path = os.path.join(settings.BUILD_DIR, 'page', '1', 'foo.html')
+        page_2_path = os.path.join(settings.BUILD_DIR, 'page', '2', 'foo.html')
+        page_3_path = os.path.join(settings.BUILD_DIR, 'page', '3', 'foo.html')
+        self.assertTrue(os.path.exists(page_default_path))
+        self.assertTrue(os.path.exists(page_1_path))
+        self.assertTrue(os.path.exists(page_2_path))
+        self.assertTrue(os.path.exists(page_3_path))
+        os.remove(page_default_path)
+        os.remove(page_1_path)
+        os.remove(page_2_path)
+        os.remove(page_3_path)
+
+
     def test_detail_view(self):
         v = views.BuildableDetailView(
             queryset=MockObject.objects.all(),

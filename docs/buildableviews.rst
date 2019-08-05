@@ -49,6 +49,10 @@ BuildableListView
     Render and builds a page about a list of objects. Extended from Django's
     generic `ListView <https://docs.djangoproject.com/en/dev/ref/class-based-views/generic-display/#django.views.generic.list.ListView>`_.
     The base class has a number of options not documented here you should consult.
+    Pagination is handled like a django ListView, and templates should be
+    designed in the same way.
+    When pagination is enabled the default build locations for the first page are: build_folder/build_path and /build_folder/build_page_name/1/build_path, with other pages only built in:
+    /build_folder/build_page_name/<page_number>/build_path
 
     .. attribute:: model
 
@@ -62,6 +66,19 @@ BuildableListView
         any iterable of items, not just a Django queryset. Optional, but
         if this attribute is not defined the ``model`` attribute must be
         defined.
+
+    .. attribute:: build_folder
+
+        The target location of the flat file in the ``BUILD_DIR``.
+        Optional. The default is blank,  would place the flat file
+        at the site's root. Defining it as ``foo/`` would place
+        the flat file inside a subdirectory foo/.
+
+    .. attribute:: build_page_name
+
+        The target location of the flat file in the ``BUILD_DIR``.
+        Optional. The default is ``page``,  would place the page file
+        in /page/1/<build_path>, /page/2/<build_path>.
 
     .. attribute:: build_path
 
@@ -79,6 +96,14 @@ BuildableListView
     .. py:attribute:: build_method
 
         An alias to the ``build_queryset`` method used by the :doc:`management commands </managementcommands>`
+
+    .. py:method:: get_page_build_path()
+
+        Create the path to build each page in pagination
+        Defaults to building in:
+        <build_folder>/<build_page_name>/<page>/<build_path>
+        The current page is held in self.kwargs['page']
+
 
     .. py:method:: build_queryset()
 
