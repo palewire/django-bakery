@@ -317,7 +317,6 @@ class BakeryTest(TestCase):
         os.remove(page_2_path)
         os.remove(page_3_path)
 
-
     def test_detail_view(self):
         v = views.BuildableDetailView(
             queryset=MockObject.objects.all(),

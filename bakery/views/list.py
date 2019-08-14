@@ -3,6 +3,7 @@ Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
 import logging
+import math
 from fs import path
 from .base import BuildableMixin
 from django.conf import settings
@@ -41,7 +42,6 @@ class BuildableListView(ListView, BuildableMixin):
     build_page_name = "page"
     build_path = 'index.html'
 
-
     @property
     def build_method(self):
         if self.get_paginate_by(self.queryset):
@@ -53,7 +53,9 @@ class BuildableListView(ListView, BuildableMixin):
         """
         If pagination is enabled, build the queryset for each page.
         """
-        number_of_pages = math.ceil(len(self.queryset) / self.paginate_by)
+
+        number_of_pages = int(math.ceil(len(self.queryset) /
+                              float(self.paginate_by)))
         if not hasattr(self, "kwargs"):
             self.kwargs = {}
         for page in range(0, number_of_pages + 1):
@@ -67,20 +69,17 @@ class BuildableListView(ListView, BuildableMixin):
         <build_folder>/<build_page_name>/<page>/<build_path>
         The current page is held in self.kwargs['page']
         """
-        build_path = path.join( self.build_folder,
-                                self.build_page_name,
-                                str(self.kwargs['page']),
-                                self.build_path)
+        build_path = path.join(self.build_folder, self.build_page_name,
+                               str(self.kwargs['page']), self.build_path)
         return build_path
 
     def get_build_path(self):
         build_path = ''
-        if self.get_paginate_by(self.queryset):
+        if self.get_paginate_by(self.queryset) and self.kwargs['page']:
             build_path = self.get_page_build_path()
         else:
             build_path = path.join(self.build_folder, self.build_path)
         return build_path
-
 
     def build_queryset(self):
         logger.debug("Building %s" % self.get_build_path())
