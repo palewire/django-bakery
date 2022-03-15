@@ -46,7 +46,7 @@ View names passed as arguments will override the ``BAKERY_VIEWS`` list.
 
 .. code-block:: bash
 
-    $ python manage.py yourapp.views.DummyL­istView
+    $ python manage.py build yourapp.views.DummyL­istView
 
 buildserver
 -----------
