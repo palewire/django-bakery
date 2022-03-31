@@ -60,7 +60,7 @@ Considering alternatives
 ------------------------
 
 If you are seeking to "bake" out a very simple site, maybe you don't have a database or only a single page, it is quicker
-to try `Tarbell <http://tarbell.tribapps.com/>`_ or `Frozen-Flask <https://pythonhosted.org/Frozen-Flask/>`_, which don't require all
+to try `Tarbell <https://github.com/tarbell-project/tarbell>`_ or `Frozen-Flask <https://pythonhosted.org/Frozen-Flask/>`_, which don't require all
 the overhead of a full Django installation.
 
 This library is better to suited for projects that require a database, want to take advantage of other Django features (like the administration panel)
