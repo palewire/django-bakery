@@ -56,6 +56,9 @@ jobs:
       - id: run
         name: Run
         run: pipenv run python setup.py test
+        env:
+          AWS_ACCESS_KEY_ID: 'MOCK_ACCESS_KEY_ID'
+          AWS_SECRET_ACCESS_KEY: 'MOCK_SECRET_ACCESS_KEY'
 
   test-build:
     name: Build Python package
