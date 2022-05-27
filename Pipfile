@@ -10,14 +10,11 @@ celery = "*"
 fs = "*"
 
 [dev-packages]
-django = ">=2.0.8"
+django = "==2.0.*"
 Sphinx = "*"
 "flake8" = "*"
-python-coveralls = "*"
 moto = "*"
 twine = "*"
-requests = ">=2.20.0"
-cryptography = ">=2.3"
 
 [requires]
-python_version = "3.6"
+python_version = "3.9"
