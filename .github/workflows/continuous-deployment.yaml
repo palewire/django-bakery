@@ -49,7 +49,7 @@ jobs:
       - id: pipenv-install
         name: Install Python dependencies
         run: |
-            pipenv install
+            pipenv install --python=${{ matrix.python }}
             pipenv install moto Django~=${{ matrix.django }}
         shell: bash
 
