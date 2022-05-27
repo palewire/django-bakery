@@ -51,8 +51,8 @@ jobs:
       - id: pipenv-install
         name: Install Python dependencies
         run: |
-            pipenv install --python=${{ matrix.python }}
-            pipenv install moto Django~=${{ matrix.django }}
+            pipenv install --skip-lock --python=${{ matrix.python }}
+            pipenv install moto Django~=${{ matrix.django }} --skip-lock --python=${{ matrix.python }}
         shell: bash
 
       - id: run
@@ -81,7 +81,7 @@ jobs:
 
       - id: pipenv-install
         name: Install Python dependencies
-        run: pipenv install --dev --python `which python`
+        run: pipenv install twine --skip-lock --python `which python`
         shell: bash
 
       - id: build
