@@ -22,10 +22,12 @@ jobs:
       - id: pipenv-install
         name: Install Python dependencies
         run: pipenv install flake8 --skip-lock --python `which python`
+        shell: bash
 
       - id: run
         name: Run
         run: pipenv run flake8 bakery
+        shell: bash
 
   test-python:
     strategy:
@@ -56,6 +58,7 @@ jobs:
       - id: run
         name: Run
         run: pipenv run python setup.py test
+        shell: bash
         env:
           AWS_ACCESS_KEY_ID: 'MOCK_ACCESS_KEY_ID'
           AWS_SECRET_ACCESS_KEY: 'MOCK_SECRET_ACCESS_KEY'
@@ -79,6 +82,7 @@ jobs:
       - id: pipenv-install
         name: Install Python dependencies
         run: pipenv install --dev --python `which python`
+        shell: bash
 
       - id: build
         name: Build release
@@ -86,11 +90,12 @@ jobs:
             pipenv run python setup.py sdist
             pipenv run python setup.py bdist_wheel
             ls -l dist
+        shell: bash
 
       - id: check
         name: Check release
-        run: |
-            pipenv run twine check dist/*
+        run: pipenv run twine check dist/*
+        shell: bash
 
       - id: save
         name: Save artifact
