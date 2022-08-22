@@ -544,7 +544,7 @@ class BakeryTest(TestCase):
             for i in range(0, 377):
                 key = str(i)
                 obj = s3.Object(settings.AWS_BUCKET_NAME, key)
-                obj.put('This is test object %s' % i)
+                obj.put(Body='This is test object %s' % i)
                 keys.append(key)
             call_command("unpublish", verbosity=3)
             self.assertFalse(self._get_bucket_objects())
@@ -595,7 +595,7 @@ class BakeryTest(TestCase):
             for i in range(0, 33):
                 key = str(i)
                 obj = s3.Object(settings.AWS_BUCKET_NAME, key)
-                obj.put('This is test object %s' % i)
+                obj.put(Body='This is test object %s' % i)
                 keys.append(key)
             all_objects = get_all_objects_in_bucket(
                 settings.AWS_BUCKET_NAME,
@@ -615,7 +615,7 @@ class BakeryTest(TestCase):
             for i in range(0, 33):
                 key = str(i)
                 obj = s3.Object(settings.AWS_BUCKET_NAME, key)
-                obj.put('This is test object %s' % i)
+                obj.put(Body='This is test object %s' % i)
                 keys.append(key)
 
             all_objects = self._get_bucket_objects()
