@@ -32,8 +32,11 @@ jobs:
   test-python:
     strategy:
       matrix:
-        python: ['3.7',]
+        python: ['3.7', '3.8']
         django: ['2.2', '3.2', '4.1']
+        exclude:
+          - python: '3.7'
+            django: '4.1'
     name: Test
     runs-on: ubuntu-latest
     steps:
