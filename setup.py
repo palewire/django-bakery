@@ -73,6 +73,7 @@ class TestCommand(Command):
             AWS_ACCESS_KEY_ID = 'MOCK_ACCESS_KEY_ID',
             AWS_SECRET_ACCESS_KEY = 'MOCK_SECRET_ACCESS_KEY',
             AWS_BUCKET_NAME = 'mock_bucket',
+            AWS_REGION='us-west-1',
             # Celery configuration
             BROKER_URL = 'django://',
         )

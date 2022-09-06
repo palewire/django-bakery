@@ -13,8 +13,8 @@ fs = "*"
 django = "==2.0.*"
 Sphinx = "*"
 "flake8" = "*"
-moto = "*"
 twine = "*"
+moto = {extras = ["all", "ec2", "s3"], version = "*"}
 
 [requires]
 python_version = "3.9"
