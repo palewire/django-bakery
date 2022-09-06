@@ -15,7 +15,7 @@ from bakery import DEFAULT_GZIP_CONTENT_TYPES
 # Filesystem
 from fs import path
 from fs import copy
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 
 # Pooling
 import multiprocessing
@@ -130,9 +130,9 @@ Will use settings.BUILD_DIR by default."
             self.build_dir = settings.BUILD_DIR
 
         # Get the datatypes right so fs will be happy
-        self.build_dir = smart_text(self.build_dir)
-        self.static_root = smart_text(settings.STATIC_ROOT)
-        self.media_root = smart_text(settings.MEDIA_ROOT)
+        self.build_dir = smart_str(self.build_dir)
+        self.static_root = smart_str(settings.STATIC_ROOT)
+        self.media_root = smart_str(settings.MEDIA_ROOT)
 
         # Connect the BUILD_DIR with our filesystem backend
         self.app = apps.get_app_config("bakery")
@@ -185,7 +185,7 @@ Will use settings.BUILD_DIR by default."
             self.build_dir,
             settings.STATIC_URL.lstrip('/')
         )
-        target_dir = smart_text(target_dir)
+        target_dir = smart_str(target_dir)
 
         if os.path.exists(self.static_root) and settings.STATIC_URL:
             if getattr(settings, 'BAKERY_GZIP', False):
@@ -220,7 +220,7 @@ Will use settings.BUILD_DIR by default."
         if os.path.exists(self.media_root) and settings.MEDIA_URL:
             target_dir = path.join(self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip('/'))
             logger.debug("Copying {}{} to {}{}".format("osfs://", self.media_root, self.fs_name, target_dir))
-            copy.copy_dir("osfs:///", smart_text(self.media_root), self.fs, smart_text(target_dir))
+            copy.copy_dir("osfs:///", smart_str(self.media_root), self.fs, smart_str(target_dir))
 
     def get_view_instance(self, view):
         """
@@ -305,7 +305,7 @@ Will use settings.BUILD_DIR by default."
                 self.fs_name,
                 target_path
             ))
-            copy.copy_file("osfs:///", smart_text(source_path), self.fs, smart_text(target_path))
+            copy.copy_file("osfs:///", smart_str(source_path), self.fs, smart_str(target_path))
 
         # # if the file is already gzipped
         elif encoding == 'gzip':
@@ -315,7 +315,7 @@ Will use settings.BUILD_DIR by default."
                 self.fs_name,
                 target_path
             ))
-            copy.copy_file("osfs:///", smart_text(source_path), self.fs, smart_text(target_path))
+            copy.copy_file("osfs:///", smart_str(source_path), self.fs, smart_str(target_path))
 
         # If it is one we want to gzip...
         else:
@@ -341,6 +341,6 @@ Will use settings.BUILD_DIR by default."
                     f.write(six.binary_type(source_file.read()))
 
                 # Write that buffer out to the filesystem
-                with self.fs.open(smart_text(target_path), 'wb') as outfile:
+                with self.fs.open(smart_str(target_path), 'wb') as outfile:
                     outfile.write(data_buffer.getvalue())
                     outfile.close()

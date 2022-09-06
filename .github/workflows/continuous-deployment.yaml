@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         python: ['3.7',]
-        django: ['2.2', '3.2']
+        django: ['2.2', '3.2', '4.0']
     name: Test
     runs-on: ubuntu-latest
     steps:

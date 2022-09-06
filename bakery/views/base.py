@@ -14,7 +14,7 @@ import mimetypes
 from fs import path
 from django.apps import apps
 from django.conf import settings
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from django.test.client import RequestFactory
 from bakery.management.commands import get_s3_client
@@ -74,7 +74,7 @@ class BuildableMixin(object):
         Writes out the provided HTML to the provided path.
         """
         logger.debug("Building to {}{}".format(self.fs_name, target_path))
-        with self.fs.open(smart_text(target_path), 'wb') as outfile:
+        with self.fs.open(smart_str(target_path), 'wb') as outfile:
             outfile.write(six.binary_type(html))
             outfile.close()
 
@@ -120,7 +120,7 @@ class BuildableMixin(object):
             f.write(six.binary_type(html))
 
         # Write that buffer out to the filesystem
-        with self.fs.open(smart_text(target_path), 'wb') as outfile:
+        with self.fs.open(smart_str(target_path), 'wb') as outfile:
             outfile.write(data_buffer.getvalue())
             outfile.close()
 
