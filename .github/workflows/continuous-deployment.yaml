@@ -72,19 +72,19 @@ jobs:
     needs: [test-python]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install pipenv
         run: pipx install pipenv
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pipenv'
 
-      - id: pipenv-install
+      - id: install-python-dependencies
         name: Install Python dependencies
-        run: pipenv install twine --skip-lock --python `which python`
+        run: pipenv install --dev --python `which python`
         shell: bash
 
       - id: build
@@ -114,13 +114,13 @@ jobs:
     needs: [test-build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
       - id: fetch
         name: Fetch artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: test-release-${{ github.run_number }}
           path: ./dist
