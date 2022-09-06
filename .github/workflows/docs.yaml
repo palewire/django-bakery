@@ -1,0 +1,29 @@
+name: "Build documentation"
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  docs:
+    name: "Build and deploy"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "docs/"
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: documentation-html
+        path: docs/_build/html/
+
+    - uses: shallwefootball/s3-upload-action@master
+      with:
+        aws_key_id: ${{ secrets.PALEWIRE_DOCS_AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key: ${{ secrets.PALEWIRE_DOCS_AWS_SECRET_ACCESS_KEY }}
+        aws_bucket: ${{ secrets.PALEWIRE_DOCS_AWS_BUCKET }}
+        source_dir: docs/_build/html/
+        destination_dir: django-bakery
