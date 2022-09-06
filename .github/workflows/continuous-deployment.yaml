@@ -76,6 +76,7 @@ jobs:
 
       - name: Install pipenv
         run: pipx install pipenv
+        shell: bash
 
       - uses: actions/setup-python@v4
         with:
