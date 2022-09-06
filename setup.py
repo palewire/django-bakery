@@ -4,6 +4,18 @@ from setuptools import setup
 from distutils.core import Command
 
 
+def read(file_name):
+    """Read in the supplied file name from the root directory.
+    Args:
+        file_name (str): the name of the file
+    Returns: the content of the file
+    """
+    this_dir = os.path.dirname(__file__)
+    file_path = os.path.join(this_dir, file_name)
+    with open(file_path) as f:
+        return f.read()
+
+
 class TestCommand(Command):
     user_options = []
 
@@ -87,9 +99,11 @@ setup(
     name='django-bakery',
     version='0.12.7',
     description='A set of helpers for baking your Django site out as flat files',
-    author='The Los Angeles Times Data Desk',
-    author_email='datadesk@latimes.com',
-    url='http://www.github.com/datadesk/django-bakery/',
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
+    author='Ben Welsh',
+    author_email='b@palewi.re',
+    url='http://www.github.com/palewire/django-bakery/',
     license="MIT",
     packages=(
         'bakery',
