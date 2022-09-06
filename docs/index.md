@@ -54,7 +54,7 @@ credits
 - The [pretalx](https://pretalx.org) open-source conference management system
 - The [static-site extension](https://github.com/moorinteractive/wagtail-bakery) to the Wagtail content management system
 
-Have you used django bakery for something cool? Send a link to [ben.welsh@gmail.com](mailto:ben.welsh@gmail.com) and we will add it to this list.
+Have you used django bakery for something cool? Send a link to [b@palewi.re](mailto:b@palewi.re) and we will add it to this list.
 
 ## Considering alternatives
 
