@@ -1,233 +1,237 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>django-bakery &mdash; django-bakery 0.7.6 documentation</title>
-    
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.7.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-bakery 0.7.6 documentation" href="#" />
-    <link rel="next" title="Getting started" href="gettingstarted.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="gettingstarted.html" title="Getting started"
-             accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">django-bakery 0.7.6 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>django-bakery &#8212; django-bakery  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started" href="gettingstarted.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+    <link rel="canonical" href="https://palewi.re/docs/django-bakery/index.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="django-bakery">
-<h1>django-bakery<a class="headerlink" href="#django-bakery" title="Permalink to this headline">¶</a></h1>
+  <nav>
+    <div class="row">
+        <div class="sevencol">
+            <div class="shingle">
+                <a href="https://palewi.re/">
+                    <div rel="rnews:copyrightedBy rnews:hasSource rnews:providedBy">
+                        <div about="http://palewi.re/" typeof="rnews:Organization">
+                            <div property="rnews:name">palewire</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="fivecol last links">
+            <ul>
+                <li>
+                    <a href="http://palewi.re/posts/" title="Posts">
+                        Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/work/" title="Work">
+                        Work
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/talks/" title="Talks">
+                        Talks
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/docs/" title="Docs">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/who-is-ben-welsh/" title="Who is Ben Welsh?">
+                        About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row topbar">
+    <div class="twelvecol last"></div>
+</div>
+<section id="django-bakery">
+<h1>django-bakery<a class="headerlink" href="#django-bakery" title="Permalink to this heading">¶</a></h1>
 <p>A set of helpers for baking your Django site out as flat files</p>
-<div class="section" id="why-and-what-for">
-<h2>Why and what for<a class="headerlink" href="#why-and-what-for" title="Permalink to this headline">¶</a></h2>
-<p>The code documented here is intended to make it easier to save every page gen­er­ated by a data­base-backed site as a flat file so you can host them us­ing a stat­ic file ser­vice like <a class="reference external" href="http://en.wikipedia.org/wiki/Amazon_S3">Amazon S3</a>.</p>
-<p>At the Los Angeles Times Data Desk, we call this pro­cess “bak­ing.” It’s our path to cheap­, stable host­ing for simple sites. We&#8217;ve used it for pub­lish­ing <a class="reference external" href="http://graphics.latimes.com/2012-election-gop-results-map-iowa/">elec­tion res­ults</a>, <a class="reference external" href="http://timelines.latimes.com/complete-guide-lafd-hiring-controversy/">timelines</a>, <a class="reference external" href="http://documents.latimes.com/barack-obama-long-form-birth-certificate/">doc­u­ments</a>, <a class="reference external" href="http://spreadsheets.latimes.com/city-appointees-tied-garcetti/">in­ter­act­ive tables</a>, <a class="reference external" href="http://graphics.latimes.com/flight-from-rage/">spe­cial pro­jects</a> and <a class="reference external" href="http://graphics.latimes.com/towergraphic-washington-landslide-victims/">numerous</a> <a class="reference external" href="http://graphics.latimes.com/how-fast-is-lafd/">other</a> <a class="reference external" href="http://graphics.latimes.com/picksheet-critics-picks-april-4-10-2014/">things</a>.</p>
+<section id="why-and-what-for">
+<h2>Why and what for<a class="headerlink" href="#why-and-what-for" title="Permalink to this heading">¶</a></h2>
+<p>The code documented here is intended to make it easier to save every page gen­er­ated by a data­base-backed site as a flat file. This allows you to host the site us­ing a stat­ic-file ser­vice like <a class="reference external" href="http://en.wikipedia.org/wiki/Amazon_S3">Amazon S3</a>.</p>
+<p>At the Los Angeles Times Data Desk, we call this pro­cess “bak­ing.” It’s our path to cheap­, stable host­ing for simple sites. We’ve used it for pub­lish­ing <a class="reference external" href="http://graphics.latimes.com/2012-election-gop-results-map-iowa/">elec­tion res­ults</a>, <a class="reference external" href="http://timelines.latimes.com/complete-guide-lafd-hiring-controversy/">timelines</a>, <a class="reference external" href="http://documents.latimes.com/barack-obama-long-form-birth-certificate/">doc­u­ments</a>, <a class="reference external" href="http://spreadsheets.latimes.com/city-appointees-tied-garcetti/">in­ter­act­ive tables</a>, <a class="reference external" href="http://graphics.latimes.com/flight-from-rage/">spe­cial pro­jects</a> and <a class="reference external" href="http://graphics.latimes.com/towergraphic-washington-landslide-victims/">numerous</a> <a class="reference external" href="http://graphics.latimes.com/how-fast-is-lafd/">other</a> <a class="reference external" href="http://graphics.latimes.com/picksheet-critics-picks-april-4-10-2014/">things</a>.</p>
 <p>The sys­tem comes with some ma­jor ad­vant­ages, like:</p>
 <ol class="arabic simple">
-<li>No data­base crashes</li>
-<li>Zero serv­er con­fig­ur­a­tion and up­keep</li>
-<li>No need to op­tim­ize your app code</li>
-<li>You don’t pay to host CPUs, only band­width</li>
-<li>An off­line ad­min­is­tra­tion pan­el is more se­cure</li>
-<li>Less stress (This one can change your life)</li>
+<li><p>No data­base crashes</p></li>
+<li><p>Zero serv­er con­fig­ur­a­tion and up­keep</p></li>
+<li><p>No need to op­tim­ize your app code</p></li>
+<li><p>You don’t pay to host CPUs, only band­width</p></li>
+<li><p>An off­line ad­min­is­tra­tion pan­el is more se­cure</p></li>
+<li><p>Less stress (This one can change your life)</p></li>
 </ol>
-<p>There are draw­backs. For one, you have to integrate the &#8220;bakery&#8221; in­to your code base. More im­port­ant, a flat site can only be so com­plex. No on­line data­base means your site is all read and no write, which means no user-gen­er­ated con­tent and no com­plex searches.</p>
-<p><a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">Django&#8217;s class-based views</a> are at the heart of our approach. Putting all the pieces together is a little tricky at first, particularly if you haven&#8217;t studied <a class="reference external" href="https://github.com/django/django/tree/master/django/views/generic">the Django source code</a> or lack experience <a class="reference external" href="http://www.diveintopython.net/object_oriented_framework/defining_classes.html">working with Python classes</a> in general. But once you figure it out, you can do all kinds of crazy things: Like configuring Django to bake out your entire site with a single command.</p>
-<p>Here&#8217;s how.</p>
-</div>
-<div class="section" id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>There are draw­backs. For one, you have to integrate the “bakery” in­to your code base. More im­port­ant, a flat site can only be so com­plex. No on­line data­base means your site is all read and no write, which means no user-gen­er­ated con­tent and no com­plex searches.</p>
+<p><a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/class-based-views/">Django’s class-based views</a> are at the heart of our approach. Putting all the pieces together is a little tricky at first, particularly if you haven’t studied <a class="reference external" href="https://github.com/django/django/tree/master/django/views/generic">the Django source code</a> or lack experience <a class="reference external" href="http://www.diveintopython.net/object_oriented_framework/defining_classes.html">working with Python classes</a> in general. But once you figure it out, you can do all kinds of crazy things: Like configuring Django to bake out your entire site with a single command.</p>
+<p>Here’s how.</p>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#execution">Execution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#optimization">Optimization</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="commonchallenges.html">Common challenges</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="commonchallenges.html#configuring-where-detail-pages-are-built">Configuring where detail pages are built</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commonchallenges.html#building-json-instead-of-html">Building JSON instead of HTML</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commonchallenges.html#building-a-single-view-on-demand">Building a single view on demand</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="buildableviews.html">Buildable views</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="buildableviews.html#buildabletemplateview">BuildableTemplateView</a></li>
-<li class="toctree-l2"><a class="reference internal" href="buildableviews.html#buildablelistview">BuildableListView</a></li>
-<li class="toctree-l2"><a class="reference internal" href="buildableviews.html#buildabledetailview">BuildableDetailView</a></li>
-<li class="toctree-l2"><a class="reference internal" href="buildableviews.html#buildable404view">Buildable404View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="buildableviews.html#buildableredirectview">BuildableRedirectView</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="buildablemodels.html">Buildable models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="buildablemodels.html#models-that-build-themselves">Models that build themselves</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="buildablemodels.html#buildablemodel">BuildableModel</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="buildablemodels.html#models-that-publish-themselves">Models that publish themselves</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="buildablemodels.html#autopublishingbuildablemodel">AutoPublishingBuildableModel</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="buildablefeeds.html">Buildable feeds</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="buildablefeeds.html#buildablefeed">BuildableFeed</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="settingsvariables.html">Settings variables</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#allow-bakery-auto-publishing">ALLOW_BAKERY_AUTO_PUBLISHING</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#build-dir">BUILD_DIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#bakery-views">BAKERY_VIEWS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#aws-bucket-name">AWS_BUCKET_NAME</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#aws-access-key-id">AWS_ACCESS_KEY_ID</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#aws-secret-access-key">AWS_SECRET_ACCESS_KEY</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#bakery-gzip">BAKERY_GZIP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#gzip-content-types">GZIP_CONTENT_TYPES</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#default-acl">DEFAULT_ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settingsvariables.html#bakery-cache-control">BAKERY_CACHE_CONTROL</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="managementcommands.html">Management commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="managementcommands.html#build">build</a></li>
-<li class="toctree-l2"><a class="reference internal" href="managementcommands.html#buildserver">buildserver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="managementcommands.html#publish">publish</a></li>
-<li class="toctree-l2"><a class="reference internal" href="managementcommands.html#unbuild">unbuild</a></li>
-<li class="toctree-l2"><a class="reference internal" href="managementcommands.html#unpublish">unpublish</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.7.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">0.7.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">0.7.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id4">0.7.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id5">0.7.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id6">0.7.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id7">0.6.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id8">0.6.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id9">0.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id10">0.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id11">0.4.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id12">0.4.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id13">0.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id14">0.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id15">0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id16">0.1.0</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commonchallenges.html">Common challenges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildableviews.html">Buildable views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildablemodels.html">Buildable models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildablefeeds.html">Buildable feeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settingsvariables.html">Settings variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="managementcommands.html">Management commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="considering-alternatives">
-<h2>Considering alternatives<a class="headerlink" href="#considering-alternatives" title="Permalink to this headline">¶</a></h2>
-<p>If you are seeking to &#8220;bake&#8221; out a very simple site, maybe you don&#8217;t have a database or only a single page, it is quicker
-to try <a class="reference external" href="http://tarbell.tribapps.com/">Tarbell</a> or <a class="reference external" href="https://pythonhosted.org/Frozen-Flask/">Frozen-Flask</a>, which don&#8217;t require all
+</section>
+<section id="in-the-wild">
+<h2>In the wild<a class="headerlink" href="#in-the-wild" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Hundreds of Los Angeles Times custom pages at <a class="reference external" href="http://www.latimes.com/projects/">latimes.com/projects</a> and <a class="reference external" href="http://graphics.latimes.com/">graphics.latimes.com</a></p></li>
+<li><p>The California Civic Data Coalition’s <a class="reference external" href="https://calaccess.californiacivicdata.org/downloads/latest/">data downloads</a></p></li>
+<li><p><a class="reference external" href="https://apps.statesman.com/votetracker/entities/austin-city-council/">A</a> <a class="reference external" href="https://apps.statesman.com/sxsw/2017/">series</a> <a class="reference external" href="https://apps.statesman.com/question-of-restraint/data/">of</a> <a class="reference external" href="https://apps.statesman.com/homicides/">projects</a> <a class="reference external" href="https://apps.statesman.com/council-candidate-explorer/election/2016/">by</a> <a class="reference external" href="https://apps.statesman.com/austin360/eats/">the</a> <a class="reference external" href="https://apps.statesman.com/austin360/booze-guide/">Austin American Statesman</a></p></li>
+<li><p>The Dallas Morning News’ <a class="reference external" href="http://interactives.dallasnews.com/2017/the-85th/">legislative tracker</a></p></li>
+<li><p>Newsday’s <a class="reference external" href="http://data.newsday.com/crime/police-misconduct/">police misconduct investigation</a></p></li>
+<li><p>Southern California Public Radio’s <a class="reference external" href="http://projects.scpr.org/applications/monthly-water-use/">water report tracker</a></p></li>
+<li><p>The Daily Californian’s <a class="reference external" href="http://projects.dailycal.org/misconduct/">sexual misconduct case tracker</a></p></li>
+<li><p>The <a class="reference external" href="https://pretalx.org">pretalx</a> open-source conference management system</p></li>
+<li><p>The <a class="reference external" href="https://github.com/moorinteractive/wagtail-bakery">static-site extension</a> to the Wagtail content management system</p></li>
+</ul>
+<p>Have you used django bakery for something cool? Send a link to <a class="reference external" href="mailto:ben&#46;welsh&#37;&#52;&#48;gmail&#46;com">ben<span>&#46;</span>welsh<span>&#64;</span>gmail<span>&#46;</span>com</a> and we will add it to this list.</p>
+</section>
+<section id="considering-alternatives">
+<h2>Considering alternatives<a class="headerlink" href="#considering-alternatives" title="Permalink to this heading">¶</a></h2>
+<p>If you are seeking to “bake” out a very simple site, maybe you don’t have a database or only a single page, it is quicker
+to try <a class="reference external" href="https://github.com/tarbell-project/tarbell">Tarbell</a> or <a class="reference external" href="https://pythonhosted.org/Frozen-Flask/">Frozen-Flask</a>, which don’t require all
 the overhead of a full Django installation.</p>
 <p>This library is better to suited for projects that require a database, want to take advantage of other Django features (like the administration panel)
 or require more complex views.</p>
-</div>
-<div class="section" id="contributing">
-<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li>Code repository: <a class="reference external" href="https://github.com/datadesk/django-bakery">https://github.com/datadesk/django-bakery</a></li>
-<li>Issues: <a class="reference external" href="https://github.com/datadesk/django-bakery/issues">https://github.com/datadesk/django-bakery/issues</a></li>
-<li>Packaging: <a class="reference external" href="https://pypi.python.org/pypi/django-bakery">https://pypi.python.org/pypi/django-bakery</a></li>
-<li>Testing: <a class="reference external" href="https://travis-ci.org/datadesk/django-bakery">https://travis-ci.org/datadesk/django-bakery</a></li>
-<li>Coverage: <a class="reference external" href="https://coveralls.io/r/datadesk/django-bakery">https://coveralls.io/r/datadesk/django-bakery</a></li>
+<li><p>Code repository: <a class="reference external" href="https://palewi.re/docs/docs/django-bakery/">https://palewi.re/docs/docs/django-bakery/</a></p></li>
+<li><p>Issues: <a class="reference external" href="https://github.com/datadesk/django-bakery/issues">https://github.com/datadesk/django-bakery/issues</a></p></li>
+<li><p>Packaging: <a class="reference external" href="https://pypi.python.org/pypi/django-bakery">https://pypi.python.org/pypi/django-bakery</a></p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          <a href="gettingstarted.html" title="Next document">Getting started</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">django-bakery</a><ul>
-<li><a class="reference internal" href="#why-and-what-for">Why and what for</a></li>
-<li><a class="reference internal" href="#documentation">Documentation</a></li>
-<li><a class="reference internal" href="#considering-alternatives">Considering alternatives</a></li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
-</ul>
-</li>
+<h1 class="logo"><a href="#">django-bakery</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commonchallenges.html">Common challenges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildableviews.html">Buildable views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildablemodels.html">Buildable models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildablefeeds.html">Buildable feeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settingsvariables.html">Settings variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="managementcommands.html">Management commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
 </ul>
 
-  <h4>Next topic</h4>
-  <p class="topless"><a href="gettingstarted.html"
-                        title="next chapter">Getting started</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="gettingstarted.html" title="next chapter">Getting started</a></li>
+  </ul></li>
+</ul>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="gettingstarted.html" title="Getting started"
-             >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">django-bakery 0.7.6 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2022 Ben Welsh.
+      
+      |
+      <a href="_sources/index.md.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Los Angeles Times Data Desk.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

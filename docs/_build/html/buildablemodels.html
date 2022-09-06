@@ -1,119 +1,154 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Buildable models &mdash; django-bakery 0.7.6 documentation</title>
-    
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.7.6',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-bakery 0.7.6 documentation" href="index.html" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Buildable models &#8212; django-bakery  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Buildable feeds" href="buildablefeeds.html" />
-    <link rel="prev" title="Buildable views" href="buildableviews.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="buildablefeeds.html" title="Buildable feeds"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="buildableviews.html" title="Buildable views"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+    <link rel="prev" title="Buildable views" href="buildableviews.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+    <link rel="canonical" href="https://palewi.re/docs/django-bakery/buildablemodels.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="buildable-models">
-<h1>Buildable models<a class="headerlink" href="#buildable-models" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="models-that-build-themselves">
-<h2>Models that build themselves<a class="headerlink" href="#models-that-build-themselves" title="Permalink to this headline">¶</a></h2>
+  <nav>
+    <div class="row">
+        <div class="sevencol">
+            <div class="shingle">
+                <a href="https://palewi.re/">
+                    <div rel="rnews:copyrightedBy rnews:hasSource rnews:providedBy">
+                        <div about="http://palewi.re/" typeof="rnews:Organization">
+                            <div property="rnews:name">palewire</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="fivecol last links">
+            <ul>
+                <li>
+                    <a href="http://palewi.re/posts/" title="Posts">
+                        Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/work/" title="Work">
+                        Work
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/talks/" title="Talks">
+                        Talks
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/docs/" title="Docs">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/who-is-ben-welsh/" title="Who is Ben Welsh?">
+                        About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row topbar">
+    <div class="twelvecol last"></div>
+</div>
+<section id="buildable-models">
+<h1>Buildable models<a class="headerlink" href="#buildable-models" title="Permalink to this heading">¶</a></h1>
+<section id="models-that-build-themselves">
+<h2>Models that build themselves<a class="headerlink" href="#models-that-build-themselves" title="Permalink to this heading">¶</a></h2>
 <p>If your site pub­lishes numerous pages built from a large data­base, the build-and-pub­lish routine can take
 a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally
 mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire
 data­base to re­build every time there’s a minor edit.</p>
 <p>We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els.
 When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that
-ob­ject is con­nec­ted to. We ac­com­plish this with a <code class="docutils literal"><span class="pre">BuildableModel</span></code> class
+ob­ject is con­nec­ted to. We ac­com­plish this with a <code class="docutils literal notranslate"><span class="pre">BuildableModel</span></code> class
 you can in­her­it. It works the same as a standard Django model, except that
 you are asked define a list of the de­tail views con­nec­ted to each ob­ject.</p>
-<div class="section" id="buildablemodel">
-<h3>BuildableModel<a class="headerlink" href="#buildablemodel" title="Permalink to this headline">¶</a></h3>
-<dl class="class">
-<dt id="BuildableModel">
-<em class="property">class </em><code class="descname">BuildableModel</code><span class="sig-paren">(</span><em>models.Model</em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel" title="Permalink to this definition">¶</a></dt>
+<section id="buildablemodel">
+<h3>BuildableModel<a class="headerlink" href="#buildablemodel" title="Permalink to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="BuildableModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BuildableModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models.Model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>An abstract base model that creates an object that can builds out its own detail pages.</p>
-<dl class="attribute">
-<dt id="BuildableModel.detail_views">
-<code class="descname">detail_views</code><a class="headerlink" href="#BuildableModel.detail_views" title="Permalink to this definition">¶</a></dt>
-<dd><p>An iterable containing paths to the views that are built using the object, which should inherit from <a class="reference internal" href="buildableviews.html"><em>buildable class-based views</em></a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="BuildableModel.detail_views">
+<span class="sig-name descname"><span class="pre">detail_views</span></span><a class="headerlink" href="#BuildableModel.detail_views" title="Permalink to this definition">¶</a></dt>
+<dd><p>An iterable containing paths to the views that are built using the object, which should inherit from <a class="reference internal" href="buildableviews.html"><span class="doc">buildable class-based views</span></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="BuildableModel.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterates through the views pointed to by <code class="docutils literal"><span class="pre">detail_views</span></code>, running
-each view&#8217;s <code class="docutils literal"><span class="pre">build_object</span></code> method with <code class="docutils literal"><span class="pre">self</span></code>. Then calls <code class="docutils literal"><span class="pre">_build_extra()</span></code>
-and <code class="docutils literal"><span class="pre">_build_related()</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="BuildableModel.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through the views pointed to by <code class="docutils literal notranslate"><span class="pre">detail_views</span></code>, running
+each view’s <code class="docutils literal notranslate"><span class="pre">build_object</span></code> method with <code class="docutils literal notranslate"><span class="pre">self</span></code>. Then calls <code class="docutils literal notranslate"><span class="pre">_build_extra()</span></code>
+and <code class="docutils literal notranslate"><span class="pre">_build_related()</span></code>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="BuildableModel.unbuild">
-<code class="descname">unbuild</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel.unbuild" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterates through the views pointed to by <code class="docutils literal"><span class="pre">detail_views</span></code>, running
-each view&#8217;s <code class="docutils literal"><span class="pre">unbuild_object</span></code> method with <code class="docutils literal"><span class="pre">self</span></code>. Then calls <code class="docutils literal"><span class="pre">_unbuild_extra()</span></code>
-and <code class="docutils literal"><span class="pre">_build_related()</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="BuildableModel.unbuild">
+<span class="sig-name descname"><span class="pre">unbuild</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel.unbuild" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through the views pointed to by <code class="docutils literal notranslate"><span class="pre">detail_views</span></code>, running
+each view’s <code class="docutils literal notranslate"><span class="pre">unbuild_object</span></code> method with <code class="docutils literal notranslate"><span class="pre">self</span></code>. Then calls <code class="docutils literal notranslate"><span class="pre">_unbuild_extra()</span></code>
+and <code class="docutils literal notranslate"><span class="pre">_build_related()</span></code>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="BuildableModel._build_extra">
-<code class="descname">_build_extra</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel._build_extra" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="BuildableModel._build_extra">
+<span class="sig-name descname"><span class="pre">_build_extra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel._build_extra" title="Permalink to this definition">¶</a></dt>
 <dd><p>A place to include code that will build extra content related to the object
-that is not rendered by the <code class="docutils literal"><span class="pre">detail_views</span></code>, such a related image.
+that is not rendered by the <code class="docutils literal notranslate"><span class="pre">detail_views</span></code>, such a related image.
 Empty by default.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="BuildableModel._build_related">
-<code class="descname">_build_related</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel._build_related" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="BuildableModel._build_related">
+<span class="sig-name descname"><span class="pre">_build_related</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel._build_related" title="Permalink to this definition">¶</a></dt>
 <dd><p>A place to include code that will build related content, such as an RSS feed,
 that does not require passing in the object to a view. Empty by default.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="BuildableModel._unbuild_extra">
-<code class="descname">_unbuild_extra</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel._unbuild_extra" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="BuildableModel._unbuild_extra">
+<span class="sig-name descname"><span class="pre">_unbuild_extra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BuildableModel._unbuild_extra" title="Permalink to this definition">¶</a></dt>
 <dd><p>A place to include code that will remove extra content related to the object
-that is not rendered by the <code class="docutils literal"><span class="pre">detail_views</span></code>, like deleting a related image.
+that is not rendered by the <code class="docutils literal notranslate"><span class="pre">detail_views</span></code>, like deleting a related image.
 Empty by default.</p>
 </dd></dl>
 
-<div class="highlight-django"><div class="highlight"><pre><span class="x">from django.db im­port mod­els</span>
+<div class="highlight-django notranslate"><div class="highlight"><pre><span></span><span class="x">from django.db im­port mod­els</span>
 <span class="x">from bakery.mod­els im­port Build­ableMod­el</span>
 
 
@@ -140,12 +175,12 @@ Empty by default.</p>
 </div>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="models-that-publish-themselves">
-<h2>Models that publish themselves<a class="headerlink" href="#models-that-publish-themselves" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="models-that-publish-themselves">
+<h2>Models that publish themselves<a class="headerlink" href="#models-that-publish-themselves" title="Permalink to this heading">¶</a></h2>
 <p>With a buildable model in place, you can take things a step further with the
-<code class="docutils literal"><span class="pre">AutoPublishingBuildableModel</span></code> so that a up­date pos­ted to the data­base by an entrant
+<code class="docutils literal notranslate"><span class="pre">AutoPublishingBuildableModel</span></code> so that a up­date pos­ted to the data­base by an entrant
 us­ing the <a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/">Django ad­min</a>
 can set in­to mo­tion a small build that is then synced with your live site on Amazon S3.</p>
 <p>At the Los Angeles Times Data Desk, we use that sys­tem to host ap­plic­a­tions
@@ -158,56 +193,56 @@ job serv­er that does the work in the back­ground. This pre­vents a user who 
 in the ad­min from hav­ing to wait for the full process to com­plete be­fore receiving a re­sponse.</p>
 <p>This is done by passing off build in­struc­tions to <a class="reference external" href="http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html">a Cel­ery job serv­er</a>.
 <strong>You need to install Celery and have it fully configured before this model will work.</strong></p>
-<div class="section" id="autopublishingbuildablemodel">
-<h3>AutoPublishingBuildableModel<a class="headerlink" href="#autopublishingbuildablemodel" title="Permalink to this headline">¶</a></h3>
-<dl class="class">
-<dt id="AutoPublishingBuildableModel">
-<em class="property">class </em><code class="descname">AutoPublishingBuildableModel</code><span class="sig-paren">(</span><em>BuildableModel</em><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel" title="Permalink to this definition">¶</a></dt>
+<section id="autopublishingbuildablemodel">
+<h3>AutoPublishingBuildableModel<a class="headerlink" href="#autopublishingbuildablemodel" title="Permalink to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="AutoPublishingBuildableModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AutoPublishingBuildableModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">BuildableModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrates with Celery tasks to automatically publish or unpublish
 objects when they are saved.</p>
 <p>This is done using an override on the save method that inspects
 if the object ought to be published, republished or unpublished.</p>
 <p>Requires an indicator of whether the object should been
 published or unpublished. By default it looks to a BooleanField
-called <code class="docutils literal"><span class="pre">is_published</span></code> for the answer, but other methods could
-be employed by overriding the <code class="docutils literal"><span class="pre">get_publication_status</span></code> method.</p>
-<dl class="attribute">
-<dt id="AutoPublishingBuildableModel.publication_status_field">
-<code class="descname">publication_status_field</code><a class="headerlink" href="#AutoPublishingBuildableModel.publication_status_field" title="Permalink to this definition">¶</a></dt>
+called <code class="docutils literal notranslate"><span class="pre">is_published</span></code> for the answer, but other methods could
+be employed by overriding the <code class="docutils literal notranslate"><span class="pre">get_publication_status</span></code> method.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="AutoPublishingBuildableModel.publication_status_field">
+<span class="sig-name descname"><span class="pre">publication_status_field</span></span><a class="headerlink" href="#AutoPublishingBuildableModel.publication_status_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the field that this model will inspect to determine
-the object&#8217;s publication status. By default it is <code class="docutils literal"><span class="pre">is_published</span></code>.</p>
+the object’s publication status. By default it is <code class="docutils literal notranslate"><span class="pre">is_published</span></code>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="AutoPublishingBuildableModel.get_publication_status">
-<code class="descname">get_publication_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel.get_publication_status" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="AutoPublishingBuildableModel.get_publication_status">
+<span class="sig-name descname"><span class="pre">get_publication_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel.get_publication_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a boolean (True or False) indicating whether the object
-is &#8220;live&#8221; and ought to be published or not.</p>
+is “live” and ought to be published or not.</p>
 <p>Used to determine whether the save method should seek to publish,
 republish or unpublish the object when it is saved.</p>
 <p>By default, it looks for a BooleanField with the name defined in
-the model&#8217;s <code class="docutils literal"><span class="pre">publication_status_field</span></code>.</p>
+the model’s <code class="docutils literal notranslate"><span class="pre">publication_status_field</span></code>.</p>
 <p>If your model uses a list of strings or other more complex
 means to indicate publication status you need to override this method
 and have it negotiate your object to return either True or False.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="AutoPublishingBuildableModel.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>publish=True</em><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel.save" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="AutoPublishingBuildableModel.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">publish</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom save that uses Celery tasks to publish or unpublish the
 object where appropriate.</p>
 <p>Save with keyword argument obj.save(publish=False) to skip the process.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="AutoPublishingBuildableModel.delete">
-<code class="descname">delete</code><span class="sig-paren">(</span><em>unpublish=True</em><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel.delete" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="AutoPublishingBuildableModel.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unpublish</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#AutoPublishingBuildableModel.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Triggers a task that will unpublish the object after it is deleted.</p>
 <p>Save with keyword argument obj.delete(unpublish=False) to skip it.</p>
 </dd></dl>
 
-<div class="highlight-django"><div class="highlight"><pre><span class="x">from django.db im­port mod­els</span>
+<div class="highlight-django notranslate"><div class="highlight"><pre><span></span><span class="x">from django.db im­port mod­els</span>
 <span class="x">from bakery.mod­els im­port AutoPublishingBuildableModel</span>
 
 
@@ -229,79 +264,95 @@ object where appropriate.</p>
 </div>
 </dd></dl>
 
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="buildableviews.html" title="Previous document">Buildable views</a>
+        </li>
+        <li>
+          <a href="buildablefeeds.html" title="Next document">Buildable feeds</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Buildable models</a><ul>
-<li><a class="reference internal" href="#models-that-build-themselves">Models that build themselves</a><ul>
-<li><a class="reference internal" href="#buildablemodel">BuildableModel</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#models-that-publish-themselves">Models that publish themselves</a><ul>
-<li><a class="reference internal" href="#autopublishingbuildablemodel">AutoPublishingBuildableModel</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<h1 class="logo"><a href="index.html">django-bakery</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commonchallenges.html">Common challenges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildableviews.html">Buildable views</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Buildable models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buildablefeeds.html">Buildable feeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settingsvariables.html">Settings variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="managementcommands.html">Management commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="buildableviews.html"
-                        title="previous chapter">Buildable views</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="buildablefeeds.html"
-                        title="next chapter">Buildable feeds</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/buildablemodels.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="buildableviews.html" title="previous chapter">Buildable views</a></li>
+      <li>Next: <a href="buildablefeeds.html" title="next chapter">Buildable feeds</a></li>
+  </ul></li>
+</ul>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="buildablefeeds.html" title="Buildable feeds"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="buildableviews.html" title="Buildable views"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">django-bakery 0.7.6 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2022 Ben Welsh.
+      
+      |
+      <a href="_sources/buildablemodels.md.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Los Angeles Times Data Desk.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>
