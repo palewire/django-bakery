@@ -16,6 +16,31 @@ def read(file_name):
         return f.read()
 
 
+def version_scheme(version):
+    """Version scheme hack for setuptools_scm.
+    Appears to be necessary to due to the bug documented here: https://github.com/pypa/setuptools_scm/issues/342
+    If that issue is resolved, this method can be removed.
+    """
+    import time
+
+    from setuptools_scm.version import guess_next_version
+
+    if version.exact:
+        return version.format_with("{tag}")
+    else:
+        _super_value = version.format_next_version(guess_next_version)
+        now = int(time.time())
+        return _super_value + str(now)
+
+
+def local_version(version):
+    """Local version scheme hack for setuptools_scm.
+    Appears to be necessary to due to the bug documented here: https://github.com/pypa/setuptools_scm/issues/342
+    If that issue is resolved, this method can be removed.
+    """
+    return ""
+
+
 class TestCommand(Command):
     user_options = []
 
@@ -97,7 +122,6 @@ class TestCommand(Command):
 
 setup(
     name='django-bakery',
-    version='0.12.7',
     description='A set of helpers for baking your Django site out as flat files',
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -118,15 +142,15 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.0',
-        'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2',
+        'Framework :: Django :: 3',
+        'Framework :: Django :: 4',
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
@@ -134,5 +158,7 @@ setup(
         'boto3>=1.4.4',
         'fs>=2.0.17',
     ],
-    cmdclass={'test': TestCommand}
+    cmdclass={'test': TestCommand},
+    setup_requires=["setuptools_scm"],
+    use_scm_version={"version_scheme": version_scheme, "local_scheme": local_version},
 )

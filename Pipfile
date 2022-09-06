@@ -15,6 +15,7 @@ Sphinx = "*"
 "flake8" = "*"
 twine = "*"
 moto = {extras = ["all", "ec2", "s3"], version = "*"}
+setuptools-scm = "*"
 
 [requires]
 python_version = "3.9"
