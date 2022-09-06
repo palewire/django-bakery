@@ -10,7 +10,7 @@ celery = "*"
 fs = "*"
 
 [dev-packages]
-django = "==2.2.*"
+django = "==3.2.*"
 Sphinx = "*"
 "flake8" = "*"
 twine = "*"
