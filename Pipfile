@@ -16,6 +16,8 @@ Sphinx = "*"
 twine = "*"
 moto = {extras = ["all", "ec2", "s3"], version = "*"}
 setuptools-scm = "*"
+sphinx-autobuild = "*"
+myst-parser = "*"
 
 [requires]
 python_version = "3.9"

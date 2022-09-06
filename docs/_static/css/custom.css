@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,700;0,800;1,400;1,800&display=swap');
+
+div.document {
+    margin-top: 0;
+}
+
+div.body {
+    min-width: 0 !important;
+}
+
+div.body p, div.body li {
+    line-height: 1.45;
+}
+
+div.body li {
+    margin-bottom: 4px;
+}
+
+div.topic {
+    margin: 0;
+    padding: 8px 12px;
+}
+
+p.topic-title {
+    margin: 0;
+}
+
+div.topic ul {
+    margin-top: 6px;
+}
+@media screen and (max-width: 870px) {
+    ul {
+        margin: 10px 0 10px 20px;
+    }
+}
+
+div.sphinxsidebar h1.logo,
+div.sphinxsidebar h3 {
+  font-family: 'Libre Franklin', "Helvetica", "Liberation Sans", Arial, sans-serif;
+}
+
+div.sphinxsidebarwrapper h1.logo {
+  font-size: 1.85em;
+  font-weight: 800;
+}
+
+@media (min-width: 875px) {
+    div.sphinxsidebar {
+        margin-top: 85px;
+    }
+}
+
+@media screen and (max-width: 875px) {
+  div.sphinxsidebar {
+    width: auto;
+    padding: 10px 20px;
+    margin: 50px 0 0 0;
+  }
+}
+
+div.admonition {
+    padding: 15px;
+}
+
+div.warning {
+  background-color: #EEE;
+  border: 1px solid #CCC;
+}
+
+div.admonition p.admonition-title {
+  font-family: 'Libre Franklin', "Helvetica", "Liberation Sans", Arial, sans-serif;
+  margin: 0;
+}
+
+div.related nav {
+    padding-right: 10px;
+}
+
+body {
+  font-family: 'Libre Franklin', "Helvetica", "Liberation Sans", Arial, sans-serif;
+  font-size: 20px;
+  line-height: 1.45;
+  text-align: left;
+}
+@media screen and (max-width: 875px) {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    div.body > .section,
+    div.body > section {
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 550px) {
+    body {
+        font-size: 0.85em;
+    }
+}
+
+div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+  font-family: 'Libre Franklin', "Helvetica", "Liberation Sans", Arial, sans-serif;
+  font-weight: 700;
+}
+
+div.body h1 {
+  font-weight: 800;
+  font-size: 220%;
+}
+
+pre {
+  padding: 7px;
+}
+
+.cell_output {
+  overflow: auto;
+}
+
+.toctree-wrapper p.caption {
+  font-weight: 700;
+}
+
+.toggle-details {
+  display: none;
+}
+
+.row {
+    width: 100%;
+    max-width: 660px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+.row .fivecol {
+    width: 43%;
+    float: right;
+    min-height: 1px;
+}
+.row .sevencol {
+    width: 37%;
+    float: left;
+    min-height: 1px;
+}
+@media (max-width: 550px) {
+    .row .fivecol, .row .sevencol {
+        padding: 0 20px;
+    }
+}
+
+/* The header */
+nav {
+    display: block;
+    margin-top: 0.75em;
+    margin-bottom: 0.5em;
+    font-size: 1em;
+    line-height: 1.7em;
+}
+nav .shingle {
+    font-size: 1.7em;
+    font-weight: bold;
+    text-align: left;
+    padding-left: 0.15em;
+}
+nav .shingle a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #000;
+}
+nav .shingle a:hover {
+    color: #686868;
+}
+@media (max-width: 550px) {
+    nav .shingle {
+        float: left;
+        margin-bottom: 5px;
+        padding-left: 0;
+   }
+}
+nav .links {
+    text-align: right;
+}
+nav .links ul {
+    float: right;
+    list-style-type: none;
+    margin: 4px 0 0 0;
+}
+nav .links li {
+    float: left;
+    list-style-position: inside;
+    margin-left: 0.5em;
+    font-size: 0.9em;
+    font-weight: 300;
+    margin-bottom: 0;
+}
+@media (max-width: 550px) {
+    nav .links li {
+       font-size: .825em;
+    }
+}
+nav .links li a {
+    text-decoration: none;
+}
+nav .links li a:hover {
+    text-decoration: underline;
+}
+.last {
+    margin-right: 0;
+}
+
+.topbar {
+    border-bottom: solid 10px #e5e5e5;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+a:link,
+div.sphinxsidebar a,
+div.sphinxsidebar a:link {
+  text-decoration: none;
+  color: #686868;
+  border-bottom: none;
+}
+a:visited,
+div.sphinxsidebar a:visited {
+  text-decoration: none;
+  color: #686868;
+  border-bottom: none;
+}
+a:hover,
+div.sphinxsidebar a:hover {
+  text-decoration: underline;
+  border-bottom: none;
+}
+a:active,
+div.sphinxsidebar a:active {
+  text-decoration: underline;
+  color: #000;
+  border-bottom: none;
+}
+a.reference,
+a.internal {
+ border-bottom: 0;
+}
+a.reference:hover,
+a.internal:hover {
+ border-bottom: 0;
+}
+h1.logo a {
+  color: black;
+}
+
+h2+p {
+    margin-top: 5px;
+}
+
+table.align-default {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.latest-parent {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.latest-child {
+    width: 212px;
+    margin: 0 8px 8px 0;
+}
+
+.latest-child p {
+    margin-top: 0;
+}
+
+@media (max-width: 550px) {
+  .latest-child {
+    width: 190px;
+  }
+}
