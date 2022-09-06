@@ -11,11 +11,7 @@ from django.db import models
 from .. import static_views
 from django.conf import settings
 from .. import models as bmodels
-from ..management.commands import (
-    get_s3_client,
-    get_all_objects_in_bucket,
-    batch_delete_s3_objects
-)
+from ..management.commands import get_s3_client
 from django.http import HttpResponse
 from django.core.management import call_command
 from django.test import TestCase, RequestFactory, override_settings
@@ -448,7 +444,7 @@ class BakeryTest(TestCase):
     def _create_bucket(self):
         s3_client, s3_resource = get_s3_client()
         location = {'LocationConstraint': settings.AWS_REGION}
-        bucket = s3_resource.create_bucket(Bucket=settings.AWS_BUCKET_NAME, CreateBucketConfiguration=location)
+        s3_resource.create_bucket(Bucket=settings.AWS_BUCKET_NAME, CreateBucketConfiguration=location)
 
     def _get_bucket_objects(self):
         s3_client, s3_resource = get_s3_client()
