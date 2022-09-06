@@ -1,0 +1,5 @@
+site_name: django-bakery
+plugins:
+    - redirects:
+        redirect_maps:
+            'index.md': 'https://palewi.re/docs/django-bakery/'
