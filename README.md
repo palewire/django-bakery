@@ -15,7 +15,7 @@ A set of helpers for baking your Django site out as flat files
 * Documentation: [palewi.re/docs/django-bakery](https://palewi.re/docs/django-bakery/)
 * Issues: [https://github.com/datadesk/django-bakery/issues](https://github.com/datadesk/django-bakery/issues)
 * Packaging: [https://pypi.python.org/pypi/django-bakery](https://pypi.python.org/pypi/django-bakery)
-* The dream, in Powerpoint form: [http://lat.ms/bakery-talk](http://lat.ms/bakery-talk)
+* The dream, in Powerpoint form: [palewi.re/docs/django-bakery/_static/the-dream.pdf](https://palewi.re/docs/django-bakery/_static/the-dream.pdf)
 
 ## Features
 
