@@ -9,25 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Install pipenv
-        run: pipx install pipenv
-
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          cache: 'pipenv'
 
-      - id: pipenv-install
-        name: Install Python dependencies
-        run: pipenv install flake8 --skip-lock --python `which python`
-        shell: bash
+      - name: Install flake8
+        run: pip install flake8
 
-      - id: run
-        name: Run
-        run: pipenv run flake8 bakery
-        shell: bash
+      - name: Run flake8
+        run: flake8 bakery
 
   test-python:
     strategy:
@@ -38,25 +30,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Install pipenv
-        run: pipx install pipenv
-
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
           cache: 'pipenv'
 
-      - id: pipenv-install
-        name: Install Python dependencies
+      - name: Install pipenv
+        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+
+      - name: Install Python dependencies
         run: |
             pipenv install --skip-lock --python=${{ matrix.python }}
             pipenv install moto Django~=${{ matrix.django }} --skip-lock --python=${{ matrix.python }}
         shell: bash
 
-      - id: run
-        name: Run
+      - name: Run
         run: pipenv run python setup.py test
         shell: bash
         env:
@@ -71,38 +61,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install pipenv
-        run: pipx install pipenv
-        shell: bash
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pipenv'
 
-      - id: install-python-dependencies
-        name: Install Python dependencies
-        run: pipenv install --dev --python `which python`
+      - name: Install pipenv
+        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+
+      - name: Install Python dependencies
+        run: pipenv sync --dev
         shell: bash
 
-      - id: build
-        name: Build release
+      - name: Build release
         run: |
             pipenv run python setup.py sdist
             pipenv run python setup.py bdist_wheel
             ls -l dist
-        shell: bash
 
-      - id: check
-        name: Check release
+      - name: Check release
         run: pipenv run twine check dist/*
-        shell: bash
 
-      - id: save
-        name: Save artifact
+      - name: Save artifact
         uses: actions/upload-artifact@v2
         with:
-          name: test-release-${{ github.run_number }}
+          name: release-candidate
           path: ./dist
           if-no-files-found: error
 
@@ -112,19 +95,14 @@ jobs:
     needs: [test-build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
       - id: fetch
         name: Fetch artifact
         uses: actions/download-artifact@v3
         with:
-          name: test-release-${{ github.run_number }}
+          name: release-candidate
           path: ./dist
 
-      - id: publish
-        name: Publish release
+      - name: Publish release
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
