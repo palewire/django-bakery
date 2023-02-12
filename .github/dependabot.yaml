@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: "pipenv"
+  - package-ecosystem: ""
     directory: "/"
     schedule:
       interval: "monthly"
