@@ -4,6 +4,7 @@ import six
 import boto3
 import json
 import random
+from pathlib import Path
 from moto import mock_s3
 from datetime import date
 from .. import views, feeds
@@ -419,6 +420,12 @@ class BakeryTest(TestCase):
         self.assertTrue(os.path.exists(robots_path))
         favicon_path = os.path.join(settings.BUILD_DIR, 'favicon.ico')
         self.assertTrue(os.path.exists(favicon_path))
+
+    def test_build_pathlib(self):
+        with self.settings(BUILD_DIR=Path(__file__).parent / "_dist"):
+            call_command("build", **{'verbosity': 3})
+        with self.settings(STATIC_ROOT=Path(__file__).parent / "_static"):
+            call_command("build", **{'verbosity': 3})
 
     def test_unbuild_cmd(self):
         call_command("unbuild")

@@ -45,7 +45,7 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
         would like your detail page at a different location. By default it
         will be built at get_url() + "index.html"
         """
-        target_path = path.join(settings.BUILD_DIR, self.get_url(obj).lstrip('/'))
+        target_path = path.join(str(settings.BUILD_DIR), self.get_url(obj).lstrip('/'))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
             self.fs.makedirs(target_path)
