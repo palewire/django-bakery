@@ -423,7 +423,9 @@ class BakeryTest(TestCase):
 
     def test_build_pathlib(self):
         with self.settings(BUILD_DIR=Path(__file__).parent / "_dist"):
-            call_command("build", **{'skip_media': True, 'verbosity': 3})
+            call_command("build", **{'verbosity': 3})
+        with self.settings(STATIC_ROOT=Path(__file__).parent / "_static"):
+            call_command("build", **{'verbosity': 3})
 
     def test_unbuild_cmd(self):
         call_command("unbuild")
