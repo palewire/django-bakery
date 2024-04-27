@@ -28,7 +28,7 @@ jobs:
 
     - id: build-sphinx-documentation
       name: Build Sphinx documentation
-      run: pipenv run sphinx-build -b html src _build;
+      run: pipenv run make html;
       shell: bash
       working-directory: docs
 
