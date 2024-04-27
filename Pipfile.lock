@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "89af7016fa037189a3fcbab52fcbfc87e28079146b4ad83fc146091e8836acb5"
+            "sha256": "257cba46629d1227c76f830054d2d553d6fe699239175b9bf3e6f33c4ab2b9b9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -522,12 +522,12 @@
         },
         "django": {
             "hashes": [
-                "sha256:04ab3f6f46d084a0bba5a2c9a93a3a2eb3fe81589512367a75f79ee8acf790ce",
-                "sha256:94a3f471e833c8f124ee7a2de11e92f633991d975e3fa5bdd91e8abd66426318"
+                "sha256:6e6ff3db2d8dd0c986b4eec8554c8e4f919b5c1ff62a5b4390c17aff2ed6e5c4",
+                "sha256:ddc24a0a8280a0430baa37aff11f28574720af05888c62b7cfe71d219f4599d3"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==4.1.13"
+            "version": "==4.2.11"
         },
         "docker": {
             "hashes": [
@@ -1648,7 +1648,7 @@
                 "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0",
                 "sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"
             ],
-            "markers": "python_version < '3.10'",
+            "markers": "python_version >= '3.8'",
             "version": "==4.11.0"
         },
         "urllib3": {
