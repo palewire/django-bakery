@@ -35,7 +35,6 @@ buildablemodels
 buildablefeeds
 settingsvariables
 managementcommands
-changelog
 credits
 ```
 
