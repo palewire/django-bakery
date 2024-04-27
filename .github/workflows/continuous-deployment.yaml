@@ -24,8 +24,8 @@ jobs:
   test-python:
     strategy:
       matrix:
-        python: ['3.8', '3.9', '3.10']
-        django: ['2.2', '3.2', '4.1']
+        python: ['3.8', '3.9', '3.10', '3.11']
+        django: ['2.2', '3.2', '4.2', '5.0']
     name: Test
     runs-on: ubuntu-latest
     steps:
