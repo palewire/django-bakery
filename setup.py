@@ -148,10 +148,6 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Framework :: Django',
-        'Framework :: Django :: 2',
-        'Framework :: Django :: 3',
-        'Framework :: Django :: 4',
-        'Framework :: Django :: 5',
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=[
