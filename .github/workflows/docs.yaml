@@ -33,7 +33,7 @@ jobs:
       working-directory: docs
 
     - name: Upload release candidate
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: release-candidate
         path: ./docs/
