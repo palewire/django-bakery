@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  docs:
-    name: "Build and deploy"
+  build:
+    name: "Build"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
