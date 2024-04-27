@@ -1,7 +1,12 @@
-name: Test
+name: Continuous Deployment
+
 on:
   push:
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint-python:
