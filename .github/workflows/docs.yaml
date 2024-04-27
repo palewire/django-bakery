@@ -63,7 +63,7 @@ jobs:
       with:
         bucket: ${{ secrets.PALEWIRE_DOCS_AWS_BUCKET }}
         base-path: django-bakery/
-        dir: ./docs/
+        dir: ./docs/_build/html/
         should-cache: false
         use-accelerate-endpoint: false
         public: true
