@@ -28,9 +28,7 @@ jobs:
 
     - id: build-sphinx-documentation
       name: Build Sphinx documentation
-      run: |
-        pipenv run python createconf.py;
-        pipenv run sphinx-build -b html src _build;
+      run: pipenv run sphinx-build -b html src _build;
       shell: bash
       working-directory: docs
 
