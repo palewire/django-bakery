@@ -1,3 +1,4 @@
+docs/_build/
 _dist/
 .eggs
 .env
