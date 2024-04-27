@@ -93,7 +93,7 @@ jobs:
         run: pipenv run twine check dist/*
 
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-candidate
           path: ./dist
@@ -107,7 +107,7 @@ jobs:
     steps:
       - id: fetch
         name: Fetch artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release-candidate
           path: ./dist
