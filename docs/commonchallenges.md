@@ -1,5 +1,3 @@
-# Common challenges
-
 ## Configuring where detail pages are built
 
 If you are seeking to publish a detail page for each record in a database model,

@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Credits
 
 This ap­plic­a­tion was written by [Ben Welsh](http://palewi.re/who-is-ben-welsh/), [Ken Schwencke](http://schwanksta.com/) and [Armand Emamdjomeh](https://twitter.com/emamd) at the [Los Angeles Times Data Desk](http://datadesk.latimes.com).

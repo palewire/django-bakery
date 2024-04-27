@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Buildable views
 
 Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-based-views/)  are used to render HTML pages to flat files. Putting all the pieces together is a little tricky at first, particularly if you haven't studied [the Django source code](https://github.com/django/django/tree/master/django/views/generic) or lack experience [working with Python classes](http://www.diveintopython.net/object_oriented_framework/defining_classes.html) in general. But if you figure it out, we think it's worth the trouble.

@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Changelog
 
 ## 0.13.9

@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Buildable models
 
 ## Models that build themselves

@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Buildable feeds
 
 You can build a RSS feed in much the same manner as {doc}`buildable class-based views </buildableviews>`.

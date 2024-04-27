@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Management commands
 
 Custom [Django management commands](https://docs.djangoproject.com/en/dev/ref/django-admin/) for

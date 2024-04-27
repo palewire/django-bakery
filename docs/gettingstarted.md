@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Getting started
 
 ## Installation

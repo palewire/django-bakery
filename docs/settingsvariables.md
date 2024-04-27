@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # Settings variables
 
 Configuration options for your `settings.py`.

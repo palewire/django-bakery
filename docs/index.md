@@ -1,6 +1,3 @@
-```{include} _templates/nav.html
-```
-
 # django-bakery
 
 A set of helpers for baking your Django site out as flat files
