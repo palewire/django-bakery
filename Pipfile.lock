@@ -596,7 +596,7 @@
                 "sha256:30962b96c0c223483ed6cc7280e7f0199feb01a0e40cfae4d4450fc6fab1f570",
                 "sha256:b78938b926ee8d5f020fc4772d487045805a55ddbad2ecf21c6d60938dc7fcd2"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_version < '3.10'",
             "version": "==7.1.0"
         },
         "jaraco.classes": {
@@ -910,12 +910,12 @@
         },
         "myst-parser": {
             "hashes": [
-                "sha256:0b4ae0b33a45800a748260cb40348c37089a8a456c35120609240bd1b32f9255",
-                "sha256:8ee926557b8e4c2940a1e62c5720e1667cfaf8480b94b1b9c77dc38e31d104aa"
+                "sha256:6457aaa33a5d474aca678b8ead9b3dc298e89c68e67012e73146ea6fd54babf1",
+                "sha256:88f0cb406cb363b077d176b51c476f62d60604d68a8dcdf4832e080441301a87"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==3.0.0"
+            "version": "==3.0.1"
         },
         "networkx": {
             "hashes": [
@@ -1534,6 +1534,7 @@
                 "sha256:413f75440be4cacf328f580b4274ada4565fb2187d696a84970c23f77b64d8c3",
                 "sha256:a4a7db75ed37531c05002d56ed6948d4c42f473a36f46e1382b0bd76ca9627bc"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==7.3.7"
         },
