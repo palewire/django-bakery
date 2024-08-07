@@ -58,11 +58,11 @@ If you are seeking to "bake" out a very simple site, maybe you don't have a data
 to try [Tarbell](https://github.com/tarbell-project/tarbell) or [Frozen-Flask](https://pythonhosted.org/Frozen-Flask/), which don't require all
 the overhead of a full Django installation.
 
-This library is better to suited for projects that require a database, want to take advantage of other Django features (like the administration panel)
+This library is better suited for projects that require a database, want to take advantage of other Django features (like the administration panel)
 or require more complex views.
 
 ## Contributing
 
-- Code repository: [https://palewi.re/docs/docs/django-bakery/](https://palewi.re/docs/docs/django-bakery/)
-- Issues: [https://github.com/datadesk/django-bakery/issues](https://github.com/datadesk/django-bakery/issues)
+- Code repository: [https://github.com/palewire/django-bakery/](https://github.com/palewire/django-bakery/)
+- Issues: [https://github.com/palewire/django-bakery/issues](https://github.com/palewire/django-bakery/issues)
 - Packaging: [https://pypi.python.org/pypi/django-bakery](https://pypi.python.org/pypi/django-bakery)
