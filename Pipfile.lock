@@ -41,20 +41,20 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:189ab1e2b4cd86df56f82438d89b4040eb140c92683f1bda7cb2e62624f20ea5",
-                "sha256:add26dd58e076dfd387013da4704716d5cff215cf14f6d4347c4b9b7fc1f0b8e"
+                "sha256:3ed7172b3d4fceb6218bb0ec3668c4d40c03690939c2fca4f22bb875d741a07f",
+                "sha256:e2969a246bb3208122b3c349c49cc6604c6fc3fc2b2f65d99d3e8ccd745b0c16"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==1.35.10"
+            "version": "==1.35.71"
         },
         "botocore": {
             "hashes": [
-                "sha256:0d96d023b9b0cea99a0a428a431d011329d3a958730aee6ed6a6fec5d9bfbc03",
-                "sha256:6c8a1377b6636a0d80218115e1cd41bcceba0a2f050b79c206f4cf8d002c54d7"
+                "sha256:f9fa058e0393660c3fe53c1e044751beb64b586def0bd2212448a7c328b0cbba",
+                "sha256:fc46e7ab1df3cef66dfba1633f4da77c75e07365b36f03bd64a3793634be8fc1"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==1.35.10"
+            "version": "==1.35.71"
         },
         "celery": {
             "hashes": [
@@ -138,11 +138,11 @@
         },
         "s3transfer": {
             "hashes": [
-                "sha256:0711534e9356d3cc692fdde846b4a1e4b0cb6519971860796e6bc4c7aea00ef6",
-                "sha256:eca1c20de70a39daee580aef4986996620f365c4e0fda6a86100231d62f1bf69"
+                "sha256:244a76a24355363a68164241438de1b72f8781664920260c48465896b712a41e",
+                "sha256:29edc09801743c21eb5ecbc617a152df41d3c287f67b615f73e5f750583666a7"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==0.10.2"
+            "version": "==0.10.4"
         },
         "setuptools": {
             "hashes": [
