@@ -96,9 +96,9 @@ DEFAULT_DIRECTORY_INDEX_TEMPLATE = """
   <body>
     <h1>Index of {{ directory }}</h1>
     <ul>
-      {% ifnotequal directory "/" %}
+      {% if directory != "/" %}
       <li><a href="../">../</a></li>
-      {% endifnotequal %}
+      {% endif %}
       {% for f in file_list %}
       <li><a href="{{ f|urlencode }}">{{ f }}</a></li>
       {% endfor %}
