@@ -10,7 +10,7 @@ celery = "*"
 fs = "*"
 
 [dev-packages]
-django = "==4.2.*"
+django = "==5.1.*"
 Sphinx = "*"
 "flake8" = "*"
 twine = "*"
@@ -21,4 +21,4 @@ myst-parser = "*"
 sphinx-palewire-theme = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.12"
