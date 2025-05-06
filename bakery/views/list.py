@@ -2,11 +2,15 @@
 Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
+
 import logging
-from fs import path
-from .base import BuildableMixin
+
 from django.conf import settings
 from django.views.generic import ListView
+from fs import path
+
+from .base import BuildableMixin
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +34,8 @@ class BuildableListView(ListView, BuildableMixin):
             The name of the template you would like Django to render. You need
             to override this if you don't want to rely on the Django defaults.
     """
-    build_path = 'index.html'
+
+    build_path = "index.html"
 
     @property
     def build_method(self):

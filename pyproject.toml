@@ -1,15 +1,103 @@
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312", "py313"]
+extend-exclude = '''
+/(
+  # The following are specific to Black, you probably don't want those.
+  blib2to3
+  tests/data
+  profiling
+  tests/test_lib2to3
+  labs
+  example/project/
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+fix = true
+
+lint.select = ["E", "F", "B"]
+lint.ignore = ["B008"]
+lint.ignore-init-module-imports = true
+lint.unfixable = []
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "migrations",
+    "tests",
+    "labs",
+    "example/project"
+]
+extend-exclude = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/__init__.py",
+    "*/consts.py",
+    "*/settings/*",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"src/backend/RankedJobs/settings/*.py" = ["F403", "F405"]
+"__init__.py" = ["F403", "F405", "E501"]
+"consts.py" = ["E501"]
+
+[tool.djlint]
+profile="django"
+format_attribute_template_tags=true
+line_break_after_multiline_tag=true
+max_attribute_length=10
+max_line_length=79
+
+
 [build-system]
-requires = ["setuptools>=61.0"] # Or other backends like flit, poetry
+requires = ["setuptools>=61.0", "setuptools_scm>=8.0"] # Or other backends like flit, poetry
 build-backend = "setuptools.build_meta"
 backend-path = ["."] # If you have a setup.py or setup.cfg for setuptools
 
+[tool.setuptools_scm]
+# ...
+
+[tool.setuptools.packages.find]
+where = ["."]  # Or your source directory if it's like "src"
+include = ["bakery*"]
+exclude = [] # if you need to exclude specific sub-packages
+
+
 [project]
 name = "django-bakery-fork" # Or your chosen name
-version = "0.1.0" # Or read from a file
+dynamic = ["version"]
 description = "A set of helpers for baking your Django site out as flat files (forked version)."
 readme = "README.md"
 requires-python = ">=3.9" # As per your new minimum
-license = { text = "Your License Type, e.g., MIT License" } # Check original license
+license = { file = "LICENSE", type = "text/plain" } # Check original license
 authors = [
     { name = "Your Name", email = "your.email@example.com" },
     # Add original authors if appropriate, or acknowledge the fork
@@ -58,6 +146,9 @@ dev = [
     "sphinx-autobuild>=2024.10.3",
     "sphinx-palewire-theme>=0.1.2",
     "twine>=6.1.0",
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "ruff>=0.11.8",
 ]
 
 # If you have console scripts (management commands are usually handled by Django)

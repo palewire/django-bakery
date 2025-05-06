@@ -5,8 +5,8 @@ convenient for building out flat files.
 The magic relies on your view being class-based and having a build_object
 method, like the BuildableDetailView included in this app.
 """
-from django.db import models
-from django.db import transaction
+
+from django.db import models, transaction
 
 
 class BuildableModel(models.Model):
@@ -19,12 +19,14 @@ class BuildableModel(models.Model):
     view (which should inherit from BuildableDetailView),
     then fill out _build_related and _build_extra if need be.
     """
+
     detail_views = []
 
     def _get_view(self, name):
         try:
-            from django.core.urlresolvers import get_callable
-        except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
+            from django.urls import get_callable
+        except ImportError:  # Starting with Django 2.0, django.core.urlresolvers does not
+            # exist anymore
             from django.urls import get_callable
         return get_callable(name)
 
@@ -93,9 +95,10 @@ class AutoPublishingBuildableModel(BuildableModel):
     called ``is_published`` for the answer, but other methods could
     be employed by overriding the ``get_publication_status`` method.
     """
+
     # The name of the field that this model will inspect to determine
     # the object's publication status by default.
-    publication_status_field = 'is_published'
+    publication_status_field = "is_published"
 
     def get_publication_status(self):
         """
@@ -121,11 +124,13 @@ class AutoPublishingBuildableModel(BuildableModel):
 
         Save with keyword argument obj.save(publish=False) to skip the process.
         """
-        from bakery import tasks
         from django.contrib.contenttypes.models import ContentType
+
+        from bakery import tasks
+
         # if obj.save(publish=False) has been passed, we skip everything.
-        if not kwargs.pop('publish', True):
-            super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
+        if not kwargs.pop("publish", True):
+            super().save(*args, **kwargs)
         # Otherwise, for the standard obj.save(), here we go...
         else:
             # First figure out if the record is an addition, or an edit of
@@ -138,19 +143,18 @@ class AutoPublishingBuildableModel(BuildableModel):
             if not preexisting:
                 # We will publish if that's the boolean
                 if self.get_publication_status():
-                    action = 'publish'
+                    action = "publish"
                 # Otherwise we will do nothing do nothing
                 else:
                     action = None
             # If this is an edit...
             else:
                 # If it's being unpublished...
-                if not self.get_publication_status() and \
-                        preexisting.get_publication_status():
-                    action = 'unpublish'
+                if not self.get_publication_status() and preexisting.get_publication_status():
+                    action = "unpublish"
                 # If it's being published...
                 elif self.get_publication_status():
-                    action = 'publish'
+                    action = "publish"
                 # If it's remaining unpublished...
                 else:
                     action = None
@@ -158,12 +162,12 @@ class AutoPublishingBuildableModel(BuildableModel):
             # database transaction so that we are sure that the save will
             # be complete before we trigger any task
             with transaction.atomic():
-                super(AutoPublishingBuildableModel, self).save(*args, **kwargs)
+                super().save(*args, **kwargs)
             # Finally, depending on the action, fire off a task
             ct = ContentType.objects.get_for_model(self.__class__)
-            if action == 'publish':
+            if action == "publish":
                 tasks.publish_object.delay(ct.pk, self.pk)
-            elif action == 'unpublish':
+            elif action == "unpublish":
                 tasks.unpublish_object.delay(ct.pk, self.pk)
 
     def delete(self, *args, **kwargs):
@@ -172,12 +176,14 @@ class AutoPublishingBuildableModel(BuildableModel):
 
         Save with keyword argument obj.delete(unpublish=False) to skip it.
         """
-        from bakery import tasks
         from django.contrib.contenttypes.models import ContentType
+
+        from bakery import tasks
+
         # if obj.save(unpublish=False) has been passed, we skip the task.
-        unpublish = kwargs.pop('unpublish', True)
+        unpublish = kwargs.pop("unpublish", True)
         # Delete it from the database
-        super(AutoPublishingBuildableModel, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
         if unpublish:
             ct = ContentType.objects.get_for_model(self.__class__)
             tasks.unpublish_object.delay(ct.pk, self.pk)

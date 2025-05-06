@@ -16,3 +16,5 @@ example/db.sqlite3
 example/.build
 example/.static
 example/project/settings_local.py
+bin
+.idea

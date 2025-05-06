@@ -1,4 +1,5 @@
 """Build docs."""
+
 import os
 import sys
 from datetime import datetime
@@ -27,7 +28,7 @@ html_sidebars = {
     "**": [
         "about.html",
         "navigation.html",
-    ]
+    ],
 }
 html_theme_options = {
     "canonical_url": "https://palewi.re/docs/django-bakery/",

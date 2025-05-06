@@ -1,12 +1,17 @@
 # Development and testing dependencies
 -c core_requirements.txt # Ensures dev dependencies are compatible with core
 
-django
 Sphinx
+black
+django
 flake8
-twine
+isort
 moto[all,ec2,s3]
+myst-parser
+ruff
 setuptools-scm
 sphinx-autobuild
-myst-parser
 sphinx-palewire-theme
+twine
+tox
+twine

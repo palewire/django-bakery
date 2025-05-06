@@ -2,18 +2,22 @@
 Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
-import os
+
 import logging
-from fs import path
+import os
 from datetime import date
+
 from django.conf import settings
-from bakery.views import BuildableMixin
 from django.views.generic.dates import (
     ArchiveIndexView,
-    YearArchiveView,
-    MonthArchiveView,
     DayArchiveView,
+    MonthArchiveView,
+    YearArchiveView,
 )
+from fs import path
+
+from bakery.views import BuildableMixin
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +43,8 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
             to override this if you don't want to rely on the Django defaults.
 
     """
-    build_path = 'archive/index.html'
+
+    build_path = "archive/index.html"
 
     @property
     def build_method(self):
@@ -68,6 +73,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
             The name of the template you would like Django to render. You need
             to override this if you don't want to rely on the Django defaults.
     """
+
     @property
     def build_method(self):
         return self.build_dated_queryset
@@ -76,7 +82,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
-        year = super(BuildableYearArchiveView, self).get_year()
+        year = super().get_year()
         fmt = self.get_year_format()
         return date(int(year), 1, 1).strftime(fmt)
 
@@ -86,7 +92,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
 
         By default it is /archive/ + the year in self.year_format.
         """
-        return os.path.join('/archive', self.get_year())
+        return os.path.join("/archive", self.get_year())
 
     def get_build_path(self):
         """
@@ -94,11 +100,11 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
+        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip("/"))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
             self.fs.makedirs(target_path)
-        return path.join(target_path, 'index.html')
+        return path.join(target_path, "index.html")
 
     def build_year(self, dt):
         """
@@ -144,6 +150,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
             The name of the template you would like Django to render. You need
             to override this if you don't want to rely on the Django defaults.
     """
+
     @property
     def build_method(self):
         return self.build_dated_queryset
@@ -152,7 +159,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
-        year = super(BuildableMonthArchiveView, self).get_year()
+        year = super().get_year()
         fmt = self.get_year_format()
         return date(int(year), 1, 1).strftime(fmt)
 
@@ -160,8 +167,8 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         Return the month from the database in the format expected by the URL.
         """
-        year = super(BuildableMonthArchiveView, self).get_year()
-        month = super(BuildableMonthArchiveView, self).get_month()
+        year = super().get_year()
+        month = super().get_month()
         fmt = self.get_month_format()
         return date(int(year), int(month), 1).strftime(fmt)
 
@@ -172,7 +179,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         By default it is /archive/ + the year in self.year_format + the
         month in self.month_format. An example would be /archive/2016/01/.
         """
-        return os.path.join('/archive', self.get_year(), self.get_month())
+        return os.path.join("/archive", self.get_year(), self.get_month())
 
     def get_build_path(self):
         """
@@ -180,11 +187,11 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
+        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip("/"))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
             self.fs.makedirs(target_path)
-        return path.join(target_path, 'index.html')
+        return path.join(target_path, "index.html")
 
     def build_month(self, dt):
         """
@@ -192,7 +199,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         self.month = str(dt.month)
         self.year = str(dt.year)
-        logger.debug("Building %s-%s" % (self.year, self.month))
+        logger.debug("Building {}-{}".format(self.year, self.month))
         self.request = self.create_request(self.get_url())
         path = self.get_build_path()
         self.build_file(path, self.get_content())
@@ -211,7 +218,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         self.year = str(dt.year)
         self.month = str(dt.month)
-        logger.debug("Building %s-%s" % (self.year, self.month))
+        logger.debug("Building {}-{}".format(self.year, self.month))
         target_path = os.path.split(self.get_build_path())[0]
         if self.fs.exists(target_path):
             logger.debug("Removing {}".format(target_path))
@@ -232,6 +239,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
             The name of the template you would like Django to render. You need
             to override this if you don't want to rely on the Django defaults.
     """
+
     @property
     def build_method(self):
         return self.build_dated_queryset
@@ -240,7 +248,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         """
         Return the year from the database in the format expected by the URL.
         """
-        year = super(BuildableDayArchiveView, self).get_year()
+        year = super().get_year()
         fmt = self.get_year_format()
         dt = date(int(year), 1, 1)
         return dt.strftime(fmt)
@@ -249,8 +257,8 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         """
         Return the month from the database in the format expected by the URL.
         """
-        year = super(BuildableDayArchiveView, self).get_year()
-        month = super(BuildableDayArchiveView, self).get_month()
+        year = super().get_year()
+        month = super().get_month()
         fmt = self.get_month_format()
         dt = date(int(year), int(month), 1)
         return dt.strftime(fmt)
@@ -259,9 +267,9 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         """
         Return the day from the database in the format expected by the URL.
         """
-        year = super(BuildableDayArchiveView, self).get_year()
-        month = super(BuildableDayArchiveView, self).get_month()
-        day = super(BuildableDayArchiveView, self).get_day()
+        year = super().get_year()
+        month = super().get_month()
+        day = super().get_day()
         fmt = self.get_day_format()
         dt = date(int(year), int(month), int(day))
         return dt.strftime(fmt)
@@ -275,10 +283,10 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         An example would be /archive/2016/01/01/.
         """
         return os.path.join(
-            '/archive',
+            "/archive",
             self.get_year(),
             self.get_month(),
-            self.get_day()
+            self.get_day(),
         )
 
     def get_build_path(self):
@@ -287,11 +295,11 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
+        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip("/"))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
             self.fs.makedirs(target_path)
-        return os.path.join(target_path, 'index.html')
+        return os.path.join(target_path, "index.html")
 
     def build_day(self, dt):
         """
@@ -300,7 +308,9 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         self.month = str(dt.month)
         self.year = str(dt.year)
         self.day = str(dt.day)
-        logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
+        logger.debug(
+            "Building {}-{}-{}".format(self.year, self.month, self.day),
+        )
         self.request = self.create_request(self.get_url())
         path = self.get_build_path()
         self.build_file(path, self.get_content())
@@ -310,7 +320,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         Build pages for all years in the queryset.
         """
         qs = self.get_dated_queryset()
-        days = self.get_date_list(qs, date_type='day')
+        days = self.get_date_list(qs, date_type="day")
         [self.build_day(dt) for dt in days]
 
     def unbuild_day(self, dt):
@@ -320,7 +330,9 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         self.year = str(dt.year)
         self.month = str(dt.month)
         self.day = str(dt.day)
-        logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
+        logger.debug(
+            "Building {}-{}-{}".format(self.year, self.month, self.day),
+        )
         target_path = os.path.split(self.get_build_path())[0]
         if self.fs.exists(target_path):
             logger.debug("Removing {}".format(target_path))

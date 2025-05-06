@@ -2,21 +2,25 @@
 Views and functions for serving static files. These are only to be used
 during development, and SHOULD NOT be used in a production setting.
 """
-import django
+
 import mimetypes
 import os
 import posixpath
 import re
 import stat
-from six.moves.urllib.parse import unquote
-from django.template import loader
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseNotModified
-from django.template import Template, Context, TemplateDoesNotExist
+from urllib.parse import unquote
+
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseNotModified,
+    HttpResponseRedirect,
+)
+from django.template import Context, Template, TemplateDoesNotExist, loader
 from django.utils.http import http_date, parse_http_date
 
 
-def serve(request, path, document_root=None, show_indexes=False, default=''):
+def serve(request, path, document_root=None, show_indexes=False, default=""):
     """
     Serve static files below a given point in the directory structure.
 
@@ -39,9 +43,9 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
 
     # Clean up given path to only allow serving files below document_root.
     path = posixpath.normpath(unquote(path))
-    path = path.lstrip('/')
-    newpath = ''
-    for part in path.split('/'):
+    path = path.lstrip("/")
+    newpath = ""
+    for part in path.split("/"):
         if not part:
             # Strip empty path components.
             continue
@@ -50,7 +54,7 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
         if part in (os.curdir, os.pardir):
             # Strip '.' and '..' in path.
             continue
-        newpath = os.path.join(newpath, part).replace('\\', '/')
+        newpath = os.path.join(newpath, part).replace("\\", "/")
     if newpath and path != newpath:
         return HttpResponseRedirect(newpath)
     fullpath = os.path.join(document_root, newpath)
@@ -66,18 +70,15 @@ def serve(request, path, document_root=None, show_indexes=False, default=''):
         raise Http404('"%s" does not exist' % fullpath)
     # Respect the If-Modified-Since header.
     statobj = os.stat(fullpath)
-    mimetype = mimetypes.guess_type(fullpath)[0] or 'application/octet-stream'
-    if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
-                              statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
-        if django.VERSION > (1, 6):
-            return HttpResponseNotModified(content_type=mimetype)
-        else:
-            return HttpResponseNotModified(mimetype=mimetype)
-    contents = open(fullpath, 'rb').read()
-    if django.VERSION > (1, 6):
-        response = HttpResponse(contents, content_type=mimetype)
-    else:
-        response = HttpResponse(contents, mimetype=mimetype)
+    mimetype = mimetypes.guess_type(fullpath)[0] or "application/octet-stream"
+    if not was_modified_since(
+        request.headers.get("if-modified-since"),
+        statobj[stat.ST_MTIME],
+        statobj[stat.ST_SIZE],
+    ):
+        return HttpResponseNotModified(content_type=mimetype)
+    contents = open(fullpath, "rb").read()
+    response = HttpResponse(contents, content_type=mimetype)
     response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
     response["Content-Length"] = len(contents)
     return response
@@ -110,25 +111,29 @@ DEFAULT_DIRECTORY_INDEX_TEMPLATE = """
 
 def directory_index(path, fullpath):
     try:
-        t = loader.select_template([
-            'static/directory_index.html',
-            'static/directory_index'
-        ])
+        t = loader.select_template(
+            [
+                "static/directory_index.html",
+                "static/directory_index",
+            ],
+        )
     except TemplateDoesNotExist:
         t = Template(
             DEFAULT_DIRECTORY_INDEX_TEMPLATE,
-            name='Default directory index template'
+            name="Default directory index template",
         )
     files = []
     for f in os.listdir(fullpath):
-        if not f.startswith('.'):
+        if not f.startswith("."):
             if os.path.isdir(os.path.join(fullpath, f)):
-                f += '/'
+                f += "/"
             files.append(f)
-    c = Context({
-        'directory': path + '/',
-        'file_list': files,
-    })
+    c = Context(
+        {
+            "directory": path + "/",
+            "file_list": files,
+        },
+    )
     return HttpResponse(t.render(c))
 
 
@@ -146,8 +151,11 @@ def was_modified_since(header=None, mtime=0, size=0):
     try:
         if header is None:
             raise ValueError
-        matches = re.match(r"^([^;]+)(; length=([0-9]+))?$", header,
-                           re.IGNORECASE)
+        matches = re.match(
+            r"^([^;]+)(; length=([0-9]+))?$",
+            header,
+            re.IGNORECASE,
+        )
         header_mtime = parse_http_date(matches.group(1))
         header_len = matches.group(3)
         if header_len and int(header_len) != size:

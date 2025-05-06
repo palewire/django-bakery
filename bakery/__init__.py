@@ -1,4 +1,3 @@
-default_app_config = 'bakery.apps.BakeryConfig'
 DEFAULT_GZIP_CONTENT_TYPES = (
     "application/atom+xml",
     "application/javascript",
@@ -31,5 +30,5 @@ DEFAULT_GZIP_CONTENT_TYPES = (
     "text/vtt",
     "text/x-component",
     "text/x-cross-domain-policy",
-    "text/xml"
+    "text/xml",
 )
