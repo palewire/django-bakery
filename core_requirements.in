@@ -1,0 +1,5 @@
+# Core application dependencies
+six
+celery
+boto3
+# fs # This is the one you are planning to remove

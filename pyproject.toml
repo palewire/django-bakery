@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0"] # Or other backends like flit, poetry
+build-backend = "setuptools.build_meta"
+backend-path = ["."] # If you have a setup.py or setup.cfg for setuptools
+
+[project]
+name = "django-bakery-fork" # Or your chosen name
+version = "0.1.0" # Or read from a file
+description = "A set of helpers for baking your Django site out as flat files (forked version)."
+readme = "README.md"
+requires-python = ">=3.9" # As per your new minimum
+license = { text = "Your License Type, e.g., MIT License" } # Check original license
+authors = [
+    { name = "Your Name", email = "your.email@example.com" },
+    # Add original authors if appropriate, or acknowledge the fork
+]
+classifiers = [
+    "Development Status :: 4 - Beta", # Adjust as needed
+    "Framework :: Django",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1", # Add new supported versions
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License", # Example, check original
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13", # Add new supported versions
+]
+
+dependencies = [
+    "boto3>=1.38.9",
+    "celery>=5.5.2",
+    "django>=4.0,<5.2", # Your new Django range
+    # List other dependencies previously in install_requires
+    # e.g., "boto3>=1.0" if S3 support is kept
+    # "celery>=5.0" if celery integration is kept
+    "six>=1.17.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-repo/django-bakery"
+Issues = "https://github.com/your-repo/django-bakery/issues"
+
+[dependency-groups]
+dev = [
+    "django>=4.2.20",
+    "flake8>=7.2.0",
+    "moto[all,ec2,s3]>=5.1.4",
+    "myst-parser>=3.0.1",
+    "setuptools-scm>=8.3.1",
+    "sphinx>=7.4.7",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx-palewire-theme>=0.1.2",
+    "twine>=6.1.0",
+]
+
+# If you have console scripts (management commands are usually handled by Django)
+# [project.scripts]
+# my-script = "my_package.module:main_function"
