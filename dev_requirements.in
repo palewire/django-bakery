@@ -8,6 +8,9 @@ flake8
 isort
 moto[all,ec2,s3]
 myst-parser
+pytest
+pytest-django
+pytest-xdist
 ruff
 setuptools-scm
 sphinx-autobuild

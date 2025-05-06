@@ -4,10 +4,10 @@ for building flat files.
 """
 
 import logging
+from pathlib import Path
 
 from django.conf import settings
 from django.views.generic import ListView
-from fs import path
 
 from .base import BuildableMixin
 
@@ -45,5 +45,5 @@ class BuildableListView(ListView, BuildableMixin):
         logger.debug("Building %s" % self.build_path)
         self.request = self.create_request(self.build_path)
         self.prep_directory(self.build_path)
-        target_path = path.join(settings.BUILD_DIR, self.build_path)
+        target_path = str(Path(settings.BUILD_DIR) / self.build_path)
         self.build_file(target_path, self.get_content())

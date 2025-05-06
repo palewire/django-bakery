@@ -5,7 +5,6 @@ from datetime import date
 from pathlib import Path
 
 import boto3
-import six
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
@@ -145,7 +144,6 @@ class MockSubjectRSSFeed(feeds.BuildableFeed):
 
 
 class JSONResponseMixin:
-
     def render_to_response(self, context, **response_kwargs):
         return HttpResponse(
             self.convert_context_to_json(context),
@@ -168,7 +166,6 @@ class MockJSONView(JSONResponseMixin, views.BuildableTemplateView):
 
 
 class BakeryTest(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
         for m in [MockObject, AutoMockObject, NoUrlObject]:

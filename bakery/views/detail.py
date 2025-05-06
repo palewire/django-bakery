@@ -5,11 +5,9 @@ for building flat files.
 
 import logging
 import os
+from pathlib import Path
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.views.generic import DetailView
-from fs import path
 
 from .base import BuildableMixin
 
@@ -38,15 +36,13 @@ class BuildableDetailView(DetailView, BuildableMixin):
         """
         The URL at which the detail page should appear.
         """
-        if not hasattr(obj, "get_absolute_url") or not obj.get_absolute_url():
-            raise ImproperlyConfigured(
-                "No URL configured. You must either \
-set a ``get_absolute_url`` method on the {} model or override the {} view's \
-``get_url`` method".format(
-                    obj.__class__.__name__,
-                    self.__class__.__name__,
-                ),
-            )
+        if not hasattr(obj, "get_absolute_url") or not obj.get_absolute_url():  # noqa: E501
+            raise ImproperlyConfigured(  # noqa: F821
+                f"No URL configured. You must either set a "
+                f"``get_absolute_url`` method on the {obj.__class__.__name__} "
+                f"model or override the {self.__class__.__name__} view's "
+                f"``get_url`` method",  # noqa: E501
+            )  # noqa: E501
         return obj.get_absolute_url()
 
     def get_build_path(self, obj):
@@ -55,16 +51,22 @@ set a ``get_absolute_url`` method on the {} model or override the {} view's \
         would like your detail page at a different location. By default it
         will be built at get_url() + "index.html"
         """
-        target_path = path.join(
-            str(settings.BUILD_DIR),
-            self.get_url(obj).lstrip("/"),
-        )
-        if not self.fs.exists(target_path):
-            logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
-        return path.join(target_path, "index.html")
+        target_path = Path(self.build_dir) / self.get_url(obj).lstrip("/")
+        if not target_path.exists():
+            logger.debug(f"Creating {target_path}")
+            target_path.mkdir(parents=True, exist_ok=True)
+        return target_path / "index.html"
+
+    def build_file(self, path, content):
+        """
+        Writes the file to disk.
+        """
+        path.write_text(content)
 
     def set_kwargs(self, obj):
+        """
+        Sets the kwargs necessary to render the detail view.
+        """
         slug_field = self.get_slug_field()
         self.kwargs = {
             "pk": getattr(obj, "pk", None),
@@ -75,6 +77,9 @@ set a ``get_absolute_url`` method on the {} model or override the {} view's \
         }
 
     def build_object(self, obj):
+        """
+        Builds the detail page for a single object.
+        """
         logger.debug("Building %s" % obj)
         self.request = self.create_request(self.get_url(obj))
         self.set_kwargs(obj)
@@ -82,14 +87,17 @@ set a ``get_absolute_url`` method on the {} model or override the {} view's \
         self.build_file(target_path, self.get_content())
 
     def build_queryset(self):
+        """
+        Builds the detail page for each object in the queryset.
+        """
         [self.build_object(o) for o in self.get_queryset().all()]
 
     def unbuild_object(self, obj):
         """
         Deletes the directory at self.get_build_path.
         """
-        logger.debug("Unbuilding %s" % obj)
-        target_path = os.path.split(self.get_build_path(obj))[0]
-        if self.fs.exists(target_path):
-            logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+        logger.debug(f"Unbuilding {obj}")
+        target_path = self.get_build_path(obj).parent
+        if target_path.exists():
+            logger.debug(f"Removing {target_path}")
+            os.rmdir(target_path)
