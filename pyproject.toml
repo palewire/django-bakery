@@ -105,14 +105,14 @@ testpaths = [
 addopts = '--color=yes --log-cli-level=DEBUG --log-level=DEBUG'
 
 [project]
-name = "django-bakery-fork" # Or your chosen name
+name = "django-bakery" # Or your chosen name
 dynamic = ["version"]
-description = "A set of helpers for baking your Django site out as flat files (forked version)."
+description = "A set of helpers for baking your Django site out as flat files."
 readme = "README.md"
 requires-python = ">=3.10" # As per your new minimum
 license = { file = "LICENSE", type = "text/plain" } # Check original license
 authors = [
-    { name = "Your Name", email = "your.email@example.com" },
+    { name = "Ben Welsh", email = "b@palewi.re" },
     # Add original authors if appropriate, or acknowledge the fork
 ]
 classifiers = [
@@ -141,9 +141,9 @@ dependencies = [
 
 
 [project.urls]
-Homepage = "https://github.com/your-repo/django-bakery"
-Repository = "https://github.com/your-repo/django-bakery"
-Issues = "https://github.com/your-repo/django-bakery/issues"
+Homepage = "https://github.com/palewire/django-bakery"
+Repository = "https://github.com/palewire/django-bakery"
+Issues = "https://github.com/palewire/django-bakery/issues"
 
 [dependency-groups]
 dev = [
