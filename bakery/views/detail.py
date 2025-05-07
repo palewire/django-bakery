@@ -118,6 +118,22 @@ class BuildableDetailView(DetailView, BuildableMixin):
 
         return str(target_path)
 
+    def set_kwargs(self, obj):
+        """
+        Sets the kwargs for the view based on the object.
+        This is used to simulate the behavior of a DetailView
+        when building the view.
+
+        """
+        slug_field = self.get_slug_field()
+        self.kwargs = {
+            "pk": getattr(obj, "pk", None),
+            slug_field: getattr(obj, slug_field, None),
+            # Also alias the slug_field to the key `slug`
+            # so it can work for people who just toss that in
+            "slug": getattr(obj, slug_field, None),
+        }
+
     def build_object(self, obj):
         """
         Builds a single detail page for the given object.

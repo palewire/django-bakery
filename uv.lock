@@ -504,8 +504,8 @@ wheels = [
 ]
 
 [[package]]
-name = "django-bakery-fork"
-version = "0.1.dev911+g5940d94.d20250506"
+name = "django-bakery"
+version = "0.14.1.dev0+gfa1fd50.d20250507"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
