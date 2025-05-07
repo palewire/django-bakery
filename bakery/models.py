@@ -8,6 +8,8 @@ method, like the BuildableDetailView included in this app.
 
 from django.db import models, transaction
 
+from bakery.apps import logger
+
 
 class BuildableModel(models.Model):
     """
@@ -56,11 +58,91 @@ class BuildableModel(models.Model):
         build_object with `self`, and calls _build_extra()
         and _build_related().
         """
-        for detail_view in self.detail_views:
-            view = self._get_view(detail_view)
-            view().build_object(self)
-        self._build_extra()
-        self._build_related()
+        logger.debug(f"BuildableModel.build() called for {self.__class__.__name__}: {self}")
+        if hasattr(self, "detail_views") and self.detail_views:
+            from django.utils.module_loading import import_string
+
+            # from bakery.views.base import BuildableMixin # Should be
+            # imported at module level if used for issubclass
+
+            for view_str in self.detail_views:
+                logger.debug(f"[BuildableModel.build] Processing view_str: {view_str}")
+                try:
+                    view_klass = import_string(view_str)
+                    logger.debug(
+                        f"[BuildableModel.build] Imported view_klass: "
+                        f"{view_klass}, type: {type(view_klass)}",
+                    )
+
+                    if not callable(view_klass):  # Explicit check
+                        logger.error(
+                            f"[BuildableModel.build] {view_str} ("
+                            f"{view_klass}) is not callable. Skipping.",
+                        )
+                        continue
+
+                    # Ensure BuildableMixin is in scope for issubclass check if you re-enable it
+                    # from bakery.views.base import BuildableMixin
+                    # if not issubclass(view_klass, BuildableMixin):
+                    #     logger.warning(f"View {view_str} for {self} is not
+                    #     a BuildableMixin subclass. Skipping.")
+                    #     continue
+
+                    logger.debug(f"[BuildableModel.build] Instantiating {view_klass}")
+                    view_instance = view_klass()
+                    logger.debug(
+                        f"[BuildableModel.build] Instantiated view_instance: "
+                        f"{view_instance}, type: {type(view_instance)}",
+                    )
+
+                    if hasattr(view_instance, "build_object") and callable(
+                        view_instance.build_object,
+                    ):
+                        logger.debug(
+                            f"[BuildableModel.build] Calling build_object on {view_str} for {self}",
+                        )
+                        view_instance.build_object(self)
+                    else:
+                        logger.warning(
+                            f"View {view_str} for {self} has no callable 'build_object' method. "
+                            "Attempting generic view_instance.build() if available.",
+                        )
+                        if hasattr(view_instance, "build") and callable(view_instance.build):
+                            logger.debug(
+                                f"[BuildableModel.build] Calling generic "
+                                f"build() on {view_str} for {self}",
+                            )
+                            view_instance.build()
+                        else:
+                            logger.error(
+                                f"No suitable build method found on {view_str} for {self}.",
+                            )
+
+                except ImportError:
+                    logger.error(
+                        f"Could not import detail view: {view_str} for {self}",
+                        exc_info=True,
+                    )
+                except TypeError as te:  # Catch TypeError specifically
+                    logger.error(
+                        f"TypeError during processing of view {view_str} for {self}: {te}",
+                        exc_info=True,
+                    )
+                    # Log details about what might have been a module
+                    if "module" in str(te).lower() and "not callable" in str(te).lower():
+                        view_klass = (
+                            view_klass if "view_klass" in locals() else "view_klass not defined."
+                        )
+                        logger.error(f"Object that was attempted to be called: {view_klass}")
+                except Exception as e:
+                    logger.error(
+                        f"Generic error building detail view {view_str} for {self}: {e}",
+                        exc_info=True,
+                    )
+        else:
+            logger.debug(
+                f"No detail_views specified for {self}. Model build() does nothing further.",
+            )
 
     def unbuild(self):
         """
@@ -76,7 +158,22 @@ class BuildableModel(models.Model):
         self._build_related()
 
     def get_absolute_url(self):
-        pass
+        """
+        Returns the absolute URL for this object.
+
+        This method should be implemented by subclasses to provide the
+        correct URL for accessing the detail page of the object.
+
+        If the superclass has a get_absolute_url method, it will be called.
+        Otherwise, an AttributeError will be raised, indicating that the
+        method is not implemented.
+        """
+        if hasattr(super(), "get_absolute_url"):
+            return super().get_absolute_url()
+        raise AttributeError(
+            f"{self.__clas__.__name__} object  does not define a "
+            f"get_absolute_url method or is not implemented in its hierarchy",
+        )
 
     class Meta:
         abstract = True

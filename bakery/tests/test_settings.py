@@ -9,6 +9,8 @@ from pathlib import Path
 # This helps in constructing paths relative to the 'tests' directory
 TESTS_DIR = Path(__file__).resolve().parent
 
+BASE_DIR = TESTS_DIR.parent.parent
+
 DATABASES = {
     "default": {
         "NAME": TESTS_DIR / "test.db",  # Store test.db inside the tests directory
@@ -57,6 +59,7 @@ BUILD_DIR = tempfile.mkdtemp(prefix="django_bakery_test_build_")
 
 STATIC_ROOT = TESTS_DIR / "static_root_for_tests"  # A dedicated static root for test collection
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [TESTS_DIR / "static"]
 
 MEDIA_ROOT = TESTS_DIR / "media_root_for_tests"  # A dedicated media root for tests
 MEDIA_URL = "/media/"
@@ -66,7 +69,8 @@ STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 
-BAKERY_VIEWS = ("bakery.tests.MockDetailView",)  # As in your original command
+BAKERY_VIEWS = ("bakery.tests.views.MockDetailView",)  # As in your original
+# command
 
 # AWS settings for Moto mocking
 AWS_ACCESS_KEY_ID = "MOCK_ACCESS_KEY_ID"
@@ -98,3 +102,53 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # class BakeryTestsConfig(AppConfig):
 #     name = 'bakery.tests'
 #     default_auto_field = 'django.db.models.BigAutoField'
+
+
+# Logging settings
+# C:/dev/git_clones/django-bakery/bakery/tests/test_settings.py
+# ... (other settings) ...
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname}:{name}:{module}:{funcName}:{lineno:d}: {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname}:{name}: {message}",
+            # Keep it simple for console
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",  # Capture all levels from handlers
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",  # Django's own logging
+            "propagate": False,
+        },
+        "bakery": {  # Catch-all for your app's modules
+            "handlers": ["console"],
+            "level": "DEBUG",  # See DEBUG from bakery.views, bakery.models etc.
+            "propagate": True,
+        },
+        "bakery.tests": {  # Specific logger for your tests module
+            "handlers": ["console"],
+            "level": "DEBUG",  # THIS IS CRUCIAL
+            "propagate": False,
+            # Prevent duplicate messages if 'bakery' also logs it
+        },
+    },
+    "root": {  # Fallback for any other loggers not explicitly configured
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

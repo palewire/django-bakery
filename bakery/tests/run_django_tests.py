@@ -9,14 +9,9 @@ from django.core.management import call_command
 os.environ["DJANGO_SETTINGS_MODULE"] = "bakery.tests.test_settings"
 
 # --- Adjust Python Path correctly ---
-# Get the directory containing this script (e.g., .../django-bakery/bakery/tests/)
 this_script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Navigate two levels up to get the actual project root (e.g., .../django-bakery/)
-# This directory contains the 'bakery' package.
 actual_project_root = os.path.abspath(os.path.join(this_script_dir, "..", ".."))
 
-# Add the actual project root to sys.path if it's not already there
 if actual_project_root not in sys.path:
     sys.path.insert(0, actual_project_root)
 
@@ -33,15 +28,20 @@ def main():
         print("Django setup successful.")
     except Exception as e:
         print(f"Error during django.setup(): {e}")
-        print(f"DJANGO_SETTINGS_MODULE is currently: {os.environ.get('DJANGO_SETTINGS_MODULE')}")
+        settings_module = os.environ.get("DJANGO_SETTINGS_MODULE")
+        if settings_module:
+            print(f"DJANGO_SETTINGS_MODULE was: {settings_module}")
+        # It's useful to print sys.path here to confirm the environment
         print(f"sys.path for debugging: {sys.path}")
-        print("Please ensure 'bakery.tests.test_settings' is correctly configured and accessible,")
-        print("and that the 'bakery' package can be imported from the locations in sys.path.")
+        print("This error (AppRegistryNotReady or similar) often indicates that Django models")
+        print("are being imported at the module level in your application or test files")
+        print("before Django's app loading mechanism is fully initialized.")
+        print("Consider delaying model imports (e.g., into setUpClass or test methods).")
         sys.exit(1)
 
     print("Running Django tests for 'bakery.tests'...")
     try:
-        call_command("test", "bakery.tests", verbosity=2)
+        call_command("test", "bakery.tests", verbosity=3)
     except Exception as e:
         print(f"Error during call_command('test', ...): {e}")
         sys.exit(1)

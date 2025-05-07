@@ -44,6 +44,6 @@ class BuildableListView(ListView, BuildableMixin):
     def build_queryset(self):
         logger.debug("Building %s" % self.build_path)
         self.request = self.create_request(self.build_path)
-        self.prep_directory(self.build_path)
+        # self.prep_directory(self.build_path)
         target_path = str(Path(settings.BUILD_DIR) / self.build_path)
         self.build_file(target_path, self.get_content())

@@ -102,7 +102,7 @@ testpaths = [
     'bakery/tests'
 ]
 
-addopts = '--color=yes'
+addopts = '--color=yes --log-cli-level=DEBUG --log-level=DEBUG'
 
 [project]
 name = "django-bakery-fork" # Or your chosen name
