@@ -41,20 +41,20 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:0c6eb8191b1ea4c7a139e56425399405d46e86c7e814ef497176b9af1f7ca056",
-                "sha256:fc649fb4c9521f60660fd562d6bf2034753832968b0c93ec60ad30634afb1b0f"
+                "sha256:3772fb828864d3b7046c8bdf2f4860aaca4a79f25b7b060206c6a5f4944ea7f9",
+                "sha256:876ccc0b25517b992bd27976282510773a11ebc771aa5b836a238ea426c82187"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==1.37.10"
+            "markers": "python_version >= '3.9'",
+            "version": "==1.40.21"
         },
         "botocore": {
             "hashes": [
-                "sha256:7515c8dfaaf5ba02604db9cf73c172615afee976136f31d8aec628629f24029f",
-                "sha256:ab311982a9872eeb4e71906d3e3fcd2ba331a869d0fed16836ade7ce2e58bcea"
+                "sha256:574ecf9b68c1721650024a27e00e0080b6f141c281ebfce49e0d302969270ef4",
+                "sha256:f77e9c199df0252b14ea739a9ac99723940f6bde90f4c2e7802701553a62827b"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==1.37.10"
+            "markers": "python_version >= '3.9'",
+            "version": "==1.40.21"
         },
         "celery": {
             "hashes": [
@@ -138,11 +138,11 @@
         },
         "s3transfer": {
             "hashes": [
-                "sha256:559f161658e1cf0a911f45940552c696735f5c74e64362e515f333ebed87d679",
-                "sha256:ac265fa68318763a03bf2dc4f39d5cbd6a9e178d81cc9483ad27da33637e320d"
+                "sha256:a981aa7429be23fe6dfc13e80e4020057cbab622b08c0315288758d67cabc724",
+                "sha256:c3fdba22ba1bd367922f27ec8032d6a1cf5f10c934fb5d68cf60fd5a23d936cf"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==0.11.4"
+            "markers": "python_version >= '3.9'",
+            "version": "==0.13.1"
         },
         "setuptools": {
             "hashes": [
@@ -171,11 +171,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df",
-                "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d"
+                "sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760",
+                "sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc"
             ],
-            "markers": "python_version >= '3.10'",
-            "version": "==2.3.0"
+            "markers": "python_version >= '3.9'",
+            "version": "==2.5.0"
         },
         "vine": {
             "hashes": [
