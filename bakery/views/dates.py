@@ -1,45 +1,26 @@
-"""
-Views that inherit from Django's class-based generic views and add methods
-for building flat files.
-"""
-import os
+# C:/dev/git_clones/django-bakery/bakery/views/dates.py
 import logging
-from fs import path
+import os
+import shutil
 from datetime import date
+from pathlib import Path
+
 from django.conf import settings
-from bakery.views import BuildableMixin
 from django.views.generic.dates import (
     ArchiveIndexView,
-    YearArchiveView,
-    MonthArchiveView,
     DayArchiveView,
+    MonthArchiveView,
+    YearArchiveView,
 )
+
+# Assuming BuildableMixin is in bakery.views.base
+from bakery.views.base import BuildableMixin
+
 logger = logging.getLogger(__name__)
 
 
 class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
-    """
-    Renders and builds a top-level index page showing the "latest" objects,
-    by date.
-
-    Required attributes:
-
-        model or queryset:
-            Where the list of objects should come from. `self.queryset` can
-            be any iterable of items, not just a queryset.
-
-        build_path:
-            The target location of the built file in the BUILD_DIR.
-            `index.html` would place it at the built site's root.
-            `archive/index.html` would place it inside a subdirectory.
-            `archive/index.html is the default.
-
-        template_name:
-            The name of the template you would like Django to render. You need
-            to override this if you don't want to rely on the Django defaults.
-
-    """
-    build_path = 'archive/index.html'
+    build_path = "archive/index.html"
 
     @property
     def build_method(self):
@@ -48,280 +29,227 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
     def build_queryset(self):
         logger.debug("Building %s" % self.build_path)
         self.request = self.create_request(self.build_path)
-        self.prep_directory(self.build_path)
-        target_path = path.join(settings.BUILD_DIR, self.build_path)
-        self.build_file(target_path, self.get_content())
+        # self.prep_directory(self.build_path) # REMOVE THIS LINE
+        self.build_file(self.build_path, self.get_content())
 
 
 class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
-    """
-    Renders and builds a yearly archive showing all available months
-    (and, if you'd like, objects) in a given year.
-
-    Required attributes:
-
-        model or queryset:
-            Where the list of objects should come from. Must be a queryset
-            object, not a list.
-
-        template_name:
-            The name of the template you would like Django to render. You need
-            to override this if you don't want to rely on the Django defaults.
-    """
     @property
     def build_method(self):
         return self.build_dated_queryset
 
     def get_year(self):
-        """
-        Return the year from the database in the format expected by the URL.
-        """
-        year = super(BuildableYearArchiveView, self).get_year()
+        year = super().get_year()
         fmt = self.get_year_format()
         return date(int(year), 1, 1).strftime(fmt)
 
     def get_url(self):
-        """
-        The URL at which the detail page should appear.
-
-        By default it is /archive/ + the year in self.year_format.
-        """
-        return os.path.join('/archive', self.get_year())
+        return os.path.join("/archive", self.get_year())
 
     def get_build_path(self):
-        """
-        Used to determine where to build the page. Override this if you
-        would like your page at a different location. By default it
-        will be built at self.get_url() + "/index.html"
-        """
-        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
-        if not self.fs.exists(target_path):
-            logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
-        return path.join(target_path, 'index.html')
+        return (Path(self.get_url().lstrip("/")) / "index.html").as_posix()
 
     def build_year(self, dt):
-        """
-        Build the page for the provided year.
-        """
         self.year = str(dt.year)
-        logger.debug("Building %s" % self.year)
+        logger.debug("Building year: %s" % self.year)
         self.request = self.create_request(self.get_url())
-        target_path = self.get_build_path()
-        self.build_file(target_path, self.get_content())
+        relative_file_path = self.get_build_path()
+        logger.info(
+            f"[{self.get_class_name()}] Relative file path for {dt.year}: {relative_file_path}",
+        )
+        try:
+            content = self.get_content()
+            logger.info(
+                f"[{self.get_class_name()}] Got content for {dt.year}, length: {len(content)}",
+            )
+            # self.prep_directory(relative_file_path) # REMOVE THIS LINE
+            self.build_file(
+                relative_file_path,
+                content,
+            )  # Changed from self.get_content() to content
+        except Exception as e:
+            logger.error(
+                f"[{self.get_class_name()}] Error getting content or "
+                f"building file for {dt.year}: {type(e)}, {e}, {e.args}",
+            )
 
     def build_dated_queryset(self):
-        """
-        Build pages for all years in the queryset.
-        """
         qs = self.get_dated_queryset()
-        years = self.get_date_list(qs)
-        [self.build_year(dt) for dt in years]
+        if qs is None:
+            logger.warning(
+                "Dated queryset is None. Skipping build for %s.",
+                self.get_class_name(),
+            )
+            return
+        date_list = self.get_date_list(qs)
+        if date_list is None:
+            logger.warning("Date list is None. Skipping build for %s.", self.get_class_name())
+            return
+        for dt_item in date_list:
+            logger.info(f"[{self.get_class_name()}] Processing year: {dt_item}")
+            self.build_year(dt_item)
 
     def unbuild_year(self, dt):
-        """
-        Deletes the directory at self.get_build_path.
-        """
         self.year = str(dt.year)
-        logger.debug("Unbuilding %s" % self.year)
-        target_path = os.path.split(self.get_build_path())[0]
-        if self.fs.exists(target_path):
-            logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+        logger.debug("Unbuilding year: %s" % self.year)
+        relative_dir_to_remove_str = self.get_url().lstrip("/")
+        absolute_dir_to_remove = Path(settings.BUILD_DIR) / relative_dir_to_remove_str
+        if absolute_dir_to_remove.exists() and absolute_dir_to_remove.is_dir():
+            logger.debug(f"Removing directory {absolute_dir_to_remove}")
+            shutil.rmtree(absolute_dir_to_remove)
+        elif absolute_dir_to_remove.exists():
+            logger.warning(
+                f"Attempted to remove directory {absolute_dir_to_remove}, "
+                f"but it is not a directory.",
+            )
+        else:
+            logger.debug(f"Directory {absolute_dir_to_remove} does not exist. Nothing to unbuild.")
 
 
 class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
-    """
-    Renders and builds a monthly archive showing all objects in a given month.
-
-    Required attributes:
-
-        model or queryset:
-            Where the list of objects should come from. Must be a queryset
-            object, not a list.
-
-        template_name:
-            The name of the template you would like Django to render. You need
-            to override this if you don't want to rely on the Django defaults.
-    """
     @property
     def build_method(self):
         return self.build_dated_queryset
 
     def get_year(self):
-        """
-        Return the year from the database in the format expected by the URL.
-        """
-        year = super(BuildableMonthArchiveView, self).get_year()
+        year = super().get_year()
         fmt = self.get_year_format()
         return date(int(year), 1, 1).strftime(fmt)
 
     def get_month(self):
-        """
-        Return the month from the database in the format expected by the URL.
-        """
-        year = super(BuildableMonthArchiveView, self).get_year()
-        month = super(BuildableMonthArchiveView, self).get_month()
+        year = super().get_year()
+        month = super().get_month()
         fmt = self.get_month_format()
         return date(int(year), int(month), 1).strftime(fmt)
 
     def get_url(self):
-        """
-        The URL at which the detail page should appear.
-
-        By default it is /archive/ + the year in self.year_format + the
-        month in self.month_format. An example would be /archive/2016/01/.
-        """
-        return os.path.join('/archive', self.get_year(), self.get_month())
+        return os.path.join("/archive", self.get_year(), self.get_month())
 
     def get_build_path(self):
-        """
-        Used to determine where to build the page. Override this if you
-        would like your page at a different location. By default it
-        will be built at self.get_url() + "/index.html"
-        """
-        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
-        if not self.fs.exists(target_path):
-            logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
-        return path.join(target_path, 'index.html')
+        return (Path(self.get_url().lstrip("/")) / "index.html").as_posix()
 
     def build_month(self, dt):
-        """
-        Build the page for the provided month.
-        """
         self.month = str(dt.month)
         self.year = str(dt.year)
-        logger.debug("Building %s-%s" % (self.year, self.month))
+        logger.debug("Building month: {}-{}".format(self.year, self.month))
         self.request = self.create_request(self.get_url())
-        path = self.get_build_path()
-        self.build_file(path, self.get_content())
+        relative_file_path = self.get_build_path()
+        # self.prep_directory(relative_file_path) # REMOVE THIS LINE
+        self.build_file(relative_file_path, self.get_content())
 
     def build_dated_queryset(self):
-        """
-        Build pages for all years in the queryset.
-        """
         qs = self.get_dated_queryset()
-        months = self.get_date_list(qs)
-        [self.build_month(dt) for dt in months]
+        if qs is None:
+            logger.warning(
+                "Dated queryset is None. Skipping build for %s.",
+                self.get_class_name(),
+            )
+            return
+        date_list = self.get_date_list(qs)
+        if date_list is None:
+            logger.warning("Date list is None. Skipping build for %s.", self.get_class_name())
+            return
+        for dt_item in date_list:
+            self.build_month(dt_item)
 
     def unbuild_month(self, dt):
-        """
-        Deletes the directory at self.get_build_path.
-        """
         self.year = str(dt.year)
         self.month = str(dt.month)
-        logger.debug("Building %s-%s" % (self.year, self.month))
-        target_path = os.path.split(self.get_build_path())[0]
-        if self.fs.exists(target_path):
-            logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+        logger.debug("Unbuilding month: {}-{}".format(self.year, self.month))
+        relative_dir_to_remove_str = self.get_url().lstrip("/")
+        absolute_dir_to_remove = Path(settings.BUILD_DIR) / relative_dir_to_remove_str
+        if absolute_dir_to_remove.exists() and absolute_dir_to_remove.is_dir():
+            logger.debug(f"Removing directory {absolute_dir_to_remove}")
+            shutil.rmtree(absolute_dir_to_remove)
+        elif absolute_dir_to_remove.exists():
+            logger.warning(
+                f"Attempted to remove directory {absolute_dir_to_remove}, "
+                f"but it is not a directory.",
+            )
+        else:
+            logger.debug(f"Directory {absolute_dir_to_remove} does not exist. Nothing to unbuild.")
 
 
 class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
-    """
-    Renders and builds a day archive showing all objects in a given day.
-
-    Required attributes:
-
-        model or queryset:
-            Where the list of objects should come from. Must be a queryset
-            object, not a list.
-
-        template_name:
-            The name of the template you would like Django to render. You need
-            to override this if you don't want to rely on the Django defaults.
-    """
     @property
     def build_method(self):
         return self.build_dated_queryset
 
     def get_year(self):
-        """
-        Return the year from the database in the format expected by the URL.
-        """
-        year = super(BuildableDayArchiveView, self).get_year()
+        year = super().get_year()
         fmt = self.get_year_format()
-        dt = date(int(year), 1, 1)
-        return dt.strftime(fmt)
+        dt_obj = date(int(year), 1, 1)
+        return dt_obj.strftime(fmt)
 
     def get_month(self):
-        """
-        Return the month from the database in the format expected by the URL.
-        """
-        year = super(BuildableDayArchiveView, self).get_year()
-        month = super(BuildableDayArchiveView, self).get_month()
+        year = super().get_year()
+        month = super().get_month()
         fmt = self.get_month_format()
-        dt = date(int(year), int(month), 1)
-        return dt.strftime(fmt)
+        dt_obj = date(int(year), int(month), 1)
+        return dt_obj.strftime(fmt)
 
     def get_day(self):
-        """
-        Return the day from the database in the format expected by the URL.
-        """
-        year = super(BuildableDayArchiveView, self).get_year()
-        month = super(BuildableDayArchiveView, self).get_month()
-        day = super(BuildableDayArchiveView, self).get_day()
+        year = super().get_year()
+        month = super().get_month()
+        day = super().get_day()
         fmt = self.get_day_format()
-        dt = date(int(year), int(month), int(day))
-        return dt.strftime(fmt)
+        dt_obj = date(int(year), int(month), int(day))
+        return dt_obj.strftime(fmt)
 
     def get_url(self):
-        """
-        The URL at which the detail page should appear.
-
-        By default it is /archive/ + the year in self.year_format + the
-        month in self.month_format + the day in the self.day_format.
-        An example would be /archive/2016/01/01/.
-        """
         return os.path.join(
-            '/archive',
+            "/archive",
             self.get_year(),
             self.get_month(),
-            self.get_day()
+            self.get_day(),
         )
 
     def get_build_path(self):
-        """
-        Used to determine where to build the page. Override this if you
-        would like your page at a different location. By default it
-        will be built at self.get_url() + "/index.html"
-        """
-        target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
-        if not self.fs.exists(target_path):
-            logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
-        return os.path.join(target_path, 'index.html')
+        return (Path(self.get_url().lstrip("/")) / "index.html").as_posix()
 
     def build_day(self, dt):
-        """
-        Build the page for the provided day.
-        """
         self.month = str(dt.month)
         self.year = str(dt.year)
         self.day = str(dt.day)
-        logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
+        logger.debug(
+            "Building day: {}-{}-{}".format(self.year, self.month, self.day),
+        )
         self.request = self.create_request(self.get_url())
-        path = self.get_build_path()
-        self.build_file(path, self.get_content())
+        relative_file_path = self.get_build_path()
+        # self.prep_directory(relative_file_path) # REMOVE THIS LINE
+        self.build_file(relative_file_path, self.get_content())
 
     def build_dated_queryset(self):
-        """
-        Build pages for all years in the queryset.
-        """
         qs = self.get_dated_queryset()
-        days = self.get_date_list(qs, date_type='day')
-        [self.build_day(dt) for dt in days]
+        if qs is None:
+            logger.warning(
+                "Dated queryset is None. Skipping build for %s.",
+                self.get_class_name(),
+            )
+            return
+        date_list = self.get_date_list(qs)
+        if date_list is None:
+            logger.warning("Date list is None. Skipping build for %s.", self.get_class_name())
+            return
+        for dt_item in date_list:
+            self.build_day(dt_item)
 
     def unbuild_day(self, dt):
-        """
-        Deletes the directory at self.get_build_path.
-        """
         self.year = str(dt.year)
         self.month = str(dt.month)
         self.day = str(dt.day)
-        logger.debug("Building %s-%s-%s" % (self.year, self.month, self.day))
-        target_path = os.path.split(self.get_build_path())[0]
-        if self.fs.exists(target_path):
-            logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+        logger.debug(
+            "Unbuilding day: {}-{}-{}".format(self.year, self.month, self.day),
+        )
+        relative_dir_to_remove_str = self.get_url().lstrip("/")
+        absolute_dir_to_remove = Path(settings.BUILD_DIR) / relative_dir_to_remove_str
+        if absolute_dir_to_remove.exists() and absolute_dir_to_remove.is_dir():
+            logger.debug(f"Removing directory {absolute_dir_to_remove}")
+            shutil.rmtree(absolute_dir_to_remove)
+        elif absolute_dir_to_remove.exists():
+            logger.warning(
+                f"Attempted to remove directory {absolute_dir_to_remove}, "
+                f"but it is not a directory.",
+            )
+        else:
+            logger.debug(f"Directory {absolute_dir_to_remove} does not exist. Nothing to unbuild.")

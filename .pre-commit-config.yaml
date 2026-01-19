@@ -1,0 +1,83 @@
+repos:
+  - hooks:
+      - id: check-ast
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-builtin-literals
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+    repo: "https://github.com/pre-commit/pre-commit-hooks"
+    rev: v5.0.0
+  - hooks:
+      - id: add-trailing-comma
+    repo: "https://github.com/asottile/add-trailing-comma"
+    rev: v3.1.0
+  - hooks:
+      - id: pyupgrade
+    repo: "https://github.com/asottile/pyupgrade"
+    rev: v3.19.1
+  - hooks:
+      - args:
+          - "--target-version"
+          - "5.1"
+        id: django-upgrade
+    repo: "https://github.com/adamchainz/django-upgrade"
+    rev: 1.24.0
+  # - repo: https://github.com/aufdenpunkt/pre-commit-js-beautify
+  #   rev: 1.13.0 # represents the used version of JS Beautify as well
+  # hooks:
+  # -   id: js-beautify
+  #     args: ['--html', '--wrap-attributes=force-aligned', '--wrap-line-length=80', "--templating=django"]
+  #     files: \.(html|jinja)$
+  - hooks:
+      - id: djlint-reformat-django
+      # - id: djlint-django
+    repo: "https://github.com/Riverside-Healthcare/djLint"
+    rev: v1.36.4
+  - hooks:
+      - args:
+          - "--fix"
+          - "--exit-non-zero-on-fix"
+        id: ruff
+    repo: "https://github.com/astral-sh/ruff-pre-commit"
+    rev: v0.11.8
+  - hooks:
+      - id: black
+        language_version: python3.12
+    repo: "https://github.com/psf/black"
+    rev: 25.1.0
+  - hooks:
+      - id: isort
+        name: isort (python)
+    repo: "https://github.com/pycqa/isort"
+    rev: 6.0.1
+  # - hooks:
+  #     - id: eslint
+  #       args:
+  #         [
+  #           "--fix",
+  #           "--config",
+  #           ".eslintrc.json",
+  #           "--ignore-path",
+  #           ".eslintignore",
+  #         ]
+  #       files: ^src/blog_site/blog_site/static/js/site/.*\.js$
+  #       additional_dependencies:
+  #         - eslint@8.56.0
+  #         - eslint-config-prettier@9.1.0
+  #         - eslint-plugin-prettier@5.1.3
+  #         - "@typescript-eslint/eslint-plugin@6.19.0"
+  #         - "@typescript-eslint/parser@6.19.0"
+  #         - typescript@5.3.3
+  #   repo: "https://github.com/pre-commit/mirrors-eslint"
+  #   rev: v9.25.1 # Use the sha / tag you want to point at
+#  - hooks:
+#      - id: prettier
+#        additional_dependencies:
+#          - prettier@3.2.5 # or any suitable version
+#    rev: v4.0.0-alpha.8
+#    repo: "https://github.com/pre-commit/mirrors-prettier"

@@ -1,12 +1,16 @@
 import logging
+
 from django.conf import settings
-from django.core import management
 from django.contrib.contenttypes.models import ContentType
+from django.core import management
+
 logger = logging.getLogger(__name__)
 try:
     from celery import shared_task
-except ImportError:
-    raise ImportError("celery must be installed to use django-bakery's tasks")
+except ImportError as err:
+    raise ImportError(
+        "celery must be installed to use django-bakery's tasks",
+    ) from err
 
 
 @shared_task()
@@ -25,9 +29,11 @@ def publish_object(content_type_pk, obj_pk):
         obj.build()
         # Run the `publish` management command unless the
         # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
-        if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
-            logger.info("Not running publish command because \
-ALLOW_BAKERY_AUTO_PUBLISHING is False")
+        if not getattr(settings, "ALLOW_BAKERY_AUTO_PUBLISHING", True):
+            logger.info(
+                "Not running publish command because \
+ALLOW_BAKERY_AUTO_PUBLISHING is False",
+            )
         else:
             management.call_command("publish")
     except Exception:
@@ -51,9 +57,11 @@ def unpublish_object(content_type_pk, obj_pk):
         obj.unbuild()
         # Run the `publish` management command unless the
         # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
-        if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
-            logger.info("Not running publish command because \
-ALLOW_BAKERY_AUTO_PUBLISHING is False")
+        if not getattr(settings, "ALLOW_BAKERY_AUTO_PUBLISHING", True):
+            logger.info(
+                "Not running publish command because \
+ALLOW_BAKERY_AUTO_PUBLISHING is False",
+            )
         else:
             management.call_command("publish")
     except Exception:

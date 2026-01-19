@@ -1,0 +1,20 @@
+# Development and testing dependencies
+-c core_requirements.txt # Ensures dev dependencies are compatible with core
+
+Sphinx
+black
+django
+flake8
+isort
+moto[all,ec2,s3]
+myst-parser
+pytest
+pytest-django
+pytest-xdist
+ruff
+setuptools-scm
+sphinx-autobuild
+sphinx-palewire-theme
+twine
+tox
+twine
