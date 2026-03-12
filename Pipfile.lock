@@ -878,10 +878,12 @@
         },
         "multipart": {
             "hashes": [
-                "sha256:829b909b67bc1ad1c6d4488fcdc6391c2847842b08323addf5200db88dbe9480",
-                "sha256:c03dc203bc2e67f6b46a599467ae0d87cf71d7530504b2c1ff4a9ea21d8b8c8c"
+                "sha256:4b5596e533f4b859c6efb208897b9a4198776a2ef6951b28cea64eca1a9345af",
+                "sha256:8379020c484e94e511b4d948432441362dbcf3d71cdb48f59856f2417a3eae09"
             ],
-            "version": "==1.2.1"
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==1.2.2"
         },
         "myst-parser": {
             "hashes": [
