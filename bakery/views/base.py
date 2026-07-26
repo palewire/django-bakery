@@ -11,7 +11,7 @@ import sys
 import gzip
 import logging
 import mimetypes
-from fs import path
+import posixpath as path
 from django.apps import apps
 from django.conf import settings
 from django.utils.encoding import smart_str
@@ -61,7 +61,7 @@ class BuildableMixin(object):
             dirname = path.join(settings.BUILD_DIR, dirname)
             if not self.fs.exists(dirname):
                 logger.debug("Creating directory at {}{}".format(self.fs_name, dirname))
-                self.fs.makedirs(dirname)
+                self.fs.makedirs(dirname, exist_ok=True)
 
     def build_file(self, path, html):
         if self.is_gzippable(path):

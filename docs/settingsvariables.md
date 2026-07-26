@@ -38,17 +38,21 @@ BUILD_DIR = os.path.join(__file__, 'build')
 ```{eval-rst}
 .. envvar:: BAKERY_FILESYSTEM
 
-    Files are built using `PyFilesystem <https://docs.pyfilesystem.org/en/latest/index.html>`_, a module that provides a common interface to a variety of filesystem backends. The default setting is the `OS filesystem <https://docs.pyfilesystem.org/en/latest/reference/osfs.html>`_ backend that saves files to the local directory structure. If you don't set the variable, it will operates as follows:
+    Files are built using `fsspec <https://filesystem-spec.readthedocs.io/en/latest/>`_, a module that provides a common interface to a variety of filesystem backends. The default setting is the local filesystem backend that saves files to the local directory structure. If you don't set the variable, it will operate as follows:
 
     .. code-block:: python
 
         BAKERY_FILESYSTEM = 'osfs:///'
 
-    Here's how you could change to an `in-memory backend <https://docs.pyfilesystem.org/en/latest/reference/memoryfs.html>`_ instead. The complete list of alternatives are documented `here <https://docs.pyfilesystem.org/en/latest/builtin.html>`_.
+    Here's how you could change to an `in-memory backend <https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.implementations.memory.MemoryFileSystem>`_ instead. The complete list of alternatives is documented `here <https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations>`_.
 
     .. code-block:: python
 
         BAKERY_FILESYSTEM = 'mem://'
+
+    .. note::
+
+        Earlier releases of django-bakery used `PyFilesystem2 <https://docs.pyfilesystem.org/en/latest/index.html>`_. The legacy ``osfs://`` and ``mem://`` URLs are automatically translated to their fsspec equivalents (``file`` and ``memory``), so existing settings keep working. To build to Amazon S3, install `s3fs <https://s3fs.readthedocs.io/>`_ (the fsspec-native replacement for ``fs-s3fs``) and set ``BAKERY_FILESYSTEM = 's3://your-bucket'``.
 
 ```
 

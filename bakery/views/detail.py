@@ -4,7 +4,7 @@ for building flat files.
 """
 import os
 import logging
-from fs import path
+import posixpath as path
 from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import DetailView
@@ -48,7 +48,7 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
         target_path = path.join(str(settings.BUILD_DIR), self.get_url(obj).lstrip('/'))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
+            self.fs.makedirs(target_path, exist_ok=True)
         return path.join(target_path, 'index.html')
 
     def set_kwargs(self, obj):
@@ -79,4 +79,4 @@ set a ``get_absolute_url`` method on the %s model or override the %s view's \
         target_path = os.path.split(self.get_build_path(obj))[0]
         if self.fs.exists(target_path):
             logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+            self.fs.rm(target_path, recursive=True)

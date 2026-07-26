@@ -4,7 +4,7 @@ for building flat files.
 """
 import os
 import logging
-from fs import path
+import posixpath as path
 from datetime import date
 from django.conf import settings
 from bakery.views import BuildableMixin
@@ -97,7 +97,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
+            self.fs.makedirs(target_path, exist_ok=True)
         return path.join(target_path, 'index.html')
 
     def build_year(self, dt):
@@ -127,7 +127,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         target_path = os.path.split(self.get_build_path())[0]
         if self.fs.exists(target_path):
             logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+            self.fs.rm(target_path, recursive=True)
 
 
 class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
@@ -183,7 +183,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
+            self.fs.makedirs(target_path, exist_ok=True)
         return path.join(target_path, 'index.html')
 
     def build_month(self, dt):
@@ -215,7 +215,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         target_path = os.path.split(self.get_build_path())[0]
         if self.fs.exists(target_path):
             logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+            self.fs.rm(target_path, recursive=True)
 
 
 class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
@@ -290,7 +290,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         target_path = path.join(settings.BUILD_DIR, self.get_url().lstrip('/'))
         if not self.fs.exists(target_path):
             logger.debug("Creating {}".format(target_path))
-            self.fs.makedirs(target_path)
+            self.fs.makedirs(target_path, exist_ok=True)
         return os.path.join(target_path, 'index.html')
 
     def build_day(self, dt):
@@ -324,4 +324,4 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         target_path = os.path.split(self.get_build_path())[0]
         if self.fs.exists(target_path):
             logger.debug("Removing {}".format(target_path))
-            self.fs.removetree(target_path)
+            self.fs.rm(target_path, recursive=True)

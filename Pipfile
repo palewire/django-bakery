@@ -7,7 +7,7 @@ name = "pypi"
 six = "*"
 celery = "*"
 "boto3" = "*"
-fs = "*"
+fsspec = "*"
 
 [dev-packages]
 django = "==5.1.*"

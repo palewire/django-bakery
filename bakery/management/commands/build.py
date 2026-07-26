@@ -13,8 +13,7 @@ import mimetypes
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 
 # Filesystem
-from fs import path
-from fs import copy
+import posixpath as path
 from django.utils.encoding import smart_str
 
 # Pooling
@@ -141,7 +140,7 @@ Will use settings.BUILD_DIR by default."
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
-            self.fs.makedirs(self.build_dir)
+            self.fs.makedirs(self.build_dir, exist_ok=True)
 
         # Figure out what views we'll be using
         if options.get('view_list'):
@@ -163,9 +162,9 @@ Will use settings.BUILD_DIR by default."
         if self.verbosity > 1:
             self.stdout.write("Initializing build directory")
         if self.fs.exists(self.build_dir):
-            self.fs.removetree(self.build_dir)
+            self.fs.rm(self.build_dir, recursive=True)
         # Then recreate it from scratch
-        self.fs.makedirs(self.build_dir)
+        self.fs.makedirs(self.build_dir, exist_ok=True)
 
     def build_static(self, *args, **options):
         """
@@ -192,8 +191,8 @@ Will use settings.BUILD_DIR by default."
                 self.copytree_and_gzip(self.static_root, target_dir)
             # if gzip isn't enabled, just copy the tree straight over
             else:
-                logger.debug("Copying {}{} to {}{}".format("osfs://", self.static_root, self.fs_name, target_dir))
-                copy.copy_dir("osfs:///", self.static_root, self.fs, target_dir)
+                logger.debug("Copying {} to {}{}".format(self.static_root, self.fs_name, target_dir))
+                self.copy_local_dir(self.static_root, target_dir)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
@@ -218,9 +217,9 @@ Will use settings.BUILD_DIR by default."
         if self.verbosity > 1:
             self.stdout.write("Building media directory")
         if os.path.exists(self.media_root) and settings.MEDIA_URL:
-            target_dir = path.join(self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip('/'))
-            logger.debug("Copying {}{} to {}{}".format("osfs://", self.media_root, self.fs_name, target_dir))
-            copy.copy_dir("osfs:///", smart_str(self.media_root), self.fs, smart_str(target_dir))
+            target_dir = path.join(self.build_dir, settings.MEDIA_URL.lstrip('/'))
+            logger.debug("Copying {} to {}{}".format(self.media_root, self.fs_name, target_dir))
+            self.copy_local_dir(smart_str(self.media_root), smart_str(target_dir))
 
     def get_view_instance(self, view):
         """
@@ -239,6 +238,23 @@ Will use settings.BUILD_DIR by default."
                 self.stdout.write("Building %s" % view_str)
             view = get_callable(view_str)
             self.get_view_instance(view).build_method()
+
+    def copy_local_dir(self, source_dir, target_dir):
+        """
+        Copy the contents of a local directory into the build filesystem.
+        """
+        # A trailing slash tells fsspec to copy the *contents* of source_dir
+        # into target_dir rather than nesting it under a subdirectory.
+        source = os.path.join(smart_str(source_dir), "")
+        self.fs.put(source, smart_str(target_dir), recursive=True)
+
+    def copy_local_file(self, source_path, target_path):
+        """
+        Copy a single local file into the build filesystem.
+
+        The parent directory of ``target_path`` is expected to already exist.
+        """
+        self.fs.put(smart_str(source_path), smart_str(target_path))
 
     def copytree_and_gzip(self, source_dir, target_dir):
         """
@@ -287,7 +303,7 @@ Will use settings.BUILD_DIR by default."
         target_dir = path.dirname(target_path)
         if not self.fs.exists(target_dir):
             try:
-                self.fs.makedirs(target_dir)
+                self.fs.makedirs(target_dir, exist_ok=True)
             except OSError:
                 pass
 
@@ -299,29 +315,26 @@ Will use settings.BUILD_DIR by default."
         # If it isn't a file want to gzip...
         if content_type not in self.gzip_file_match:
             # just copy it to the target.
-            logger.debug("Copying {}{} to {}{} because its filetype isn't on the whitelist".format(
-                "osfs://",
+            logger.debug("Copying {} to {}{} because its filetype isn't on the whitelist".format(
                 source_path,
                 self.fs_name,
                 target_path
             ))
-            copy.copy_file("osfs:///", smart_str(source_path), self.fs, smart_str(target_path))
+            self.copy_local_file(smart_str(source_path), smart_str(target_path))
 
         # # if the file is already gzipped
         elif encoding == 'gzip':
-            logger.debug("Copying {}{} to {}{} because it's already gzipped".format(
-                "osfs://",
+            logger.debug("Copying {} to {}{} because it's already gzipped".format(
                 source_path,
                 self.fs_name,
                 target_path
             ))
-            copy.copy_file("osfs:///", smart_str(source_path), self.fs, smart_str(target_path))
+            self.copy_local_file(smart_str(source_path), smart_str(target_path))
 
         # If it is one we want to gzip...
         else:
             # ... let the world know ...
-            logger.debug("Gzipping {}{} to {}{}".format(
-                "osfs://",
+            logger.debug("Gzipping {} to {}{}".format(
                 source_path,
                 self.fs_name,
                 target_path

@@ -3,7 +3,7 @@ Views that inherit from Django's class-based generic views and add methods
 for building flat files.
 """
 import logging
-from fs import path
+import posixpath as path
 from .base import BuildableMixin
 from django.conf import settings
 from django.views.generic import ListView
