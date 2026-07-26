@@ -52,7 +52,9 @@ BUILD_DIR = os.path.join(__file__, 'build')
 
     .. note::
 
-        Earlier releases of django-bakery used `PyFilesystem2 <https://docs.pyfilesystem.org/en/latest/index.html>`_. The legacy ``osfs://`` and ``mem://`` URLs are automatically translated to their fsspec equivalents (``file`` and ``memory``), so existing settings keep working. To build to Amazon S3, install `s3fs <https://s3fs.readthedocs.io/>`_ (the fsspec-native replacement for ``fs-s3fs``) and set ``BAKERY_FILESYSTEM = 's3://your-bucket'``.
+        Earlier releases of django-bakery used `PyFilesystem2 <https://docs.pyfilesystem.org/en/latest/index.html>`_ (the ``fs`` package). It was replaced with fsspec because ``fs`` imports the deprecated ``pkg_resources`` module at import time, which setuptools 81 removed. That made a plain ``import fs`` fail with ``ModuleNotFoundError: No module named 'pkg_resources'`` on Python 3.14 and any environment running setuptools 81 or newer.
+
+        The migration is backwards compatible: the legacy ``osfs://`` and ``mem://`` URLs are automatically translated to their fsspec equivalents (``file`` and ``memory``), so existing settings keep working with no changes. To build to Amazon S3, install `s3fs <https://s3fs.readthedocs.io/>`_ (the fsspec-native replacement for ``fs-s3fs``) and set ``BAKERY_FILESYSTEM = 's3://your-bucket'``. Other fsspec backends such as `gcsfs <https://gcsfs.readthedocs.io/>`_ and `adlfs <https://github.com/fsspec/adlfs>`_ work the same way once installed.
 
 ```
 
