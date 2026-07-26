@@ -42,19 +42,27 @@ BUILD_DIR = os.path.join(__file__, 'build')
 
     .. code-block:: python
 
-        BAKERY_FILESYSTEM = 'osfs:///'
+        BAKERY_FILESYSTEM = 'file://'
 
     Here's how you could change to an `in-memory backend <https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.implementations.memory.MemoryFileSystem>`_ instead. The complete list of alternatives is documented `here <https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations>`_.
 
     .. code-block:: python
 
-        BAKERY_FILESYSTEM = 'mem://'
+        BAKERY_FILESYSTEM = 'memory://'
+
+    To build to Amazon S3, install `s3fs <https://s3fs.readthedocs.io/>`_ (the fsspec-native replacement for ``fs-s3fs``) and point the setting at your bucket. Other fsspec backends such as `gcsfs <https://gcsfs.readthedocs.io/>`_ and `adlfs <https://github.com/fsspec/adlfs>`_ work the same way once installed.
+
+    .. code-block:: python
+
+        BAKERY_FILESYSTEM = 's3://your-bucket'
 
     .. note::
 
         Earlier releases of django-bakery used `PyFilesystem2 <https://docs.pyfilesystem.org/en/latest/index.html>`_ (the ``fs`` package). It was replaced with fsspec because ``fs`` imports the deprecated ``pkg_resources`` module at import time, which setuptools 81 removed. That made a plain ``import fs`` fail with ``ModuleNotFoundError: No module named 'pkg_resources'`` on Python 3.14 and any environment running setuptools 81 or newer.
 
-        The migration is backwards compatible: the legacy ``osfs://`` and ``mem://`` URLs are automatically translated to their fsspec equivalents (``file`` and ``memory``), so existing settings keep working with no changes. To build to Amazon S3, install `s3fs <https://s3fs.readthedocs.io/>`_ (the fsspec-native replacement for ``fs-s3fs``) and set ``BAKERY_FILESYSTEM = 's3://your-bucket'``. Other fsspec backends such as `gcsfs <https://gcsfs.readthedocs.io/>`_ and `adlfs <https://github.com/fsspec/adlfs>`_ work the same way once installed.
+    .. note::
+
+        The legacy PyFilesystem2 schemes ``osfs://`` and ``mem://`` are still accepted and automatically translated to their fsspec equivalents (``file://`` and ``memory://``), so existing settings keep working. They are **deprecated**: they now raise a ``bakery.BakeryDeprecationWarning`` and will be removed in a future release, so update your ``BAKERY_FILESYSTEM`` setting to the fsspec scheme.
 
 ```
 

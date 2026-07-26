@@ -1,4 +1,10 @@
 default_app_config = 'bakery.apps.BakeryConfig'
+
+
+class BakeryDeprecationWarning(DeprecationWarning):
+    """Warning category for features slated for removal from django-bakery."""
+
+
 DEFAULT_GZIP_CONTENT_TYPES = (
     "application/atom+xml",
     "application/javascript",
