@@ -1,93 +1,79 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-# Env
-import os
-import sys
-import six
-
-# Files
+import contextlib
 import gzip
+import io
+import logging
 import mimetypes
-from bakery import DEFAULT_GZIP_CONTENT_TYPES
-
-# Filesystem
-from fs import path
-from fs import copy
-from django.utils.encoding import smart_str
-
-# Pooling
 import multiprocessing
+import os
 from multiprocessing.pool import ThreadPool
+from pathlib import Path
 
-# Django tricks
 from django.apps import apps
 from django.conf import settings
 from django.core import management
-try:
-    from django.core.urlresolvers import get_callable
-except ImportError:
-    # Starting with Django 2.0, django.core.urlresolvers does not exist anymore
-    from django.urls import get_callable
 from django.core.management.base import BaseCommand, CommandError
+from django.urls import get_callable
+from django.utils.encoding import smart_str
+from fs import copy, path
 
-# Logging
-import logging
+from bakery import DEFAULT_GZIP_CONTENT_TYPES
+
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Bake out a site as flat files in the build directory'
+    help = "Bake out a site as flat files in the build directory"
     build_unconfig_msg = "Build directory unconfigured. Set BUILD_DIR in settings.py or provide it with --build-dir"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in settings.py or provide a list as arguments."
     # regex to match against for gzipping. CSS, JS, JSON, HTML, etc.
     gzip_file_match = getattr(
-        settings,
-        'GZIP_CONTENT_TYPES',
-        DEFAULT_GZIP_CONTENT_TYPES
+        settings, "GZIP_CONTENT_TYPES", DEFAULT_GZIP_CONTENT_TYPES
     )
 
-    def add_arguments(self, parser):
-        parser.add_argument('view_list', nargs='*', type=str, default=[])
+    def add_arguments(self, parser: object) -> object:
+        parser.add_argument("view_list", nargs="*", type=str, default=[])
         parser.add_argument(
             "--build-dir",
             action="store",
             dest="build_dir",
-            default='',
+            default="",
             help="Specify the path of the build directory. \
-Will use settings.BUILD_DIR by default."
+Will use settings.BUILD_DIR by default.",
         )
         parser.add_argument(
             "--keep-build-dir",
             action="store_true",
             dest="keep_build_dir",
             default=False,
-            help="Skip initializing the build directory before building files."
+            help="Skip initializing the build directory before building files.",
         )
         parser.add_argument(
             "--skip-static",
             action="store_true",
             dest="skip_static",
             default=False,
-            help="Skip collecting the static files when building."
+            help="Skip collecting the static files when building.",
         )
         parser.add_argument(
             "--skip-media",
             action="store_true",
             dest="skip_media",
             default=False,
-            help="Skip collecting the media files when building."
+            help="Skip collecting the media files when building.",
         )
         parser.add_argument(
             "--pooling",
             action="store_true",
             dest="pooling",
             default=False,
-            help=("Pool builds to run concurrently rather than running them one by one.")
+            help=(
+                "Pool builds to run concurrently rather than running them one by one."
+            ),
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args: object, **options: object) -> object:
         """
         Making it happen.
         """
@@ -114,18 +100,18 @@ Will use settings.BUILD_DIR by default."
         # Close out
         logger.info("Build finished")
 
-    def set_options(self, *args, **options):
+    def set_options(self, *args: object, **options: object) -> object:
         """
         Configure a few global options before things get going.
         """
-        self.verbosity = int(options.get('verbosity', 1))
+        self.verbosity = int(options.get("verbosity", 1))
 
         # Figure out what build directory to use
         if options.get("build_dir"):
             self.build_dir = options.get("build_dir")
             settings.BUILD_DIR = self.build_dir
         else:
-            if not hasattr(settings, 'BUILD_DIR'):
+            if not hasattr(settings, "BUILD_DIR"):
                 raise CommandError(self.build_unconfig_msg)
             self.build_dir = settings.BUILD_DIR
 
@@ -144,22 +130,22 @@ Will use settings.BUILD_DIR by default."
             self.fs.makedirs(self.build_dir)
 
         # Figure out what views we'll be using
-        if options.get('view_list'):
-            self.view_list = options['view_list']
+        if options.get("view_list"):
+            self.view_list = options["view_list"]
         else:
-            if not hasattr(settings, 'BAKERY_VIEWS'):
+            if not hasattr(settings, "BAKERY_VIEWS"):
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
 
         # Are we pooling?
-        self.pooling = options.get('pooling')
+        self.pooling = options.get("pooling")
 
-    def init_build_dir(self):
+    def init_build_dir(self) -> object:
         """
         Clear out the build directory and create a new one.
         """
         # Destroy the build directory, if it exists
-        logger.debug("Initializing %s" % self.build_dir)
+        logger.debug("Initializing %s", self.build_dir)
         if self.verbosity > 1:
             self.stdout.write("Initializing build directory")
         if self.fs.exists(self.build_dir):
@@ -167,80 +153,99 @@ Will use settings.BUILD_DIR by default."
         # Then recreate it from scratch
         self.fs.makedirs(self.build_dir)
 
-    def build_static(self, *args, **options):
+    def build_static(self, *args: object, **options: object) -> object:
         """
         Builds the static files directory as well as robots.txt and favicon.ico
         """
         logger.debug("Building static directory")
         if self.verbosity > 1:
             self.stdout.write("Building static directory")
-        management.call_command(
-            "collectstatic",
-            interactive=False,
-            verbosity=0
-        )
+        management.call_command("collectstatic", interactive=False, verbosity=0)
 
         # Set the target directory inside the filesystem.
-        target_dir = path.join(
-            self.build_dir,
-            settings.STATIC_URL.lstrip('/')
-        )
+        target_dir = path.join(self.build_dir, settings.STATIC_URL.lstrip("/"))
         target_dir = smart_str(target_dir)
 
-        if os.path.exists(self.static_root) and settings.STATIC_URL:
-            if getattr(settings, 'BAKERY_GZIP', False):
+        if Path(self.static_root).exists() and settings.STATIC_URL:
+            if getattr(settings, "BAKERY_GZIP", False):
                 self.copytree_and_gzip(self.static_root, target_dir)
             # if gzip isn't enabled, just copy the tree straight over
             else:
-                logger.debug("Copying {}{} to {}{}".format("osfs://", self.static_root, self.fs_name, target_dir))
+                logger.debug(
+                    "Copying osfs://%s to %s%s",
+                    self.static_root,
+                    self.fs_name,
+                    target_dir,
+                )
                 copy.copy_dir("osfs:///", self.static_root, self.fs, target_dir)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
         # on the live website.
-        robots_src = path.join(target_dir, 'robots.txt')
+        robots_src = path.join(target_dir, "robots.txt")
         if self.fs.exists(robots_src):
-            robots_target = path.join(self.build_dir, 'robots.txt')
-            logger.debug("Copying {}{} to {}{}".format(self.fs_name, robots_src, self.fs_name, robots_target))
+            robots_target = path.join(self.build_dir, "robots.txt")
+            logger.debug(
+                "Copying %s%s to %s%s",
+                self.fs_name,
+                robots_src,
+                self.fs_name,
+                robots_target,
+            )
             self.fs.copy(robots_src, robots_target)
 
-        favicon_src = path.join(target_dir, 'favicon.ico')
+        favicon_src = path.join(target_dir, "favicon.ico")
         if self.fs.exists(favicon_src):
-            favicon_target = path.join(self.build_dir, 'favicon.ico')
-            logger.debug("Copying {}{} to {}{}".format(self.fs_name, favicon_src, self.fs_name, favicon_target))
+            favicon_target = path.join(self.build_dir, "favicon.ico")
+            logger.debug(
+                "Copying %s%s to %s%s",
+                self.fs_name,
+                favicon_src,
+                self.fs_name,
+                favicon_target,
+            )
             self.fs.copy(favicon_src, favicon_target)
 
-    def build_media(self):
+    def build_media(self) -> object:
         """
         Build the media files.
         """
         logger.debug("Building media directory")
         if self.verbosity > 1:
             self.stdout.write("Building media directory")
-        if os.path.exists(self.media_root) and settings.MEDIA_URL:
-            target_dir = path.join(self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip('/'))
-            logger.debug("Copying {}{} to {}{}".format("osfs://", self.media_root, self.fs_name, target_dir))
-            copy.copy_dir("osfs:///", smart_str(self.media_root), self.fs, smart_str(target_dir))
+        if Path(self.media_root).exists() and settings.MEDIA_URL:
+            target_dir = path.join(
+                self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip("/")
+            )
+            logger.debug(
+                "Copying osfs://%s to %s%s",
+                self.media_root,
+                self.fs_name,
+                target_dir,
+            )
+            copy.copy_dir(
+                "osfs:///", smart_str(self.media_root), self.fs, smart_str(target_dir)
+            )
 
-    def get_view_instance(self, view):
+    def get_view_instance(self, view: object) -> object:
         """
         Given a view class, get an instance of it.
         """
         return view()
 
-    def build_views(self):
+    def build_views(self) -> object:
         """
         Bake out specified buildable views.
         """
         # Then loop through and run them all
         for view_str in self.view_list:
-            logger.debug("Building %s" % view_str)
+            logger.debug("Building %s", view_str)
             if self.verbosity > 1:
-                self.stdout.write("Building %s" % view_str)
+                self.stdout.write(f"Building {view_str}")
             view = get_callable(view_str)
             self.get_view_instance(view).build_method()
 
-    def copytree_and_gzip(self, source_dir, target_dir):
+    def copytree_and_gzip(self, source_dir: object, target_dir: object) -> object:
         """
         Copies the provided source directory to the provided target directory.
 
@@ -249,27 +254,27 @@ Will use settings.BUILD_DIR by default."
         # Figure out what we're building...
         build_list = []
         # Walk through the source directory...
-        for (dirpath, dirnames, filenames) in os.walk(source_dir):
+        for dirpath, _dirnames, filenames in os.walk(source_dir):
             for f in filenames:
                 # Figure out what is going where
-                source_path = os.path.join(dirpath, f)
+                source_path = str(Path(dirpath) / f)
                 rel_path = os.path.relpath(dirpath, source_dir)
-                target_path = os.path.join(target_dir, rel_path, f)
+                target_path = str(Path(target_dir) / rel_path / f)
                 # Add it to our list to build
                 build_list.append((source_path, target_path))
 
-        logger.debug("Gzipping {} files".format(len(build_list)))
+        logger.debug("Gzipping %s files", len(build_list))
 
         # Build em all
-        if not getattr(self, 'pooling', False):
+        if not getattr(self, "pooling", False):
             [self.copyfile_and_gzip(*u) for u in build_list]
         else:
             cpu_count = multiprocessing.cpu_count()
-            logger.debug("Pooling build on {} CPUs".format(cpu_count))
+            logger.debug("Pooling build on %s CPUs", cpu_count)
             pool = ThreadPool(processes=cpu_count)
             pool.map(self.pooled_copyfile_and_gzip, build_list)
 
-    def pooled_copyfile_and_gzip(self, payload):
+    def pooled_copyfile_and_gzip(self, payload: object) -> object:
         """
         A passthrough for our ThreadPool because it can't take two arguments.
 
@@ -277,7 +282,7 @@ Will use settings.BUILD_DIR by default."
         """
         self.copyfile_and_gzip(*payload)
 
-    def copyfile_and_gzip(self, source_path, target_path):
+    def copyfile_and_gzip(self, source_path: object, target_path: object) -> object:
         """
         Copies the provided file to the provided target directory.
 
@@ -286,10 +291,8 @@ Will use settings.BUILD_DIR by default."
         # And then where we want to copy it to.
         target_dir = path.dirname(target_path)
         if not self.fs.exists(target_dir):
-            try:
+            with contextlib.suppress(OSError):
                 self.fs.makedirs(target_dir)
-            except OSError:
-                pass
 
         # determine the mimetype of the file
         guess = mimetypes.guess_type(source_path)
@@ -299,48 +302,50 @@ Will use settings.BUILD_DIR by default."
         # If it isn't a file want to gzip...
         if content_type not in self.gzip_file_match:
             # just copy it to the target.
-            logger.debug("Copying {}{} to {}{} because its filetype isn't on the whitelist".format(
-                "osfs://",
+            logger.debug(
+                "Copying osfs://%s to %s%s because its filetype isn't on the whitelist",
                 source_path,
                 self.fs_name,
-                target_path
-            ))
-            copy.copy_file("osfs:///", smart_str(source_path), self.fs, smart_str(target_path))
+                target_path,
+            )
+            copy.copy_file(
+                "osfs:///", smart_str(source_path), self.fs, smart_str(target_path)
+            )
 
         # # if the file is already gzipped
-        elif encoding == 'gzip':
-            logger.debug("Copying {}{} to {}{} because it's already gzipped".format(
-                "osfs://",
+        elif encoding == "gzip":
+            logger.debug(
+                "Copying osfs://%s to %s%s because it's already gzipped",
                 source_path,
                 self.fs_name,
-                target_path
-            ))
-            copy.copy_file("osfs:///", smart_str(source_path), self.fs, smart_str(target_path))
+                target_path,
+            )
+            copy.copy_file(
+                "osfs:///", smart_str(source_path), self.fs, smart_str(target_path)
+            )
 
         # If it is one we want to gzip...
         else:
             # ... let the world know ...
-            logger.debug("Gzipping {}{} to {}{}".format(
-                "osfs://",
+            logger.debug(
+                "Gzipping osfs://%s to %s%s",
                 source_path,
                 self.fs_name,
-                target_path
-            ))
+                target_path,
+            )
             # Open up the source file from the OS
-            with open(source_path, 'rb') as source_file:
+            with Path(source_path).open("rb") as source_file:
                 # Write GZIP data to an in-memory buffer
-                data_buffer = six.BytesIO()
-                kwargs = dict(
-                    filename=path.basename(target_path),
-                    mode='wb',
-                    fileobj=data_buffer
-                )
-                if float(sys.version[:3]) >= 2.7:
-                    kwargs['mtime'] = 0
+                data_buffer = io.BytesIO()
+                kwargs = {
+                    "filename": path.basename(target_path),
+                    "mode": "wb",
+                    "fileobj": data_buffer,
+                }
+                kwargs["mtime"] = 0
                 with gzip.GzipFile(**kwargs) as f:
-                    f.write(six.binary_type(source_file.read()))
+                    f.write(source_file.read())
 
                 # Write that buffer out to the filesystem
-                with self.fs.open(smart_str(target_path), 'wb') as outfile:
+                with self.fs.open(smart_str(target_path), "wb") as outfile:
                     outfile.write(data_buffer.getvalue())
-                    outfile.close()
