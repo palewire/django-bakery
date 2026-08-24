@@ -53,6 +53,10 @@ BUILD_DIR = os.path.join(__file__, "build")
     to either URL keep all Bakery output below that root. Other historical
     PyFilesystem plugin URLs are not supported by this migration.
 
+    With the unrooted default ``osfs:///`` backend, ``BUILD_DIR`` must name a
+    directory. Empty and ``"."`` build directories are only safe with a rooted
+    backend URL.
+
     .. code-block:: python
 
         BAKERY_FILESYSTEM = "mem://"

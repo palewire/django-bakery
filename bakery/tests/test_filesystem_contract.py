@@ -11,6 +11,7 @@ from unittest.mock import patch
 import pytest
 from django.apps import apps
 from django.core.management import call_command
+from django.core.management.base import CommandError
 
 from bakery.filesystem import RootedFilesystem, _Filesystem
 from bakery.management.commands.build import Command
@@ -355,6 +356,39 @@ def test_build_paths_cannot_escape_the_configured_build_prefix(
     assert set(output) == set()
 
 
+def test_windows_drive_build_paths_cannot_escape_the_configured_build_prefix(
+    settings,
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://drive-path")
+    settings.BUILD_DIR = "."
+
+    with configured_filesystem(filesystem, "mem://drive-path"):
+        with pytest.raises(ValueError, match="BUILD_DIR"):
+            BuildableTemplateView(
+                build_path="C:/outside/index.html",
+                template_name="templateview.html",
+            ).build()
+
+    assert filesystem_snapshot(filesystem) == {}
+
+
+@pytest.mark.parametrize("build_dir", ["", "."])
+def test_commands_reject_an_unrooted_local_build_directory(
+    settings, build_dir: str
+) -> None:
+    filesystem = RootedFilesystem.from_url("osfs:///")
+    settings.BUILD_DIR = build_dir
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.FilesystemContractView",
+    )
+
+    with configured_filesystem(filesystem, "osfs:///"):
+        with pytest.raises(CommandError, match="unrooted filesystem root"):
+            call_command("build", skip_static=True, skip_media=True)
+        with pytest.raises(CommandError, match="unrooted filesystem root"):
+            call_command("unbuild")
+
+
 class ChunkedSource(io.BytesIO):
     """A source stream that rejects reads without a bounded size."""
 
@@ -408,6 +442,12 @@ def test_windows_drive_root_from_url_is_unrooted(monkeypatch) -> None:
 
     assert filesystem.root == ""
     assert filesystem._resolve("C:/site/index.html") == "C:/site/index.html"
+
+
+@pytest.mark.parametrize("url", ["s3://bucket", "ftp://example.com/output"])
+def test_undocumented_filesystem_urls_are_rejected(url: str) -> None:
+    with pytest.raises(ValueError, match="BAKERY_FILESYSTEM"):
+        RootedFilesystem.from_url(url)
 
 
 @pytest.mark.parametrize(

@@ -47,6 +47,10 @@ class RootedFilesystem:
             url = f"file://{url.removeprefix('osfs://')}"
         elif url.startswith("mem://"):
             url = f"memory://{url.removeprefix('mem://')}"
+        else:
+            raise ValueError(
+                "BAKERY_FILESYSTEM must use a supported osfs:/// or mem:// URL."
+            )
         filesystem, root = url_to_fs(url)
         return cls(cast("_Filesystem", filesystem), cast("str", root))
 
