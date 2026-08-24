@@ -8,10 +8,14 @@ import gzip
 import io
 import logging
 import mimetypes
+from collections.abc import Callable
+from os import PathLike
 from pathlib import Path
+from typing import BinaryIO, Protocol, cast
 
 from django.apps import apps
 from django.conf import settings
+from django.http import HttpRequest
 from django.test.client import RequestFactory
 from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import smart_str
@@ -24,15 +28,50 @@ from bakery.management.commands import get_s3_client
 logger = logging.getLogger(__name__)
 
 
+BuildPath = str | PathLike[str]
+
+
+class _WritableFilesystem(Protocol):
+    def exists(self, path: str) -> bool: ...
+
+    def makedirs(self, path: str) -> None: ...
+
+    def open(self, path: str, mode: str) -> BinaryIO: ...
+
+    def removetree(self, path: str) -> None: ...
+
+
+class _RenderedResponse(Protocol):
+    content: bytes
+
+
+class _TemplateRenderingView(Protocol):
+    request: HttpRequest
+
+    def get(
+        self, request: HttpRequest, *args: object, **kwargs: object
+    ) -> "_TemplateRenderingView": ...
+
+    def render(self) -> _RenderedResponse: ...
+
+
+class _S3Bucket(Protocol):
+    name: str
+
+
+class _S3Client(Protocol):
+    def copy_object(self, **kwargs: object) -> object: ...
+
+
 class BuildableMixin:
     """
     Common methods we will use in buildable views.
     """
 
-    fs_name = apps.get_app_config("bakery").filesystem_name
-    fs = apps.get_app_config("bakery").filesystem
+    fs_name = cast("str", apps.get_app_config("bakery").filesystem_name)
+    fs = cast("_WritableFilesystem", apps.get_app_config("bakery").filesystem)
 
-    def create_request(self, path: object) -> object:
+    def create_request(self, path: BuildPath) -> HttpRequest:
         """
         Returns a GET request object for use when building views.
 
@@ -40,43 +79,44 @@ class BuildableMixin:
         (e.g. user, site), override this method and define those
         attributes on the returned object.
         """
-        return RequestFactory().get(path)
+        return cast("HttpRequest", RequestFactory().get(str(path)))
 
-    def get_content(self) -> object:
+    def get_content(self) -> bytes:
         """
         How to render the HTML or other content for the page.
 
         If you choose to render using something other than a Django template,
         like HttpResponse for instance, you will want to override this.
         """
-        return self.get(self.request).render().content
+        view = cast("_TemplateRenderingView", self)
+        return view.get(view.request).render().content
 
-    def prep_directory(self, target_dir: object) -> object:
+    def prep_directory(self, target_dir: BuildPath) -> None:
         """
         Prepares a new directory to store the file at the provided path, if needed.
         """
-        dirname = path.dirname(target_dir)
+        dirname = path.dirname(str(target_dir))
         if dirname:
-            dirname = path.join(settings.BUILD_DIR, dirname)
+            dirname = path.join(str(cast("BuildPath", settings.BUILD_DIR)), dirname)
             if not self.fs.exists(dirname):
                 logger.debug("Creating directory at %s%s", self.fs_name, dirname)
                 self.fs.makedirs(dirname)
 
-    def build_file(self, path: object, html: object) -> object:
-        if self.is_gzippable(path):
-            self.gzip_file(path, html)
+    def build_file(self, target_path: BuildPath, html: bytes) -> None:
+        if self.is_gzippable(target_path):
+            self.gzip_file(target_path, html)
         else:
-            self.write_file(path, html)
+            self.write_file(target_path, html)
 
-    def write_file(self, target_path: object, html: object) -> object:
+    def write_file(self, target_path: BuildPath, html: bytes) -> None:
         """
         Writes out the provided HTML to the provided path.
         """
         logger.debug("Building to %s%s", self.fs_name, target_path)
         with self.fs.open(smart_str(target_path), "wb") as outfile:
-            outfile.write(bytes(html))
+            outfile.write(html)
 
-    def is_gzippable(self, path: object) -> object:
+    def is_gzippable(self, target_path: BuildPath) -> bool:
         """
         Returns a boolean indicating if the provided file path is a candidate
         for gzipping.
@@ -86,9 +126,9 @@ class BuildableMixin:
             return False
         # Then check if the content type of this particular file is gzippable
         whitelist = getattr(settings, "GZIP_CONTENT_TYPES", DEFAULT_GZIP_CONTENT_TYPES)
-        return mimetypes.guess_type(path)[0] in whitelist
+        return mimetypes.guess_type(str(target_path))[0] in whitelist
 
-    def gzip_file(self, target_path: object, html: object) -> object:
+    def gzip_file(self, target_path: BuildPath, html: bytes) -> None:
         """
         Zips up the provided HTML as a companion for the provided path.
 
@@ -103,14 +143,13 @@ class BuildableMixin:
 
         # Write GZIP data to an in-memory buffer
         data_buffer = io.BytesIO()
-        kwargs = {
-            "filename": path.basename(target_path),
-            "mode": "wb",
-            "fileobj": data_buffer,
-        }
-        kwargs["mtime"] = 0
-        with gzip.GzipFile(**kwargs) as f:
-            f.write(bytes(html))
+        with gzip.GzipFile(
+            filename=path.basename(str(target_path)),
+            mode="wb",
+            fileobj=data_buffer,
+            mtime=0,
+        ) as f:
+            f.write(html)
 
         # Write that buffer out to the filesystem
         with self.fs.open(smart_str(target_path), "wb") as outfile:
@@ -132,19 +171,21 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
             The name of the template you would like Django to render.
     """
 
+    build_path: BuildPath
+
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build
 
-    def build(self) -> object:
+    def build(self) -> None:
         logger.debug("Building %s", self.template_name)
         build_path = self.get_build_path()
         self.request = self.create_request(build_path)
-        path = str(Path(settings.BUILD_DIR) / build_path)
+        path = str(Path(cast("BuildPath", settings.BUILD_DIR)) / build_path)
         self.prep_directory(build_path)
         self.build_file(path, self.get_content())
 
-    def get_build_path(self) -> object:
+    def get_build_path(self) -> str:
         return str(self.build_path).lstrip("/")
 
 
@@ -173,8 +214,11 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
     """
 
     permanent = True
+    build_path: BuildPath
+    url: str | None
+    pattern_name: str | None
 
-    def get_content(self) -> object:
+    def get_content(self) -> bytes:
         html = """
         <html>
             <head>
@@ -187,19 +231,20 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
         return html.encode("utf-8")
 
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build
 
-    def build(self) -> object:
+    def build(self) -> None:
         logger.debug(
             "Building redirect from %s to %s", self.build_path, self.get_redirect_url()
         )
-        self.request = self.create_request(self.build_path)
-        path = str(Path(settings.BUILD_DIR) / self.build_path)
-        self.prep_directory(self.build_path)
+        build_path = str(self.build_path)
+        self.request = self.create_request(build_path)
+        path = str(Path(cast("BuildPath", settings.BUILD_DIR)) / build_path)
+        self.prep_directory(build_path)
         self.build_file(path, self.get_content())
 
-    def get_redirect_url(self, *args: object, **kwargs: object) -> object:
+    def get_redirect_url(self, *args: object, **kwargs: object) -> str | None:
         """
         Return the URL redirect to. Keyword arguments from the
         URL pattern match generating the redirect request
@@ -209,25 +254,26 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             url = self.url % kwargs
         elif self.pattern_name:
             try:
-                url = reverse(self.pattern_name, args=args, kwargs=kwargs)
+                url = cast("str", reverse(self.pattern_name, args=args, kwargs=kwargs))
             except NoReverseMatch:
                 return None
         else:
             return None
         return url
 
-    def post_publish(self, bucket: object) -> object:
+    def post_publish(self, bucket: _S3Bucket) -> None:
+        build_path = str(self.build_path)
         logger.debug(
             "Adding S3 redirect header from %s to in %s to %s",
-            self.build_path,
+            build_path,
             bucket.name,
             self.get_redirect_url(),
         )
-        s3_client, _s3_resource = get_s3_client()
+        s3_client, _s3_resource = cast("tuple[_S3Client, object]", get_s3_client())
         s3_client.copy_object(
             ACL="public-read",
             Bucket=bucket.name,
-            CopySource={"Bucket": bucket.name, "Key": self.build_path},
-            Key=self.build_path,
+            CopySource={"Bucket": bucket.name, "Key": build_path},
+            Key=build_path,
             WebsiteRedirectLocation=self.get_redirect_url(),
         )

@@ -4,8 +4,13 @@ for building flat files.
 """
 
 import logging
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 from django.conf import settings
 from django.views.generic.dates import (
@@ -47,14 +52,16 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
     build_path = "archive/index.html"
 
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build_queryset
 
-    def build_queryset(self) -> object:
+    def build_queryset(self) -> None:
         logger.debug("Building %s", self.build_path)
         self.request = self.create_request(self.build_path)
         self.prep_directory(self.build_path)
-        target_path = path.join(settings.BUILD_DIR, self.build_path)
+        target_path = path.join(
+            str(cast("str | PathLike[str]", settings.BUILD_DIR)), self.build_path
+        )
         self.build_file(target_path, self.get_content())
 
 
@@ -75,18 +82,18 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
     """
 
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build_dated_queryset
 
-    def get_year(self) -> object:
+    def get_year(self) -> str:
         """
         Return the year from the database in the format expected by the URL.
         """
-        year = super().get_year()
+        year = cast("str", super().get_year())
         fmt = self.get_year_format()
         return date(int(year), 1, 1).strftime(fmt)
 
-    def get_url(self) -> object:
+    def get_url(self) -> str:
         """
         The URL at which the detail page should appear.
 
@@ -94,21 +101,24 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         return str(Path("/archive") / self.get_year())
 
-    def get_build_path(self) -> object:
+    def get_build_path(self) -> str:
         """
         Used to determine where to build the page. Override this if you
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
         target_path = path.join(
-            str(Path(settings.BUILD_DIR) / self.get_url().lstrip("/"))
+            str(
+                Path(cast("str | PathLike[str]", settings.BUILD_DIR))
+                / self.get_url().lstrip("/")
+            )
         )
         if not self.fs.exists(target_path):
             logger.debug("Creating %s", target_path)
             self.fs.makedirs(target_path)
-        return path.join(target_path, "index.html")
+        return cast("str", path.join(target_path, "index.html"))
 
-    def build_year(self, dt: object) -> object:
+    def build_year(self, dt: date) -> None:
         """
         Build the page for the provided year.
         """
@@ -118,7 +128,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         target_path = self.get_build_path()
         self.build_file(target_path, self.get_content())
 
-    def build_dated_queryset(self) -> object:
+    def build_dated_queryset(self) -> None:
         """
         Build pages for all years in the queryset.
         """
@@ -126,7 +136,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         years = self.get_date_list(qs)
         [self.build_year(dt) for dt in years]
 
-    def unbuild_year(self, dt: object) -> object:
+    def unbuild_year(self, dt: date) -> None:
         """
         Deletes the directory at self.get_build_path.
         """
@@ -154,27 +164,27 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
     """
 
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build_dated_queryset
 
-    def get_year(self) -> object:
+    def get_year(self) -> str:
         """
         Return the year from the database in the format expected by the URL.
         """
-        year = super().get_year()
+        year = cast("str", super().get_year())
         fmt = self.get_year_format()
         return date(int(year), 1, 1).strftime(fmt)
 
-    def get_month(self) -> object:
+    def get_month(self) -> str:
         """
         Return the month from the database in the format expected by the URL.
         """
-        year = super().get_year()
-        month = super().get_month()
+        year = cast("str", super().get_year())
+        month = cast("str", super().get_month())
         fmt = self.get_month_format()
         return date(int(year), int(month), 1).strftime(fmt)
 
-    def get_url(self) -> object:
+    def get_url(self) -> str:
         """
         The URL at which the detail page should appear.
 
@@ -183,21 +193,24 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         return str(Path("/archive") / self.get_year() / self.get_month())
 
-    def get_build_path(self) -> object:
+    def get_build_path(self) -> str:
         """
         Used to determine where to build the page. Override this if you
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
         target_path = path.join(
-            str(Path(settings.BUILD_DIR) / self.get_url().lstrip("/"))
+            str(
+                Path(cast("str | PathLike[str]", settings.BUILD_DIR))
+                / self.get_url().lstrip("/")
+            )
         )
         if not self.fs.exists(target_path):
             logger.debug("Creating %s", target_path)
             self.fs.makedirs(target_path)
-        return path.join(target_path, "index.html")
+        return cast("str", path.join(target_path, "index.html"))
 
-    def build_month(self, dt: object) -> object:
+    def build_month(self, dt: date) -> None:
         """
         Build the page for the provided month.
         """
@@ -208,7 +221,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         path = self.get_build_path()
         self.build_file(path, self.get_content())
 
-    def build_dated_queryset(self) -> object:
+    def build_dated_queryset(self) -> None:
         """
         Build pages for all years in the queryset.
         """
@@ -216,7 +229,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         months = self.get_date_list(qs)
         [self.build_month(dt) for dt in months]
 
-    def unbuild_month(self, dt: object) -> object:
+    def unbuild_month(self, dt: date) -> None:
         """
         Deletes the directory at self.get_build_path.
         """
@@ -245,40 +258,40 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
     """
 
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build_dated_queryset
 
-    def get_year(self) -> object:
+    def get_year(self) -> str:
         """
         Return the year from the database in the format expected by the URL.
         """
-        year = super().get_year()
+        year = cast("str", super().get_year())
         fmt = self.get_year_format()
         dt = date(int(year), 1, 1)
         return dt.strftime(fmt)
 
-    def get_month(self) -> object:
+    def get_month(self) -> str:
         """
         Return the month from the database in the format expected by the URL.
         """
-        year = super().get_year()
-        month = super().get_month()
+        year = cast("str", super().get_year())
+        month = cast("str", super().get_month())
         fmt = self.get_month_format()
         dt = date(int(year), int(month), 1)
         return dt.strftime(fmt)
 
-    def get_day(self) -> object:
+    def get_day(self) -> str:
         """
         Return the day from the database in the format expected by the URL.
         """
-        year = super().get_year()
-        month = super().get_month()
-        day = super().get_day()
+        year = cast("str", super().get_year())
+        month = cast("str", super().get_month())
+        day = cast("str", super().get_day())
         fmt = self.get_day_format()
         dt = date(int(year), int(month), int(day))
         return dt.strftime(fmt)
 
-    def get_url(self) -> object:
+    def get_url(self) -> str:
         """
         The URL at which the detail page should appear.
 
@@ -290,21 +303,24 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
             Path("/archive") / self.get_year() / self.get_month() / self.get_day()
         )
 
-    def get_build_path(self) -> object:
+    def get_build_path(self) -> str:
         """
         Used to determine where to build the page. Override this if you
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
         target_path = path.join(
-            str(Path(settings.BUILD_DIR) / self.get_url().lstrip("/"))
+            str(
+                Path(cast("str | PathLike[str]", settings.BUILD_DIR))
+                / self.get_url().lstrip("/")
+            )
         )
         if not self.fs.exists(target_path):
             logger.debug("Creating %s", target_path)
             self.fs.makedirs(target_path)
         return str(Path(target_path) / "index.html")
 
-    def build_day(self, dt: object) -> object:
+    def build_day(self, dt: date) -> None:
         """
         Build the page for the provided day.
         """
@@ -316,7 +332,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         path = self.get_build_path()
         self.build_file(path, self.get_content())
 
-    def build_dated_queryset(self) -> object:
+    def build_dated_queryset(self) -> None:
         """
         Build pages for all years in the queryset.
         """
@@ -324,7 +340,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         days = self.get_date_list(qs, date_type="day")
         [self.build_day(dt) for dt in days]
 
-    def unbuild_day(self, dt: object) -> object:
+    def unbuild_day(self, dt: date) -> None:
         """
         Deletes the directory at self.get_build_path.
         """
