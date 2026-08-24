@@ -305,6 +305,38 @@ def test_empty_build_directory_stays_within_selected_backend_root(
     assert not filesystem.filesystem.exists("/index.html")
 
 
+@pytest.mark.parametrize("build_dir", ["", "."])
+@pytest.mark.parametrize("backend", ["local", "memory"])
+def test_build_and_unbuild_clear_a_rooted_empty_build_directory(
+    settings, tmp_path: Path, build_dir: str, backend: str
+) -> None:
+    if backend == "local":
+        root = tmp_path / f"{build_dir or 'empty'}-root"
+        root.mkdir()
+        filesystem_name = f"osfs://{root}"
+    else:
+        root = Path(f"/{build_dir or 'empty'}-root")
+        filesystem_name = f"mem://{root.name}"
+    filesystem = RootedFilesystem.from_url(filesystem_name)
+    settings.BUILD_DIR = build_dir
+    settings.BAKERY_FILESYSTEM = filesystem_name
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.FilesystemContractView",
+    )
+
+    with configured_filesystem(filesystem, filesystem_name):
+        call_command("build", skip_static=True, skip_media=True)
+        with filesystem.open("stale.txt", "wb") as stale_file:
+            stale_file.write(b"stale")
+        call_command("build", skip_static=True, skip_media=True)
+        output = filesystem_snapshot(filesystem)
+        call_command("unbuild")
+
+    assert "stale.txt" not in output
+    assert set(output) == {"pages/index.html"}
+    assert not filesystem.filesystem.exists(str(root))
+
+
 @pytest.mark.parametrize("build_dir", ["site", "", "."])
 def test_build_paths_cannot_escape_the_configured_build_prefix(
     settings, build_dir: str

@@ -82,7 +82,7 @@ class RootedFilesystem:
         relative = normalized.lstrip("/")
         if relative == ".." or relative.startswith("../"):
             raise ValueError("Path escapes the configured filesystem root.")
-        return join_path(self.root, relative)
+        return normalize_path(join_path(self.root, relative))
 
     def _relative(self, path: str) -> str:
         if not self.root:
