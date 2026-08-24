@@ -1,8 +1,10 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
-from django.test import override_settings
+from django.http import Http404
+from django.test import RequestFactory, override_settings
 from django.urls import resolve
 
 from bakery import feeds, static_urls
@@ -38,6 +40,31 @@ def test_static_urls_catch_all_pattern_uses_build_directory() -> None:
         "show_indexes": True,
         "default": "index.html",
     }
+
+
+def test_static_view_rejects_symlink_outside_document_root(tmp_path: Path) -> None:
+    document_root = tmp_path / "public"
+    document_root.mkdir()
+    private_file = tmp_path / "private.txt"
+    private_file.write_text("private")
+    (document_root / "link.txt").symlink_to(private_file)
+
+    with pytest.raises(Http404):
+        static_urls.serve(
+            RequestFactory().get("/link.txt"),
+            "link.txt",
+            document_root=document_root,
+        )
+
+
+def test_static_view_redirect_stays_on_origin(tmp_path: Path) -> None:
+    response = static_urls.serve(
+        RequestFactory().get("/../index.html"),
+        "../index.html",
+        document_root=tmp_path,
+    )
+
+    assert response.url == "/index.html"
 
 
 def test_buildable_feed_supports_callable_attributes() -> None:

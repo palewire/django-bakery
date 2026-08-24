@@ -10,9 +10,9 @@ import re
 import stat
 from os import PathLike
 from pathlib import Path
-from typing import cast
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
+from django.core.exceptions import SuspiciousFileOperation
 from django.http import (
     Http404,
     HttpRequest,
@@ -21,6 +21,7 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.template import Context, Template, TemplateDoesNotExist, loader
+from django.utils._os import safe_join
 from django.utils.http import http_date, parse_http_date
 
 
@@ -69,8 +70,15 @@ def serve(
             continue
         newpath = str(Path(newpath) / part).replace("\\", "/")
     if newpath and path != newpath:
-        return HttpResponseRedirect(newpath)
-    fullpath = Path(cast("str | PathLike[str]", document_root)) / newpath
+        return HttpResponseRedirect(f"/{quote(newpath, safe='/')}")
+    if document_root is None:
+        raise Http404("A document root is required.")
+    root = Path(document_root).resolve()
+    try:
+        fullpath = Path(safe_join(root, newpath)).resolve()
+        fullpath.relative_to(root)
+    except (SuspiciousFileOperation, ValueError):
+        raise Http404("The requested path is outside the document root.") from None
     if fullpath.is_dir() and default:
         defaultpath = fullpath / default
         if defaultpath.exists():

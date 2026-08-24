@@ -274,5 +274,6 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
             Bucket=bucket.name,
             CopySource={"Bucket": bucket.name, "Key": build_path},
             Key=build_path,
-            WebsiteRedirectLocation=self.get_redirect_url(),
+            # External redirects are an explicit feature of BuildableRedirectView.
+            WebsiteRedirectLocation=self.get_redirect_url(),  # lgtm[py/url-redirection]
         )
