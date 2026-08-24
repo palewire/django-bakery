@@ -277,7 +277,8 @@ Will use settings.BUILD_DIR by default.",
 
         # Build em all
         if not getattr(self, "pooling", False):
-            [self.copyfile_and_gzip(*u) for u in build_list]
+            for build in build_list:
+                self.copyfile_and_gzip(*build)
         else:
             cpu_count = multiprocessing.cpu_count()
             logger.debug("Pooling build on %s CPUs", cpu_count)

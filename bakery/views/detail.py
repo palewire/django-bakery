@@ -90,7 +90,8 @@ set a ``get_absolute_url`` method on the {obj.__class__.__name__} model or overr
         self.build_file(target_path, self.get_content())
 
     def build_queryset(self) -> None:
-        [self.build_object(o) for o in self.get_queryset().all()]
+        for obj in self.get_queryset().all():
+            self.build_object(obj)
 
     def unbuild_object(self, obj: object) -> None:
         """

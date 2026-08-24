@@ -29,9 +29,7 @@ class Command(BasePublishCommand):
     def handle(self, *args: object, **options: object) -> None:
         command_options = cast("Mapping[str, object]", options)
         aws_bucket_name = cast("str", command_options.get("aws_bucket_name"))
-        if aws_bucket_name:
-            aws_bucket_name = aws_bucket_name
-        else:
+        if not aws_bucket_name:
             # Otherwise try to find it the settings
             if not hasattr(settings, "AWS_BUCKET_NAME"):
                 raise CommandError(self.bucket_unconfig_msg)

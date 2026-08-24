@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 import pytest
 from django.conf import settings
@@ -8,7 +8,8 @@ from django.test import RequestFactory, override_settings
 from django.urls import resolve
 
 from bakery import feeds, static_urls
-from bakery.management.commands import buildserver
+from bakery.management.commands import batch_delete_s3_objects, buildserver
+from bakery.management.commands import publish as publish_command
 from bakery.views import BuildableDetailView, BuildableListView
 
 
@@ -28,6 +29,38 @@ def test_buildserver_uses_static_urlconf() -> None:
     assert result is None
     assert observed_urlconf == ["bakery.static_urls"]
     handle.assert_called_once_with(command, "127.0.0.1:8000", verbosity=0)
+
+
+def test_publish_boolean_options_default_to_false() -> None:
+    parser = publish_command.Command().create_parser("manage.py", "publish")
+
+    options = parser.parse_args([])
+
+    assert options.force is False
+    assert options.dry_run is False
+
+
+def test_batch_delete_honors_chunk_size() -> None:
+    s3_client = Mock()
+
+    batch_delete_s3_objects(
+        ["one", "two", "three", "four", "five"],
+        "bucket",
+        chunk_size=2,
+        s3_client=s3_client,
+    )
+
+    assert s3_client.delete_objects.call_args_list == [
+        call(
+            Bucket="bucket",
+            Delete={"Objects": [{"Key": "one"}, {"Key": "two"}]},
+        ),
+        call(
+            Bucket="bucket",
+            Delete={"Objects": [{"Key": "three"}, {"Key": "four"}]},
+        ),
+        call(Bucket="bucket", Delete={"Objects": [{"Key": "five"}]}),
+    ]
 
 
 def test_static_urls_catch_all_pattern_uses_build_directory() -> None:

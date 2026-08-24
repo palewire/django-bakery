@@ -134,7 +134,8 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         qs = self.get_dated_queryset()
         years = self.get_date_list(qs)
-        [self.build_year(dt) for dt in years]
+        for dt in years:
+            self.build_year(dt)
 
     def unbuild_year(self, dt: date) -> None:
         """
@@ -227,7 +228,8 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         """
         qs = self.get_dated_queryset()
         months = self.get_date_list(qs)
-        [self.build_month(dt) for dt in months]
+        for dt in months:
+            self.build_month(dt)
 
     def unbuild_month(self, dt: date) -> None:
         """
@@ -338,7 +340,8 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         """
         qs = self.get_dated_queryset()
         days = self.get_date_list(qs, date_type="day")
-        [self.build_day(dt) for dt in days]
+        for dt in days:
+            self.build_day(dt)
 
     def unbuild_day(self, dt: date) -> None:
         """

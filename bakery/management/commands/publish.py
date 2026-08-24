@@ -68,14 +68,14 @@ class Command(BasePublishCommand):
             "--force",
             action="store_true",
             dest="force",
-            default="",
+            default=False,
             help="Force a republish of all items in the build directory",
         )
         parser.add_argument(
             "--dry-run",
             action="store_true",
             dest="dry_run",
-            default="",
+            default=False,
             help="Display the output of what would have been uploaded removed, but without actually publishing.",
         )
         parser.add_argument(
@@ -311,7 +311,8 @@ class Command(BasePublishCommand):
             len(self.s3_obj_dict),
         )
         if self.no_pooling:
-            [self.compare_local_file(f) for f in self.local_file_list]
+            for filename in self.local_file_list:
+                self.compare_local_file(filename)
         else:
             cpu_count = multiprocessing.cpu_count()
             logger.debug("Pooling local file comparison on %s CPUs", cpu_count)
@@ -322,7 +323,8 @@ class Command(BasePublishCommand):
             "Uploading %s new or updated files to bucket", len(self.update_list)
         )
         if self.no_pooling:
-            [self.upload_to_s3(*u) for u in self.update_list]
+            for upload in self.update_list:
+                self.upload_to_s3(*upload)
         else:
             upload_cpu_count = multiprocessing.cpu_count()
             logger.debug("Pooling s3 uploads on %s CPUs", upload_cpu_count)

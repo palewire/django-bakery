@@ -124,7 +124,7 @@ def batch_delete_s3_objects(
     key_chunks = []
     for i in range(0, len(key_list), chunk_size):
         chunk = []
-        for key in key_list[i : i + 100]:
+        for key in key_list[i : i + chunk_size]:
             chunk.append({"Key": key})
         key_chunks.append(chunk)
     for chunk in key_chunks:
