@@ -8,11 +8,14 @@ import os
 import posixpath
 import re
 import stat
+from os import PathLike
 from pathlib import Path
+from typing import cast
 from urllib.parse import unquote
 
 from django.http import (
     Http404,
+    HttpRequest,
     HttpResponse,
     HttpResponseNotModified,
     HttpResponseRedirect,
@@ -22,12 +25,12 @@ from django.utils.http import http_date, parse_http_date
 
 
 def serve(
-    request: object,
-    path: object,
-    document_root: object = None,
-    show_indexes: object = False,
-    default: object = "",
-) -> object:
+    request: HttpRequest,
+    path: str,
+    document_root: str | PathLike[str] | None = None,
+    show_indexes: bool = False,
+    default: str = "",
+) -> HttpResponse:
     """
     Serve static files below a given point in the directory structure.
 
@@ -67,7 +70,7 @@ def serve(
         newpath = str(Path(newpath) / part).replace("\\", "/")
     if newpath and path != newpath:
         return HttpResponseRedirect(newpath)
-    fullpath = Path(document_root) / newpath
+    fullpath = Path(cast("str | PathLike[str]", document_root)) / newpath
     if fullpath.is_dir() and default:
         defaultpath = fullpath / default
         if defaultpath.exists():
@@ -120,7 +123,7 @@ DEFAULT_DIRECTORY_INDEX_TEMPLATE = """
 """
 
 
-def directory_index(path: object, fullpath: object) -> object:
+def directory_index(path: str, fullpath: Path) -> HttpResponse:
     try:
         t = loader.select_template(
             ["static/directory_index.html", "static/directory_index"]
@@ -146,8 +149,8 @@ def directory_index(path: object, fullpath: object) -> object:
 
 
 def was_modified_since(
-    header: object = None, mtime: object = 0, size: object = 0
-) -> object:
+    header: str | None = None, mtime: float = 0, size: int = 0
+) -> bool:
     """
     Was something modified since the user last downloaded it?
     header
@@ -162,6 +165,8 @@ def was_modified_since(
         if header is None:
             raise ValueError
         matches = re.match(r"^([^;]+)(; length=([0-9]+))?$", header, re.IGNORECASE)
+        if matches is None:
+            raise ValueError
         header_mtime = parse_http_date(matches.group(1))
         header_len = matches.group(3)
         if header_len and int(header_len) != size:

@@ -1,5 +1,7 @@
 import logging
+from os import PathLike
 from pathlib import Path
+from typing import TypeAlias, cast
 
 from django.conf import settings
 from django.contrib.syndication.views import Feed
@@ -7,6 +9,8 @@ from django.contrib.syndication.views import Feed
 from bakery.views import BuildableMixin
 
 logger = logging.getLogger(__name__)
+
+BuildPath: TypeAlias = str | PathLike[str]
 
 
 class BuildableFeed(Feed, BuildableMixin):
@@ -16,15 +20,19 @@ class BuildableFeed(Feed, BuildableMixin):
 
     build_path = "feed.xml"
 
-    def get_content(self, *args: object, **kwargs: object) -> object:
-        return self(self.request, *args, **kwargs).content
+    def get_content(self, *args: object, **kwargs: object) -> bytes:
+        return cast("bytes", self(self.request, *args, **kwargs).content)
 
     @property
     def build_method(self) -> object:
         return self.build_queryset
 
     def _get_bakery_dynamic_attr(
-        self, attname: object, obj: object, args: object = None, default: object = None
+        self,
+        attname: str,
+        obj: object,
+        args: list[object] | None = None,
+        default: object = None,
     ) -> object:
         """
         Allows subclasses to provide an attribute (say, 'foo') in three
@@ -57,7 +65,7 @@ class BuildableFeed(Feed, BuildableMixin):
 
         return attr
 
-    def get_queryset(self) -> object:
+    def get_queryset(self) -> list[None]:
         return [None]
 
     def build_queryset(self) -> object:
@@ -71,7 +79,8 @@ class BuildableFeed(Feed, BuildableMixin):
                 "create_request", obj, args=[url or build_path]
             )
 
-            self.prep_directory(build_path)
-            path = str(Path(settings.BUILD_DIR) / build_path)
+            typed_build_path = cast("BuildPath", build_path)
+            self.prep_directory(typed_build_path)
+            path = str(Path(settings.BUILD_DIR) / typed_build_path)
             content = self._get_bakery_dynamic_attr("get_content", obj)
-            self.build_file(path, content)
+            self.build_file(path, cast("bytes", content))

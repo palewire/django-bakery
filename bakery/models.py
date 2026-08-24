@@ -6,9 +6,30 @@ The magic relies on your view being class-based and having a build_object
 method, like the BuildableDetailView included in this app.
 """
 
-from typing import ClassVar
+from typing import ClassVar, Protocol, cast
 
 from django.db import models, transaction
+
+
+class BuildableObjectView(Protocol):
+    """The buildable detail-view interface used by configured view classes."""
+
+    def build_object(self, obj: object) -> object: ...
+
+    def unbuild_object(self, obj: object) -> object: ...
+
+
+class AutoPublishingModelClass(Protocol):
+    """Django's dynamically supplied model attributes used during saves."""
+
+    objects: "AutoPublishingModelManager"
+    DoesNotExist: type[Exception]
+
+
+class AutoPublishingModelManager(Protocol):
+    """The subset of the dynamically supplied Django manager used here."""
+
+    def get(self, **kwargs: object) -> "AutoPublishingBuildableModel": ...
 
 
 class BuildableModel(models.Model):
@@ -24,10 +45,10 @@ class BuildableModel(models.Model):
 
     detail_views: ClassVar[list[str]] = []
 
-    def _get_view(self, name: object) -> object:
+    def _get_view(self, name: str) -> type[BuildableObjectView]:
         from django.urls import get_callable
 
-        return get_callable(name)
+        return cast("type[BuildableObjectView]", get_callable(name))
 
     def _build_related(self) -> object:
         """
@@ -131,9 +152,10 @@ class AutoPublishingBuildableModel(BuildableModel):
         else:
             # First figure out if the record is an addition, or an edit of
             # a preexisting record.
+            model_class = cast("AutoPublishingModelClass", self.__class__)
             try:
-                preexisting = self.__class__.objects.get(pk=self.pk)
-            except self.__class__.DoesNotExist:
+                preexisting = model_class.objects.get(pk=self.pk)
+            except model_class.DoesNotExist:
                 preexisting = None
             # If this is an addition...
             if not preexisting:
