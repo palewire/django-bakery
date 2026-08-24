@@ -1,9 +1,11 @@
-import os
-import six
 import logging
+from pathlib import Path
+
 from django.conf import settings
-from bakery.views import BuildableMixin
 from django.contrib.syndication.views import Feed
+
+from bakery.views import BuildableMixin
+
 logger = logging.getLogger(__name__)
 
 
@@ -11,16 +13,19 @@ class BuildableFeed(Feed, BuildableMixin):
     """
     Extends the base Django Feed class to be buildable.
     """
-    build_path = 'feed.xml'
 
-    def get_content(self, *args, **kwargs):
+    build_path = "feed.xml"
+
+    def get_content(self, *args: object, **kwargs: object) -> object:
         return self(self.request, *args, **kwargs).content
 
     @property
-    def build_method(self):
+    def build_method(self) -> object:
         return self.build_queryset
 
-    def _get_bakery_dynamic_attr(self, attname, obj, args=None, default=None):
+    def _get_bakery_dynamic_attr(
+        self, attname: object, obj: object, args: object = None, default: object = None
+    ) -> object:
         """
         Allows subclasses to provide an attribute (say, 'foo') in three
         different ways: As a fixed class-level property or as a method
@@ -43,32 +48,30 @@ class BuildableFeed(Feed, BuildableMixin):
             # catching the TypeError, because something inside the function
             # may raise the TypeError. This technique is more accurate.
             try:
-                code = six.get_function_code(attr)
+                code = attr.__code__
             except AttributeError:
-                code = six.get_function_code(attr.__call__)
+                code = attr.__call__.__code__
             if code.co_argcount == 2 + len(args):  # one argument is 'self'
                 args.append(obj)
             return attr(*args)
 
         return attr
 
-    def get_queryset(self):
+    def get_queryset(self) -> object:
         return [None]
 
-    def build_queryset(self):
+    def build_queryset(self) -> object:
         for obj in self.get_queryset():
-            build_path = self._get_bakery_dynamic_attr('build_path', obj)
-            url = self._get_bakery_dynamic_attr('feed_url', obj)
+            build_path = self._get_bakery_dynamic_attr("build_path", obj)
+            url = self._get_bakery_dynamic_attr("feed_url", obj)
 
-            logger.debug("Building %s" % build_path)
+            logger.debug("Building %s", build_path)
 
             self.request = self._get_bakery_dynamic_attr(
-                'create_request',
-                obj,
-                args=[url or build_path]
+                "create_request", obj, args=[url or build_path]
             )
 
             self.prep_directory(build_path)
-            path = os.path.join(settings.BUILD_DIR, build_path)
-            content = self._get_bakery_dynamic_attr('get_content', obj)
+            path = str(Path(settings.BUILD_DIR) / build_path)
+            content = self._get_bakery_dynamic_attr("get_content", obj)
             self.build_file(path, content)
