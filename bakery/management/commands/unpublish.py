@@ -1,9 +1,14 @@
 import logging
+from argparse import ArgumentParser
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.core.management.base import CommandError
 
 from bakery.management.commands import BasePublishCommand
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +17,7 @@ class Command(BasePublishCommand):
     help = "Empties the Amazon S3 bucket defined in settings.py"
     bucket_unconfig_msg = "Bucket unconfigured. Set AWS_BUCKET_NAME in settings.py or provide it with --aws-bucket-name"
 
-    def add_arguments(self, parser: object) -> object:
+    def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
             "--aws-bucket-name",
             action="store",
@@ -21,9 +26,11 @@ class Command(BasePublishCommand):
             help="Specify the AWS bucket to sync with. Will use settings.AWS_BUCKET_NAME by default.",
         )
 
-    def handle(self, *args: object, **options: object) -> object:
-        if options.get("aws_bucket_name"):
-            aws_bucket_name = options.get("aws_bucket_name")
+    def handle(self, *args: object, **options: object) -> None:
+        command_options = cast("Mapping[str, object]", options)
+        aws_bucket_name = cast("str", command_options.get("aws_bucket_name"))
+        if aws_bucket_name:
+            aws_bucket_name = aws_bucket_name
         else:
             # Otherwise try to find it the settings
             if not hasattr(settings, "AWS_BUCKET_NAME"):

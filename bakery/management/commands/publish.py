@@ -4,8 +4,11 @@ import mimetypes
 import multiprocessing
 import os
 import time
+from argparse import ArgumentParser
+from collections.abc import Mapping
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
+from typing import TypeAlias, cast
 
 from django.conf import settings
 from django.core.management.base import CommandError
@@ -14,11 +17,15 @@ from django.urls import get_callable
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from bakery.management.commands import (
     BasePublishCommand,
+    S3ObjectDict,
     get_bucket_page,
     get_s3_client,
 )
 
 logger = logging.getLogger(__name__)
+
+CommandOptions: TypeAlias = Mapping[str, object]
+UploadPayload: TypeAlias = tuple[str, str]
 
 
 class Command(BasePublishCommand):
@@ -35,7 +42,7 @@ class Command(BasePublishCommand):
     bucket_unconfig_msg = "Bucket unconfigured. Set AWS_BUCKET_NAME in settings.py or provide it with --aws-bucket-name"
     views_unconfig_msg = "Bakery views unconfigured. Set BAKERY_VIEWS in settings.py or provide a list as arguments."
 
-    def add_arguments(self, parser: object) -> object:
+    def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
             "--build-dir",
             action="store",
@@ -90,7 +97,7 @@ class Command(BasePublishCommand):
             ),
         )
 
-    def handle(self, *args: object, **options: object) -> object:
+    def handle(self, *args: object, **options: object) -> None:
         """
         Sync files in the build directory to a specified S3 bucket
         """
@@ -102,7 +109,7 @@ class Command(BasePublishCommand):
         self.start_time = time.time()
 
         # Configure all the options we're going to use
-        self.set_options(options)
+        self.set_options(cast("CommandOptions", options))
 
         # Initialize the boto connection
         logger.debug("Connecting to s3")
@@ -183,11 +190,11 @@ class Command(BasePublishCommand):
                     "Publish executed with the --dry-run option. No content was changed on S3."
                 )
 
-    def set_options(self, options: object) -> object:
+    def set_options(self, options: CommandOptions) -> None:
         """
         Configure all the many options we'll need to make this happen.
         """
-        self.verbosity = int(options.get("verbosity"))
+        self.verbosity = int(cast("int | str", options.get("verbosity", 1)))
 
         # Will we be gzipping?
         self.gzip = getattr(settings, "BAKERY_GZIP", False)
@@ -204,12 +211,13 @@ class Command(BasePublishCommand):
         self.cache_control = getattr(settings, "BAKERY_CACHE_CONTROL", {})
 
         # If the user specifies a build directory...
-        if options.get("build_dir"):
+        build_dir = cast("str", options.get("build_dir"))
+        if build_dir:
             # ... validate that it is good.
-            if not Path(options.get("build_dir")).exists():
+            if not Path(build_dir).exists():
                 raise CommandError(self.build_missing_msg)
             # Go ahead and use it
-            self.build_dir = options.get("build_dir")
+            self.build_dir = build_dir
         # If the user does not specify a build dir...
         else:
             # Check if it is set in settings.py
@@ -222,8 +230,9 @@ class Command(BasePublishCommand):
             self.build_dir = settings.BUILD_DIR
 
         # If the user provides a bucket name, use that.
-        if options.get("aws_bucket_name"):
-            self.aws_bucket_name = options.get("aws_bucket_name")
+        aws_bucket_name = cast("str", options.get("aws_bucket_name"))
+        if aws_bucket_name:
+            self.aws_bucket_name = aws_bucket_name
         else:
             # Otherwise try to find it the settings
             if not hasattr(settings, "AWS_BUCKET_NAME"):
@@ -231,7 +240,7 @@ class Command(BasePublishCommand):
             self.aws_bucket_name = settings.AWS_BUCKET_NAME
 
         # The bucket prefix, if it exists
-        self.aws_bucket_prefix = options.get("aws_bucket_prefix")
+        self.aws_bucket_prefix = cast("str", options.get("aws_bucket_prefix"))
 
         # If the user sets the --force option
         if options.get("force"):
@@ -247,10 +256,10 @@ class Command(BasePublishCommand):
         else:
             self.dry_run = False
 
-        self.no_delete = options.get("no_delete")
-        self.no_pooling = options.get("no_pooling")
+        self.no_delete = cast("bool", options.get("no_delete"))
+        self.no_pooling = cast("bool", options.get("no_pooling"))
 
-    def get_bucket_file_list(self) -> object:
+    def get_bucket_file_list(self) -> S3ObjectDict:
         """
         Little utility method that handles pagination and returns
         all objects in given bucket.
@@ -266,13 +275,13 @@ class Command(BasePublishCommand):
             options["Prefix"] = self.aws_bucket_prefix
         page_iterator = paginator.paginate(**options)
 
-        obj_dict = {}
+        obj_dict: S3ObjectDict = {}
         for page in page_iterator:
             obj_dict.update(get_bucket_page(page))
 
         return obj_dict
 
-    def get_local_file_list(self) -> object:
+    def get_local_file_list(self) -> list[str]:
         """
         Walk the local build directory and create a list of relative and
         absolute paths to files.
@@ -287,13 +296,13 @@ class Command(BasePublishCommand):
                 file_list.append(local_key)
         return file_list
 
-    def sync_with_s3(self) -> object:
+    def sync_with_s3(self) -> None:
         """
         Walk through our self.local_files list, and match them with the list
         of keys in the S3 bucket.
         """
         # Create a list to put all the files we're going to update
-        self.update_list = []
+        self.update_list: list[UploadPayload] = []
 
         # Figure out which files need to be updated and upload all these files
         logger.debug(
@@ -315,11 +324,12 @@ class Command(BasePublishCommand):
         if self.no_pooling:
             [self.upload_to_s3(*u) for u in self.update_list]
         else:
-            logger.debug("Pooling s3 uploads on %s CPUs", cpu_count)
-            pool = ThreadPool(processes=cpu_count)
+            upload_cpu_count = multiprocessing.cpu_count()
+            logger.debug("Pooling s3 uploads on %s CPUs", upload_cpu_count)
+            pool = ThreadPool(processes=upload_cpu_count)
             pool.map(self.pooled_upload_to_s3, self.update_list)
 
-    def get_md5(self, filename: object) -> object:
+    def get_md5(self, filename: str) -> str:
         """
         Returns the md5 checksum of the provided file name.
         """
@@ -328,8 +338,8 @@ class Command(BasePublishCommand):
         return m.hexdigest()
 
     def get_multipart_md5(
-        self, filename: object, chunk_size: object = 8 * 1024 * 1024
-    ) -> object:
+        self, filename: str, chunk_size: int = 8 * 1024 * 1024
+    ) -> str:
         """
         Returns the md5 checksum of the provided file name after breaking it into chunks.
 
@@ -359,7 +369,7 @@ class Command(BasePublishCommand):
         # Trim it down and pass it back for comparison
         return new_etag.strip('"').strip("'")
 
-    def compare_local_file(self, file_key: object) -> object:
+    def compare_local_file(self, file_key: str) -> None:
         """
         Compares a local version of a file with what's already published.
 
@@ -377,7 +387,11 @@ class Command(BasePublishCommand):
         # Does it exist in our s3 object list?
         if file_key in self.s3_obj_dict:
             # Get the md5 stored in Amazon's header
-            s3_md5 = self.s3_obj_dict[file_key].get("ETag").strip('"').strip("'")
+            s3_md5 = (
+                cast("str", self.s3_obj_dict[file_key].get("ETag"))
+                .strip('"')
+                .strip("'")
+            )
 
             # If there is a multipart ETag on S3, compare that to our local file after its chunked up.
             # We are presuming this file was uploaded in multiple parts.
@@ -403,7 +417,7 @@ class Command(BasePublishCommand):
             logger.debug("%s has been added", file_key)
             self.update_list.append((file_key, file_path))
 
-    def pooled_upload_to_s3(self, payload: object) -> object:
+    def pooled_upload_to_s3(self, payload: UploadPayload) -> None:
         """
         A passthrough for our ThreadPool because it can't take two arguments.
 
@@ -412,7 +426,7 @@ class Command(BasePublishCommand):
         """
         self.upload_to_s3(*payload)
 
-    def upload_to_s3(self, key: object, filename: object) -> object:
+    def upload_to_s3(self, key: str, filename: str) -> None:
         """
         Set the content type and gzip headers if applicable
         and upload the item to S3

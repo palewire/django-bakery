@@ -7,8 +7,11 @@ import logging
 import mimetypes
 import multiprocessing
 import os
+from argparse import ArgumentParser
+from collections.abc import Callable, Mapping
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
+from typing import Protocol, TypeAlias, cast
 
 from django.apps import apps
 from django.conf import settings
@@ -22,6 +25,13 @@ from bakery import DEFAULT_GZIP_CONTENT_TYPES
 
 logger = logging.getLogger(__name__)
 
+CommandOptions: TypeAlias = Mapping[str, object]
+BuildPayload: TypeAlias = tuple[str, str]
+
+
+class BuildableView(Protocol):
+    def build_method(self) -> object: ...
+
 
 class Command(BaseCommand):
     help = "Bake out a site as flat files in the build directory"
@@ -32,7 +42,7 @@ class Command(BaseCommand):
         settings, "GZIP_CONTENT_TYPES", DEFAULT_GZIP_CONTENT_TYPES
     )
 
-    def add_arguments(self, parser: object) -> object:
+    def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument("view_list", nargs="*", type=str, default=[])
         parser.add_argument(
             "--build-dir",
@@ -73,14 +83,14 @@ Will use settings.BUILD_DIR by default.",
             ),
         )
 
-    def handle(self, *args: object, **options: object) -> object:
+    def handle(self, *args: object, **options: object) -> None:
         """
         Making it happen.
         """
         logger.info("Build started")
 
         # Set options
-        self.set_options(*args, **options)
+        self.set_options(*args, options=cast("CommandOptions", options))
 
         # Get the build directory ready
         if not options.get("keep_build_dir"):
@@ -100,15 +110,16 @@ Will use settings.BUILD_DIR by default.",
         # Close out
         logger.info("Build finished")
 
-    def set_options(self, *args: object, **options: object) -> object:
+    def set_options(self, *args: object, options: CommandOptions) -> None:
         """
         Configure a few global options before things get going.
         """
-        self.verbosity = int(options.get("verbosity", 1))
+        self.verbosity = int(cast("int | str", options.get("verbosity", 1)))
 
         # Figure out what build directory to use
-        if options.get("build_dir"):
-            self.build_dir = options.get("build_dir")
+        build_dir = cast("str", options.get("build_dir"))
+        if build_dir:
+            self.build_dir = build_dir
             settings.BUILD_DIR = self.build_dir
         else:
             if not hasattr(settings, "BUILD_DIR"):
@@ -130,17 +141,18 @@ Will use settings.BUILD_DIR by default.",
             self.fs.makedirs(self.build_dir)
 
         # Figure out what views we'll be using
-        if options.get("view_list"):
-            self.view_list = options["view_list"]
+        view_list = cast("list[str]", options.get("view_list"))
+        if view_list:
+            self.view_list = view_list
         else:
             if not hasattr(settings, "BAKERY_VIEWS"):
                 raise CommandError(self.views_unconfig_msg)
             self.view_list = settings.BAKERY_VIEWS
 
         # Are we pooling?
-        self.pooling = options.get("pooling")
+        self.pooling = cast("bool", options.get("pooling"))
 
-    def init_build_dir(self) -> object:
+    def init_build_dir(self) -> None:
         """
         Clear out the build directory and create a new one.
         """
@@ -153,7 +165,7 @@ Will use settings.BUILD_DIR by default.",
         # Then recreate it from scratch
         self.fs.makedirs(self.build_dir)
 
-    def build_static(self, *args: object, **options: object) -> object:
+    def build_static(self, *args: object, **options: object) -> None:
         """
         Builds the static files directory as well as robots.txt and favicon.ico
         """
@@ -206,7 +218,7 @@ Will use settings.BUILD_DIR by default.",
             )
             self.fs.copy(favicon_src, favicon_target)
 
-    def build_media(self) -> object:
+    def build_media(self) -> None:
         """
         Build the media files.
         """
@@ -227,13 +239,13 @@ Will use settings.BUILD_DIR by default.",
                 "osfs:///", smart_str(self.media_root), self.fs, smart_str(target_dir)
             )
 
-    def get_view_instance(self, view: object) -> object:
+    def get_view_instance(self, view: Callable[[], BuildableView]) -> BuildableView:
         """
         Given a view class, get an instance of it.
         """
         return view()
 
-    def build_views(self) -> object:
+    def build_views(self) -> None:
         """
         Bake out specified buildable views.
         """
@@ -242,17 +254,17 @@ Will use settings.BUILD_DIR by default.",
             logger.debug("Building %s", view_str)
             if self.verbosity > 1:
                 self.stdout.write(f"Building {view_str}")
-            view = get_callable(view_str)
+            view = cast("Callable[[], BuildableView]", get_callable(view_str))
             self.get_view_instance(view).build_method()
 
-    def copytree_and_gzip(self, source_dir: object, target_dir: object) -> object:
+    def copytree_and_gzip(self, source_dir: str, target_dir: str) -> None:
         """
         Copies the provided source directory to the provided target directory.
 
         Gzips JavaScript, CSS and HTML and other files along the way.
         """
         # Figure out what we're building...
-        build_list = []
+        build_list: list[BuildPayload] = []
         # Walk through the source directory...
         for dirpath, _dirnames, filenames in os.walk(source_dir):
             for f in filenames:
@@ -274,7 +286,7 @@ Will use settings.BUILD_DIR by default.",
             pool = ThreadPool(processes=cpu_count)
             pool.map(self.pooled_copyfile_and_gzip, build_list)
 
-    def pooled_copyfile_and_gzip(self, payload: object) -> object:
+    def pooled_copyfile_and_gzip(self, payload: BuildPayload) -> None:
         """
         A passthrough for our ThreadPool because it can't take two arguments.
 
@@ -282,7 +294,7 @@ Will use settings.BUILD_DIR by default.",
         """
         self.copyfile_and_gzip(*payload)
 
-    def copyfile_and_gzip(self, source_path: object, target_path: object) -> object:
+    def copyfile_and_gzip(self, source_path: str, target_path: str) -> None:
         """
         Copies the provided file to the provided target directory.
 
@@ -337,13 +349,12 @@ Will use settings.BUILD_DIR by default.",
             with Path(source_path).open("rb") as source_file:
                 # Write GZIP data to an in-memory buffer
                 data_buffer = io.BytesIO()
-                kwargs = {
-                    "filename": path.basename(target_path),
-                    "mode": "wb",
-                    "fileobj": data_buffer,
-                }
-                kwargs["mtime"] = 0
-                with gzip.GzipFile(**kwargs) as f:
+                with gzip.GzipFile(
+                    filename=path.basename(target_path),
+                    mode="wb",
+                    fileobj=data_buffer,
+                    mtime=0,
+                ) as f:
                     f.write(source_file.read())
 
                 # Write that buffer out to the filesystem
