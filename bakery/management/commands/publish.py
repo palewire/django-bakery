@@ -118,9 +118,9 @@ class Command(BasePublishCommand):
         self.s3_client, self.s3_resource = get_s3_client()
 
         # Grab our bucket
-        logger.debug("Retriving bucket %s", self.aws_bucket_name)
+        logger.debug("Retrieving bucket %s", self.aws_bucket_name)
         if self.verbosity > 2:
-            self.stdout.write(f"Retriving bucket {self.aws_bucket_name}")
+            self.stdout.write(f"Retrieving bucket {self.aws_bucket_name}")
         self.bucket = self.s3_resource.Bucket(self.aws_bucket_name)
 
         # Get a list of all keys in our s3 bucket ...

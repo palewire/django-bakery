@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import contextlib
 import gzip
 import io

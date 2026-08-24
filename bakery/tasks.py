@@ -28,7 +28,7 @@ def publish_object(content_type_pk: object, obj_pk: object) -> object:
         logger.info("publish_object task has received %s", obj)
         obj.build()
         # Run the `publish` management command unless the
-        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
+        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explicitly set to False.
         if not getattr(settings, "ALLOW_BAKERY_AUTO_PUBLISHING", True):
             logger.info(
                 "Not running publish command because \
@@ -56,7 +56,7 @@ def unpublish_object(content_type_pk: object, obj_pk: object) -> object:
         logger.info("unpublish_object task has received %s", obj)
         obj.unbuild()
         # Run the `publish` management command unless the
-        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
+        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explicitly set to False.
         if not getattr(settings, "ALLOW_BAKERY_AUTO_PUBLISHING", True):
             logger.info(
                 "Not running publish command because \

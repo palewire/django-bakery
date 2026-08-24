@@ -59,6 +59,7 @@ repos:
           (?x)^(
             tests/cassettes/.*|
             bakery/tests/.*|
+            test_settings\.py|
             uv.lock|
             package-lock.json|
             \.github/workflows/.*\.yaml

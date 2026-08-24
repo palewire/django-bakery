@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Views that inherit from Django's class-based generic views and add methods
 for building flat files.
