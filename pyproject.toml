@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=80,<81", "setuptools-scm>=10.2.1"]
+requires = ["setuptools>=80,<84", "setuptools-scm>=10.2.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -15,7 +15,7 @@ dependencies = [
     "Django>=5.2,<6.2",
     "boto3>=1.4.4",
     "fs>=2.0.17",
-    "setuptools<81",
+    "setuptools<84",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
