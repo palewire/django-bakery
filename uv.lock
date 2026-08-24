@@ -781,6 +781,7 @@ celery = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "celery" },
     { name = "check-manifest" },
     { name = "check-wheel-contents" },
     { name = "deptry" },
@@ -819,6 +820,7 @@ provides-extras = ["celery"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "celery", specifier = ">=5.5" },
     { name = "check-manifest" },
     { name = "check-wheel-contents" },
     { name = "deptry" },
