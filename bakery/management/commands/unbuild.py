@@ -2,7 +2,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from bakery.filesystem import RootedFilesystem, normalize_path
+from bakery.filesystem import RootedFilesystem, is_root_path, normalize_path
 
 
 class Command(BaseCommand):
@@ -12,7 +12,7 @@ class Command(BaseCommand):
         filesystem = apps.get_app_config("bakery").filesystem
         build_dir = normalize_path(settings.BUILD_DIR)
         if (
-            build_dir == "."
+            is_root_path(build_dir)
             and isinstance(filesystem, RootedFilesystem)
             and not filesystem.root
         ):

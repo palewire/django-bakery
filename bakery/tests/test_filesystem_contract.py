@@ -530,7 +530,7 @@ def test_windows_drive_build_paths_cannot_escape_the_configured_build_prefix(
     assert filesystem_snapshot(filesystem) == {}
 
 
-@pytest.mark.parametrize("build_dir", ["", "."])
+@pytest.mark.parametrize("build_dir", ["", ".", "/", "//", "C:/", "C:\\"])
 def test_commands_reject_an_unrooted_local_build_directory(
     settings, build_dir: str
 ) -> None:
@@ -545,6 +545,21 @@ def test_commands_reject_an_unrooted_local_build_directory(
             call_command("build", skip_static=True, skip_media=True)
         with pytest.raises(CommandError, match="unrooted filesystem root"):
             call_command("unbuild")
+
+
+@pytest.mark.parametrize("build_dir", ["", ".", "/", "//", "C:/", "C:\\"])
+def test_views_reject_an_unrooted_local_build_directory(
+    settings, build_dir: str
+) -> None:
+    filesystem = RootedFilesystem.from_url("osfs:///")
+    settings.BUILD_DIR = build_dir
+
+    with configured_filesystem(filesystem, "osfs:///"):
+        with pytest.raises(ValueError, match="unrooted filesystem root"):
+            BuildableTemplateView(
+                build_path="index.html",
+                template_name="templateview.html",
+            ).build()
 
 
 class ChunkedSource(io.BytesIO):

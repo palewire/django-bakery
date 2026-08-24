@@ -34,6 +34,14 @@ def join_path(*paths: str | PathLike[str]) -> str:
     return posixpath.join(*(str(path).replace("\\", "/") for path in paths))
 
 
+def is_root_path(path: str | PathLike[str]) -> bool:
+    """Return whether a path identifies a filesystem root."""
+    normalized = normalize_path(path)
+    return normalized in {".", "/", "//"} or bool(
+        re.fullmatch(r"[A-Za-z]:/?", normalized)
+    )
+
+
 class RootedFilesystem:
     """Expose paths relative to a configured fsspec filesystem URL."""
 
