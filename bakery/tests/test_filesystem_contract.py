@@ -1,6 +1,7 @@
 """Behavioral contract for the filesystem adapter used by bakery builds."""
 
 import gzip
+import io
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -11,7 +12,8 @@ import pytest
 from django.apps import apps
 from django.core.management import call_command
 
-from bakery.filesystem import RootedFilesystem
+from bakery.filesystem import RootedFilesystem, _Filesystem
+from bakery.management.commands.build import Command
 from bakery.views import BuildableTemplateView
 from bakery.views.base import BuildableMixin
 
@@ -238,6 +240,36 @@ def test_backend_write_failures_are_propagated(settings) -> None:
             view.build()
 
 
+class HistoricalPrepDirectoryView(BuildableTemplateView):
+    """A view that uses the long-standing relative prep_directory contract."""
+
+    build_path = "historical/nested/index.html"
+    template_name = "templateview.html"
+    prep_paths: list[str]
+
+    def prep_directory(self, target_dir: str) -> None:
+        self.prep_paths.append(target_dir)
+        super().prep_directory(target_dir)
+
+
+def test_prep_directory_accepts_build_relative_paths_with_a_rooted_backend(
+    settings,
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://historical-prep")
+    settings.BUILD_DIR = "site"
+    view = HistoricalPrepDirectoryView()
+    view.prep_paths = []
+
+    with configured_filesystem(filesystem, "mem://historical-prep"):
+        view.build()
+        output = filesystem_snapshot(filesystem)
+
+    assert view.prep_paths == ["historical/nested/index.html"]
+    assert set(output) == {"site/historical/nested/index.html"}
+    assert filesystem.filesystem.exists("/historical-prep/site/historical/nested")
+    assert not filesystem.filesystem.exists("/site/historical/nested")
+
+
 def test_windows_style_build_paths_are_normalized_without_platform_assumptions(
     settings,
 ) -> None:
@@ -254,9 +286,31 @@ def test_windows_style_build_paths_are_normalized_without_platform_assumptions(
     assert set(output) == {"site/windows/nested/index.html"}
 
 
-def test_build_paths_cannot_escape_the_configured_build_prefix(settings) -> None:
+@pytest.mark.parametrize("build_dir", ["", "."])
+def test_empty_build_directory_stays_within_selected_backend_root(
+    settings, build_dir: str
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://empty-build-dir")
+    settings.BUILD_DIR = build_dir
+
+    with configured_filesystem(filesystem, "mem://empty-build-dir"):
+        BuildableTemplateView(
+            build_path="index.html",
+            template_name="templateview.html",
+        ).build()
+        output = filesystem_snapshot(filesystem)
+
+    assert set(output) == {"index.html"}
+    assert filesystem.filesystem.exists("/empty-build-dir/index.html")
+    assert not filesystem.filesystem.exists("/index.html")
+
+
+@pytest.mark.parametrize("build_dir", ["site", "", "."])
+def test_build_paths_cannot_escape_the_configured_build_prefix(
+    settings, build_dir: str
+) -> None:
     filesystem = RootedFilesystem.from_url("mem://escape")
-    settings.BUILD_DIR = "site"
+    settings.BUILD_DIR = build_dir
 
     with configured_filesystem(filesystem, "mem://escape"):
         with pytest.raises(ValueError, match="BUILD_DIR"):
@@ -267,6 +321,61 @@ def test_build_paths_cannot_escape_the_configured_build_prefix(settings) -> None
         output = filesystem_snapshot(filesystem)
 
     assert set(output) == set()
+
+
+class ChunkedSource(io.BytesIO):
+    """A source stream that rejects reads without a bounded size."""
+
+    def read(self, size: int = -1) -> bytes:
+        if size < 0:
+            raise AssertionError("copy_local_file must use bounded reads")
+        return super().read(size)
+
+
+def test_copy_local_file_streams_source_in_chunks(monkeypatch) -> None:
+    filesystem = RootedFilesystem.from_url("mem://streaming-copy")
+    source = ChunkedSource(b"large enough to require more than one chunk")
+    expected = source.getvalue()
+    command = Command()
+    command.fs = filesystem
+
+    monkeypatch.setattr(Path, "open", lambda *_args, **_kwargs: source)
+
+    command.copy_local_file("source.bin", "assets/source.bin")
+
+    assert filesystem.read_bytes("assets/source.bin") == expected
+
+
+class RecordingFilesystem:
+    """A minimal fsspec-like backend for URL-root parsing tests."""
+
+    def exists(self, _path: str) -> bool:
+        return False
+
+    def makedirs(self, _path: str, exist_ok: bool) -> None:
+        assert exist_ok
+
+    def open(self, _path: str, _mode: str) -> BinaryIO:
+        raise AssertionError("This test only resolves paths")
+
+    def rm(self, _path: str, recursive: bool) -> None:
+        assert recursive
+
+    def copy(self, _source: str, _target: str) -> None:
+        raise AssertionError("This test only resolves paths")
+
+    def find(self, _path: str) -> list[str]:
+        return []
+
+
+def test_windows_drive_root_from_url_is_unrooted(monkeypatch) -> None:
+    backend: _Filesystem = RecordingFilesystem()
+    monkeypatch.setattr("bakery.filesystem.url_to_fs", lambda _url: (backend, "C:/"))
+
+    filesystem = RootedFilesystem.from_url("osfs:///")
+
+    assert filesystem.root == ""
+    assert filesystem._resolve("C:/site/index.html") == "C:/site/index.html"
 
 
 @pytest.mark.parametrize(

@@ -20,6 +20,8 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Fixed
 
+- Keep filesystem output paths rooted when using Windows drive roots and empty
+  build-directory settings.
 ### Removed
 
 ### Security

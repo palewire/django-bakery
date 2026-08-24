@@ -79,6 +79,6 @@ class BuildableFeed(Feed, BuildableMixin):
 
             typed_build_path = cast("BuildPath", build_path)
             path = self.get_output_path(typed_build_path)
-            self.prep_directory(path)
+            self.prep_directory(typed_build_path)
             content = self._get_bakery_dynamic_attr("get_content", obj)
             self.build_file(path, cast("bytes", content))

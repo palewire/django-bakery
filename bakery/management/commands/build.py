@@ -5,6 +5,7 @@ import mimetypes
 import multiprocessing
 import os
 import posixpath
+import shutil
 from argparse import ArgumentParser
 from collections.abc import Callable, Mapping
 from multiprocessing.pool import ThreadPool
@@ -312,7 +313,7 @@ Will use settings.BUILD_DIR by default.",
                 self.fs_name,
                 target_path,
             )
-            self.copyfile(source_path, target_path)
+            self.copy_local_file(source_path, target_path)
 
         # # if the file is already gzipped
         elif encoding == "gzip":
@@ -322,7 +323,7 @@ Will use settings.BUILD_DIR by default.",
                 self.fs_name,
                 target_path,
             )
-            self.copyfile(source_path, target_path)
+            self.copy_local_file(source_path, target_path)
 
         # If it is one we want to gzip...
         else:
@@ -355,9 +356,9 @@ Will use settings.BUILD_DIR by default.",
             for filename in filenames:
                 source_path = str(Path(dirpath) / filename)
                 relative_path = os.path.relpath(source_path, source_dir)
-                self.copyfile(source_path, join_path(target_dir, relative_path))
+                self.copy_local_file(source_path, join_path(target_dir, relative_path))
 
-    def copyfile(self, source_path: str, target_path: str) -> None:
+    def copy_local_file(self, source_path: str, target_path: str) -> None:
         """Copy one local file into the configured output backend."""
         target_dir = posixpath.dirname(target_path)
         if target_dir and not self.fs.exists(target_dir):
@@ -366,4 +367,4 @@ Will use settings.BUILD_DIR by default.",
             Path(source_path).open("rb") as source,
             self.fs.open(target_path, "wb") as target,
         ):
-            target.write(source.read())
+            shutil.copyfileobj(source, target)

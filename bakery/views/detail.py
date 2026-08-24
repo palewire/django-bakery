@@ -65,7 +65,7 @@ set a ``get_absolute_url`` method on the {obj.__class__.__name__} model or overr
         target_path = self.get_output_path(
             join_path(self.get_url(obj).lstrip("/"), "index.html")
         )
-        self.prep_directory(target_path)
+        self._prep_output_directory(target_path)
         return target_path
 
     def set_kwargs(self, obj: object) -> None:

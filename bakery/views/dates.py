@@ -56,7 +56,7 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
         logger.debug("Building %s", self.build_path)
         self.request = self.create_request(self.build_path)
         target_path = self.get_output_path(self.build_path)
-        self.prep_directory(target_path)
+        self.prep_directory(self.build_path)
         self.build_file(target_path, self.get_content())
 
 
@@ -105,7 +105,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         target_path = self.get_output_path(
             join_path(self.get_url().lstrip("/"), "index.html")
         )
-        self.prep_directory(target_path)
+        self._prep_output_directory(target_path)
         return target_path
 
     def build_year(self, dt: date) -> None:
@@ -193,7 +193,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         target_path = self.get_output_path(
             join_path(self.get_url().lstrip("/"), "index.html")
         )
-        self.prep_directory(target_path)
+        self._prep_output_directory(target_path)
         return target_path
 
     def build_month(self, dt: date) -> None:
@@ -299,7 +299,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         target_path = self.get_output_path(
             join_path(self.get_url().lstrip("/"), "index.html")
         )
-        self.prep_directory(target_path)
+        self._prep_output_directory(target_path)
         return target_path
 
     def build_day(self, dt: date) -> None:

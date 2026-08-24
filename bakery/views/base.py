@@ -92,9 +92,13 @@ class BuildableMixin:
 
     def prep_directory(self, target_dir: BuildPath) -> None:
         """
-        Prepares a new directory to store the file at the provided path, if needed.
+        Prepares the parent directory for a BUILD_DIR-relative output path.
         """
-        dirname = posixpath.dirname(normalize_path(target_dir))
+        self._prep_output_directory(self.get_output_path(target_dir))
+
+    def _prep_output_directory(self, output_path: str) -> None:
+        """Prepare the parent directory for an already resolved output path."""
+        dirname = posixpath.dirname(output_path)
         if dirname and not self.fs.exists(dirname):
             logger.debug("Creating directory at %s%s", self.fs_name, dirname)
             self.fs.makedirs(dirname)
@@ -102,14 +106,12 @@ class BuildableMixin:
     def get_output_path(self, build_path: BuildPath) -> str:
         """Return a normalized path contained by the configured build directory."""
         build_dir = normalize_path(cast("BuildPath", settings.BUILD_DIR))
-        output_path = normalize_path(
-            join_path(build_dir, normalize_path(build_path).lstrip("/"))
-        )
-        if output_path != build_dir and not output_path.startswith(
-            f"{build_dir.rstrip('/')}/"
-        ):
+        relative_path = normalize_path(build_path).lstrip("/")
+        if relative_path == ".." or relative_path.startswith("../"):
             raise ValueError("Build path must remain within BUILD_DIR.")
-        return output_path
+        if build_dir in {"", "."}:
+            return relative_path
+        return join_path(build_dir, relative_path)
 
     def build_file(self, target_path: BuildPath, html: bytes) -> None:
         if self.is_gzippable(target_path):
@@ -191,7 +193,7 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
         build_path = self.get_build_path()
         self.request = self.create_request(build_path)
         output_path = self.get_output_path(build_path)
-        self.prep_directory(output_path)
+        self.prep_directory(build_path)
         self.build_file(output_path, self.get_content())
 
     def get_build_path(self) -> str:
@@ -250,7 +252,7 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
         build_path = normalize_path(self.build_path).lstrip("/")
         self.request = self.create_request(build_path)
         output_path = self.get_output_path(build_path)
-        self.prep_directory(output_path)
+        self.prep_directory(build_path)
         self.build_file(output_path, self.get_content())
 
     def get_redirect_url(self, *args: object, **kwargs: object) -> str | None:

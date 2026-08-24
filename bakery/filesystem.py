@@ -1,6 +1,7 @@
 """Rooted filesystem support for bakery output."""
 
 import posixpath
+import re
 from collections.abc import Iterator
 from os import PathLike
 from typing import BinaryIO, Protocol, cast
@@ -37,7 +38,7 @@ class RootedFilesystem:
 
     def __init__(self, filesystem: _Filesystem, root: str = "") -> None:
         self.filesystem = filesystem
-        self.root = root.rstrip("/")
+        self.root = self._normalize_root(root)
 
     @classmethod
     def from_url(cls, url: str) -> "RootedFilesystem":
@@ -87,3 +88,10 @@ class RootedFilesystem:
         if not self.root:
             return path.lstrip("/")
         return path.removeprefix(f"{self.root}/").lstrip("/")
+
+    @staticmethod
+    def _normalize_root(root: str) -> str:
+        """Keep filesystem markers, including Windows drive roots, unrooted."""
+        if root in {"", "/"} or re.fullmatch(r"[A-Za-z]:/", root):
+            return ""
+        return root.rstrip("/")

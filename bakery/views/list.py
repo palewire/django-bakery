@@ -44,5 +44,5 @@ class BuildableListView(ListView, BuildableMixin):
         logger.debug("Building %s", self.build_path)
         self.request = self.create_request(self.build_path)
         target_path = self.get_output_path(self.build_path)
-        self.prep_directory(target_path)
+        self.prep_directory(self.build_path)
         self.build_file(target_path, self.get_content())
