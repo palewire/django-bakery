@@ -5,6 +5,7 @@ import re
 from collections.abc import Iterator
 from os import PathLike
 from typing import BinaryIO, Protocol, cast
+from urllib.parse import urlsplit
 
 from fsspec.core import url_to_fs
 
@@ -33,6 +34,14 @@ def join_path(*paths: str | PathLike[str]) -> str:
     return posixpath.join(*(str(path).replace("\\", "/") for path in paths))
 
 
+def is_root_path(path: str | PathLike[str]) -> bool:
+    """Return whether a path identifies a filesystem root."""
+    normalized = normalize_path(path)
+    return normalized in {".", "/", "//"} or bool(
+        re.fullmatch(r"[A-Za-z]:/?", normalized)
+    )
+
+
 class RootedFilesystem:
     """Expose paths relative to a configured fsspec filesystem URL."""
 
@@ -42,14 +51,34 @@ class RootedFilesystem:
 
     @classmethod
     def from_url(cls, url: str) -> "RootedFilesystem":
-        """Create an adapter for documented legacy Bakery filesystem URLs."""
+        """Create an adapter for a documented Bakery filesystem URL."""
         if url.startswith("osfs://"):
             url = f"file://{url.removeprefix('osfs://')}"
         elif url.startswith("mem://"):
             url = f"memory://{url.removeprefix('mem://')}"
+        elif url.startswith("s3://"):
+            parsed = urlsplit(url)
+            prefix_parts = parsed.path.replace("\\", "/").split("/")
+            if (
+                not parsed.netloc
+                or parsed.query
+                or parsed.fragment
+                or ".." in prefix_parts
+            ):
+                raise ValueError(
+                    "BAKERY_FILESYSTEM must use s3://bucket[/prefix] without "
+                    "query, fragment, or traversal components."
+                )
+            root = join_path(
+                parsed.netloc,
+                *(part for part in prefix_parts if part not in {"", "."}),
+            )
+            filesystem, _ = url_to_fs(f"s3://{parsed.netloc}")
+            return cls(cast("_Filesystem", filesystem), root)
         else:
             raise ValueError(
-                "BAKERY_FILESYSTEM must use a supported osfs:/// or mem:// URL."
+                "BAKERY_FILESYSTEM must use a supported osfs:///, mem://, or "
+                "s3://bucket[/prefix] URL."
             )
         filesystem, root = url_to_fs(url)
         return cls(cast("_Filesystem", filesystem), cast("str", root))
@@ -79,13 +108,18 @@ class RootedFilesystem:
             yield self._relative(path)
 
     def _resolve(self, path: str | PathLike[str]) -> str:
-        normalized = normalize_path(path)
+        portable_path = str(path).replace("\\", "/")
+        normalized = normalize_path(portable_path)
         if not self.root:
             return normalized
 
-        relative = normalized.lstrip("/")
-        if relative == ".." or relative.startswith("../"):
+        if re.match(r"^/*[A-Za-z]:", portable_path):
+            raise ValueError(
+                "Path is drive-qualified and cannot use a rooted filesystem."
+            )
+        if ".." in portable_path.split("/"):
             raise ValueError("Path escapes the configured filesystem root.")
+        relative = normalized.lstrip("/")
         return normalize_path(join_path(self.root, relative))
 
     def _relative(self, path: str) -> str:

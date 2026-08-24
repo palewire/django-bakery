@@ -8,6 +8,8 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Added
 
+- Add optional rooted Amazon S3 build output with
+  `BAKERY_FILESYSTEM="s3://bucket[/prefix]"`.
 - Add a uv-based development container and worktree-aware bootstrap command.
 - Add contributor, agent, release, and security guidance.
 

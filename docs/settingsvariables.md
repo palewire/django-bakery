@@ -50,8 +50,7 @@ BUILD_DIR = os.path.join(__file__, "build")
 
     The supported legacy configuration strings are ``osfs:///`` for the local
     filesystem and ``mem://`` for an in-memory filesystem. Root paths appended
-    to either URL keep all Bakery output below that root. Other historical
-    PyFilesystem plugin URLs are not supported by this migration.
+    to either URL keep all Bakery output below that root.
 
     With the unrooted default ``osfs:///`` backend, ``BUILD_DIR`` must name a
     directory. Empty and ``"."`` build directories are only safe with a rooted
@@ -60,6 +59,36 @@ BUILD_DIR = os.path.join(__file__, "build")
     .. code-block:: python
 
         BAKERY_FILESYSTEM = "mem://"
+
+    Amazon S3 support is optional. Install it before configuring an S3 backend:
+
+    .. code-block:: console
+
+        python -m pip install "django-bakery[s3]"
+
+    An S3 URL contains a bucket and an optional key prefix. Bakery normalizes
+    the prefix and resolves ``BUILD_DIR`` and every generated path below it:
+
+    .. code-block:: python
+
+        BAKERY_FILESYSTEM = "s3://my-bucket"
+
+        # With BUILD_DIR = "site", output starts at
+        # s3://my-bucket/releases/current/site/
+        BAKERY_FILESYSTEM = "s3://my-bucket/releases/current"
+
+    `s3fs <https://s3fs.readthedocs.io/>`_ uses the standard AWS credential
+    and configuration chain. Configure credentials, region, profiles, and
+    custom endpoints outside Django with the mechanisms supported by the AWS
+    SDK, such as ``AWS_PROFILE``, ``AWS_DEFAULT_REGION``, and
+    ``AWS_ENDPOINT_URL``. The similarly named Django settings below configure
+    the separate ``publish`` command, not this direct filesystem backend.
+
+    The S3 URL accepts only the bucket and optional prefix; query-string storage
+    options are not supported. Arbitrary fsspec URLs and historical
+    PyFilesystem plugin URLs also remain unsupported. This adapter intentionally
+    covers only the rooted filesystem operations used by ``build`` and
+    ``unbuild``.
 
 ```
 

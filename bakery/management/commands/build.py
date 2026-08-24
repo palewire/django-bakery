@@ -20,7 +20,12 @@ from django.urls import get_callable
 from django.utils.encoding import smart_str
 
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
-from bakery.filesystem import RootedFilesystem, join_path, normalize_path
+from bakery.filesystem import (
+    RootedFilesystem,
+    is_root_path,
+    join_path,
+    normalize_path,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +139,7 @@ Will use settings.BUILD_DIR by default.",
         self.fs = self.app.filesystem
         self.fs_name = self.app.filesystem_name
         if (
-            self.build_dir == "."
+            is_root_path(self.build_dir)
             and isinstance(self.fs, RootedFilesystem)
             and not self.fs.root
         ):

@@ -22,7 +22,12 @@ from django.utils.encoding import smart_str
 from django.views.generic import RedirectView, TemplateView
 
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
-from bakery.filesystem import RootedFilesystem, join_path, normalize_path
+from bakery.filesystem import (
+    RootedFilesystem,
+    is_root_path,
+    join_path,
+    normalize_path,
+)
 from bakery.management.commands import get_s3_client
 
 logger = logging.getLogger(__name__)
@@ -107,17 +112,21 @@ class BuildableMixin:
     def get_output_path(self, build_path: BuildPath) -> str:
         """Return a normalized path contained by the configured build directory."""
         build_dir = normalize_path(cast("BuildPath", settings.BUILD_DIR))
+        raw_path = str(build_path).replace("\\", "/")
+        if re.fullmatch(r"[A-Za-z]:.*", raw_path):
+            raise ValueError("Build path must remain within BUILD_DIR.")
+        raw_segments = raw_path.split("/")
+        if ".." in raw_segments:
+            raise ValueError("Build path must remain within BUILD_DIR.")
         normalized_path = normalize_path(build_path)
-        if re.fullmatch(r"[A-Za-z]:/.*", normalized_path):
-            raise ValueError("Build path must remain within BUILD_DIR.")
         relative_path = normalized_path.lstrip("/")
-        if relative_path == ".." or relative_path.startswith("../"):
-            raise ValueError("Build path must remain within BUILD_DIR.")
-        if build_dir in {"", "."}:
-            if isinstance(self.fs, RootedFilesystem) and not self.fs.root:
-                raise ValueError(
-                    "BUILD_DIR must not target an unrooted filesystem root."
-                )
+        if (
+            isinstance(self.fs, RootedFilesystem)
+            and not self.fs.root
+            and is_root_path(build_dir)
+        ):
+            raise ValueError("BUILD_DIR must not target an unrooted filesystem root.")
+        if build_dir in {".", "/", "//"}:
             return relative_path
         return join_path(build_dir, relative_path)
 
