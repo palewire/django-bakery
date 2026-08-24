@@ -7,7 +7,7 @@ import logging
 import os
 from collections.abc import Callable
 from os import PathLike
-from typing import Protocol, cast, runtime_checkable
+from typing import cast
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -17,11 +17,6 @@ from fs import path
 from .base import BuildableMixin
 
 logger = logging.getLogger(__name__)
-
-
-@runtime_checkable
-class _HasAbsoluteUrl(Protocol):
-    def get_absolute_url(self) -> str: ...
 
 
 class BuildableDetailView(DetailView, BuildableMixin):
@@ -46,13 +41,21 @@ class BuildableDetailView(DetailView, BuildableMixin):
         """
         The URL at which the detail page should appear.
         """
-        if not isinstance(obj, _HasAbsoluteUrl) or not obj.get_absolute_url():
+        get_absolute_url = getattr(obj, "get_absolute_url", None)
+        if not callable(get_absolute_url):
             raise ImproperlyConfigured(
                 f"No URL configured. You must either \
 set a ``get_absolute_url`` method on the {obj.__class__.__name__} model or override the {self.__class__.__name__} view's \
 ``get_url`` method"
             )
-        return obj.get_absolute_url()
+        url = get_absolute_url()
+        if not url:
+            raise ImproperlyConfigured(
+                f"No URL configured. You must either \
+set a ``get_absolute_url`` method on the {obj.__class__.__name__} model or override the {self.__class__.__name__} view's \
+``get_url`` method"
+            )
+        return cast("str", url)
 
     def get_build_path(self, obj: object) -> str:
         """

@@ -1,10 +1,13 @@
+from pathlib import Path
 from unittest.mock import patch
 
 from django.conf import settings
+from django.test import override_settings
 from django.urls import resolve
 
 from bakery import feeds, static_urls
 from bakery.management.commands import buildserver
+from bakery.views import BuildableDetailView, BuildableListView
 
 
 def test_buildserver_uses_static_urlconf() -> None:
@@ -48,3 +51,28 @@ def test_buildable_feed_supports_callable_attributes() -> None:
     subject = object()
 
     assert feed._get_bakery_dynamic_attr("dynamic_value", subject) is subject
+
+
+def test_detail_view_supports_dynamic_absolute_url() -> None:
+    class DynamicObject:
+        def __getattr__(self, name: str) -> object:
+            if name == "get_absolute_url":
+                return lambda: "/dynamic/"
+            raise AttributeError(name)
+
+    assert BuildableDetailView().get_url(DynamicObject()) == "/dynamic/"
+
+
+@override_settings(BUILD_DIR=Path("/tmp/build"))
+def test_list_view_supports_path_build_directory() -> None:
+    view = BuildableListView(build_path="index.html")
+
+    with (
+        patch.object(view, "create_request", return_value=object()),
+        patch.object(view, "prep_directory"),
+        patch.object(view, "get_content", return_value=b"content"),
+        patch.object(view, "build_file") as build_file,
+    ):
+        view.build_queryset()
+
+    build_file.assert_called_once_with("/tmp/build/index.html", b"content")

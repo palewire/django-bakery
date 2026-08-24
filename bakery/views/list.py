@@ -4,6 +4,7 @@ for building flat files.
 """
 
 import logging
+from collections.abc import Callable
 
 from django.conf import settings
 from django.views.generic import ListView
@@ -38,12 +39,12 @@ class BuildableListView(ListView, BuildableMixin):
     build_path = "index.html"
 
     @property
-    def build_method(self) -> object:
+    def build_method(self) -> Callable[[], None]:
         return self.build_queryset
 
-    def build_queryset(self) -> object:
+    def build_queryset(self) -> None:
         logger.debug("Building %s", self.build_path)
         self.request = self.create_request(self.build_path)
         self.prep_directory(self.build_path)
-        target_path = path.join(settings.BUILD_DIR, self.build_path)
+        target_path = path.join(str(settings.BUILD_DIR), self.build_path)
         self.build_file(target_path, self.get_content())
