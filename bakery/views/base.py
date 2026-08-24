@@ -112,12 +112,14 @@ class BuildableMixin:
     def get_output_path(self, build_path: BuildPath) -> str:
         """Return a normalized path contained by the configured build directory."""
         build_dir = normalize_path(cast("BuildPath", settings.BUILD_DIR))
+        raw_path = str(build_path).replace("\\", "/")
+        if re.fullmatch(r"[A-Za-z]:.*", raw_path):
+            raise ValueError("Build path must remain within BUILD_DIR.")
+        raw_segments = raw_path.split("/")
+        if ".." in raw_segments:
+            raise ValueError("Build path must remain within BUILD_DIR.")
         normalized_path = normalize_path(build_path)
-        if re.fullmatch(r"[A-Za-z]:/.*", normalized_path):
-            raise ValueError("Build path must remain within BUILD_DIR.")
         relative_path = normalized_path.lstrip("/")
-        if relative_path == ".." or relative_path.startswith("../"):
-            raise ValueError("Build path must remain within BUILD_DIR.")
         if (
             isinstance(self.fs, RootedFilesystem)
             and not self.fs.root
