@@ -32,6 +32,9 @@ classifiers = [
 
 [project.optional-dependencies]
 celery = ["celery>=5.5"]
+s3 = [
+    "s3fs>=2026.7.0",
+]
 
 [project.urls]
 Documentation = "https://palewi.re/docs/django-bakery/"
@@ -53,11 +56,12 @@ dev = [
 ]
 test = [
     "celery>=5.5",
-    "moto[ec2,s3]",
+    "moto[ec2,s3,server]",
     "pytest",
     "pytest-cov",
     "pytest-django",
     "pytest-timeout",
+    "s3fs>=2026.7.0",
 ]
 docs = [
     "myst-parser",
