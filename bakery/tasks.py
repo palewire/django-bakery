@@ -1,16 +1,20 @@
 import logging
+
 from django.conf import settings
-from django.core import management
 from django.contrib.contenttypes.models import ContentType
+from django.core import management
+
 logger = logging.getLogger(__name__)
 try:
     from celery import shared_task
-except ImportError:
-    raise ImportError("celery must be installed to use django-bakery's tasks")
+except ImportError as error:
+    raise ImportError(
+        "celery must be installed to use django-bakery's tasks"
+    ) from error
 
 
 @shared_task()
-def publish_object(content_type_pk, obj_pk):
+def publish_object(content_type_pk: object, obj_pk: object) -> object:
     """
     Build all views related to an object, and then sync with S3.
 
@@ -21,22 +25,24 @@ def publish_object(content_type_pk, obj_pk):
     obj = ct.get_object_for_this_type(pk=obj_pk)
     try:
         # Build the object
-        logger.info("publish_object task has received %s" % obj)
+        logger.info("publish_object task has received %s", obj)
         obj.build()
         # Run the `publish` management command unless the
-        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
-        if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
-            logger.info("Not running publish command because \
-ALLOW_BAKERY_AUTO_PUBLISHING is False")
+        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explicitly set to False.
+        if not getattr(settings, "ALLOW_BAKERY_AUTO_PUBLISHING", True):
+            logger.info(
+                "Not running publish command because \
+ALLOW_BAKERY_AUTO_PUBLISHING is False"
+            )
         else:
             management.call_command("publish")
     except Exception:
         # Log the error if this crashes
-        logger.error("Task Error: publish_object", exc_info=True)
+        logger.exception("Task Error: publish_object")
 
 
 @shared_task()
-def unpublish_object(content_type_pk, obj_pk):
+def unpublish_object(content_type_pk: object, obj_pk: object) -> object:
     """
     Unbuild all views related to a object and then sync to S3.
 
@@ -47,15 +53,17 @@ def unpublish_object(content_type_pk, obj_pk):
     obj = ct.get_object_for_this_type(pk=obj_pk)
     try:
         # Unbuild the object
-        logger.info("unpublish_object task has received %s" % obj)
+        logger.info("unpublish_object task has received %s", obj)
         obj.unbuild()
         # Run the `publish` management command unless the
-        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explictly set to False.
-        if not getattr(settings, 'ALLOW_BAKERY_AUTO_PUBLISHING', True):
-            logger.info("Not running publish command because \
-ALLOW_BAKERY_AUTO_PUBLISHING is False")
+        # ALLOW_BAKERY_AUTO_PUBLISHING variable is explicitly set to False.
+        if not getattr(settings, "ALLOW_BAKERY_AUTO_PUBLISHING", True):
+            logger.info(
+                "Not running publish command because \
+ALLOW_BAKERY_AUTO_PUBLISHING is False"
+            )
         else:
             management.call_command("publish")
     except Exception:
         # Log the error if this crashes
-        logger.error("Task Error: unpublish_object", exc_info=True)
+        logger.exception("Task Error: unpublish_object")

@@ -35,9 +35,10 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
         from bakery.views import BuildableTemplateView
 
+
         class ExampleTemplateView(BuildableTemplateView):
-            build_path = 'examples/index.html'
-            template_name = 'examples.html'
+            build_path = "examples/index.html"
+            template_name = "examples.html"
 
 ```
 
@@ -94,13 +95,13 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
         class ExampleListView(BuildableListView):
             model = MyModel
-            template_name = 'mymodel_list.html'
+            template_name = "mymodel_list.html"
 
 
         class DifferentExampleListView(BuildableListView):
-            build_path = 'mymodel/index.html'
+            build_path = "mymodel/index.html"
             queryset = MyModel.objects.filter(is_published=True)
-            template_name = 'mymodel_list.html'
+            template_name = "mymodel_list.html"
 ```
 
 (buildable-detail-view)=
@@ -145,7 +146,7 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
         instance, you will want to override this. By default it uses the template
         object's default ``render`` method.
 
-    .. _get_url
+    .. _get_url:
     .. method:: get_url(obj)
 
         Returns the build directory, and therefore the URL, where the provided
@@ -172,13 +173,13 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
     .. code-block:: python
 
-        from django.db im­port mod­els
-        from bakery.mod­els im­port Build­ableMod­el
+        from django.db import models
+        from bakery.models import BuildableModel
 
 
-        class My­Mod­el(Build­ableMod­el):
-            de­tail_views = ('myapp.views.ExampleDetailView',)
-            title = mod­els.Char­Field(max_length=100)
+        class MyModel(BuildableModel):
+            detail_views = ("myapp.views.ExampleDetailView",)
+            title = models.CharField(max_length=100)
             slug = models.SlugField(max_length=100)
 
             def get_absolute_url(self):
@@ -187,7 +188,7 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
                 one easy way to set the path where it will be built is to
                 configure Django's standard get_absolute_url method.
                 """
-                return '/%s/' % self.slug
+                return "/%s/" % self.slug
 
     **Example myapp/views.py**
 
@@ -199,7 +200,7 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
         class ExampleDetailView(BuildableDetailView):
             queryset = MyModel.objects.filter(is_published=True)
-            template_name = 'mymodel_detail.html'
+            template_name = "mymodel_detail.html"
 
 ```
 
@@ -259,10 +260,10 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
 
         class DifferentExampleArchiveIndexView(BuildableArchiveIndexView):
-            build_path = 'my-archive-directory/index.html'
+            build_path = "my-archive-directory/index.html"
             queryset = MyModel.objects.filter(is_published=True)
             date_field = "pub_date"
-            template_name = 'mymodel_list.html'
+            template_name = "mymodel_list.html"
 
 ```
 
@@ -487,8 +488,8 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
 
         class Buildable404View(BuildableTemplateView):
-            build_path = '404.html'
-            template_name = '404.html'
+            build_path = "404.html"
+            template_name = "404.html"
 
 ```
 
@@ -520,5 +521,5 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
         class ExampleRedirectView(BuildableRedirectView):
             build_path = "mymodel/oldurl.html"
-            url = '/mymodel/'
+            url = "/mymodel/"
 ```

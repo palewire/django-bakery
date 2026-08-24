@@ -51,7 +51,7 @@ $ python manage.py build
 View names passed as arguments will override the `BAKERY_VIEWS` list.
 
 ```bash
-$ python manage.py build yourapp.views.DummyL­istView
+$ python manage.py build yourapp.views.DummyListView
 ```
 
 ## buildserver

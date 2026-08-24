@@ -44,9 +44,9 @@ You can build a RSS feed in much the same manner as {doc}`buildable class-based 
 
 
         class ExampleRSSFeed(BuildableFeed):
-            link = '/'
-            feed_url = '/rss.xml'
-            build_path = 'rss.xml'
+            link = "/"
+            feed_url = "/rss.xml"
+            build_path = "rss.xml"
 
             def items(self):
                 return MyModel.objects.filter(is_published=True)
@@ -66,7 +66,7 @@ You can build a RSS feed in much the same manner as {doc}`buildable class-based 
                 return obj.get_absolute_url()
 
             def feed_url(self, obj):
-                return os.path.join(obj.get_absolute_url(), 'rss.xml')
+                return os.path.join(obj.get_absolute_url(), "rss.xml")
 
             def build_path(self, obj):
                 return self.feed_url(obj)[1:]  # Discard initial slash

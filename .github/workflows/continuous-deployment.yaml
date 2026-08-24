@@ -1,7 +1,11 @@
-name: Continuous Deployment
+name: Continuous deployment
+
+permissions:
+  contents: read
 
 on:
   push:
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -9,103 +13,137 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-python:
-    name: Lint
+  check:
+    name: Check project
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
+        uses: actions/checkout@v7
         with:
-          python-version: '3.12'
+          persist-credentials: false
 
-      - name: Install flake8
-        run: pip install flake8
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
-      - name: Run flake8
-        run: flake8 bakery
+      - name: Install Python
+        run: uv python install 3.13
+
+      - name: Install Python dependencies
+        run: make install-dev
+
+      - name: Run static checks
+        run: make check
+
+      - name: Prune uv cache
+        run: uv cache prune --ci
 
   test-python:
+    name: Test Python ${{ matrix.python }} with Django ${{ matrix.django }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python: ['3.9', '3.10', '3.11', '3.12', '3.13']
-        django: ['4.2', '5.1']
+        python: ["3.11", "3.12", "3.13", "3.14"]
+        django: ["5.2", "6.0", "6.1"]
         exclude:
-        - python: '3.9'
-          django: '5.1'
-    name: Test
-    runs-on: ubuntu-latest
+          - python: "3.11"
+            django: "6.0"
+          - python: "3.11"
+            django: "6.1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
+        uses: actions/checkout@v7
         with:
-          python-version: ${{ matrix.python }}
-          cache: 'pipenv'
+          persist-credentials: false
 
-      - name: Install pipenv
-        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install Python
+        run: uv python install ${{ matrix.python }}
 
       - name: Install Python dependencies
-        run: |
-            pipenv install --skip-lock --python=${{ matrix.python }}
-            pipenv install moto Django~=${{ matrix.django }} --skip-lock --python=${{ matrix.python }}
-        shell: bash
+        run: make install-test UV_PYTHON=${{ matrix.python }}
 
-      - name: Run
-        run: pipenv run python setup.py test
-        shell: bash
+      - name: Install Django matrix version
+        run: uv pip install --python .venv/bin/python "Django~=${{ matrix.django }}.0"
+
+      - name: Run tests
+        run: .venv/bin/python -m pytest
         env:
-          AWS_ACCESS_KEY_ID: 'MOCK_ACCESS_KEY_ID'
-          AWS_SECRET_ACCESS_KEY: 'MOCK_SECRET_ACCESS_KEY'
+          AWS_ACCESS_KEY_ID: "MOCK_ACCESS_KEY_ID"
+          AWS_SECRET_ACCESS_KEY: "MOCK_SECRET_ACCESS_KEY"
 
-  test-build:
-    name: Build Python package
+      - name: Verify package distribution
+        if: matrix.python == '3.13' && matrix.django == '5.2'
+        run: make package-verify PACKAGE=bakery UV_PYTHON=${{ matrix.python }}
+        env:
+          AWS_ACCESS_KEY_ID: "MOCK_ACCESS_KEY_ID"
+          AWS_SECRET_ACCESS_KEY: "MOCK_SECRET_ACCESS_KEY"
+
+      - name: Prune uv cache
+        run: uv cache prune --ci
+
+  build:
+    name: Build release candidate
     runs-on: ubuntu-latest
-    needs: [test-python]
+    needs: [check, test-python]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
+        uses: actions/checkout@v7
         with:
-          python-version: '3.12'
-          cache: 'pipenv'
+          persist-credentials: false
 
-      - name: Install pipenv
-        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install Python
+        run: uv python install 3.13
 
       - name: Install Python dependencies
-        run: pipenv sync --dev
-        shell: bash
+        run: make install-dev
 
-      - name: Build release
-        run: |
-            pipenv run python setup.py sdist
-            pipenv run python setup.py bdist_wheel
-            ls -l dist
+      - name: Build releases
+        run: make build
 
-      - name: Check release
-        run: pipenv run twine check dist/*
+      - name: Prune uv cache
+        run: uv cache prune --ci
 
       - name: Save artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: release-candidate
           path: ./dist
           if-no-files-found: error
+          retention-days: 7
 
-  tag-release:
-    name: Tagged PyPI release
+  release:
+    name: PyPI release
     runs-on: ubuntu-latest
-    needs: [test-build]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    needs: [build]
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags')
+    environment:
+      name: pypi
+      url: https://pypi.org/project/django-bakery/
+    permissions:
+      id-token: write
     steps:
-      - id: fetch
-        name: Fetch artifact
-        uses: actions/download-artifact@v6
+      - name: Fetch artifact
+        uses: actions/download-artifact@v8
         with:
           name: release-candidate
           path: ./dist
@@ -113,7 +151,5 @@ jobs:
       - name: Publish release
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
           verbose: true
-          verify_metadata: false
+          verify-metadata: true

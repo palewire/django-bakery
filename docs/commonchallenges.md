@@ -1,3 +1,5 @@
+# Common challenges
+
 ## Configuring where detail pages are built
 
 If you are seeking to publish a detail page for each record in a database model,
@@ -18,12 +20,12 @@ method to return a URL that features each state's unique postal code.
 ```{code-block} python
 :emphasize-lines: 9,10
 
-from django.db im­port mod­els
-from bakery.mod­els im­port Build­ableMod­el
+from django.db import models
+from bakery.models import BuildableModel
 
 
-class State(Build­ableMod­el):
-    name = mod­els.Char­Field(max_length=100)
+class State(BuildableModel):
+    name = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=2, unique=True)
 
     def get_absolute_url(self):
@@ -40,7 +42,7 @@ from bakery.views import BuildableDetailView
 
 class StateDetailView(BuildableDetailView):
     model = State
-    template_name = 'state_detail.html'
+    template_name = "state_detail.html"
 ```
 
 As described in the {doc}`getting started guide </gettingstarted>`, that view will need to be added
@@ -113,14 +115,15 @@ class JSONResponseMixin(object):
     """
     A mixin that can be used to render a JSON response.
     """
+
     def render_to_json_response(self, context, **response_kwargs):
         """
         Returns a JSON response, transforming 'context' to make the payload.
         """
         return HttpResponse(
             self.convert_context_to_json(context),
-            content_type='application/json',
-            **response_kwargs
+            content_type="application/json",
+            **response_kwargs,
         )
 
     def convert_context_to_json(self, context):
@@ -137,7 +140,7 @@ class JSONView(JSONResponseMixin, TemplateView):
         return self.render_to_json_response(context, **response_kwargs)
 
     def get_context_data(self, **kwargs):
-        return {'this-is': 'dummy-data'}
+        return {"this-is": "dummy-data"}
 ```
 
 The same design pattern can work with django-bakery to build a flat version of
@@ -202,9 +205,9 @@ can recreate all pages related to a single object. But can you rebuild all pages
 created by just one view? Yes, and all it takes is importing the view and invoking
 its `build_method`.
 
-```python
->>> from yourapp.views import DummyDe­tailView
->>> DummyDe­tailView().build_method()
+```text
+>>> from yourapp.views import DummyDetailView
+>>> DummyDetailView().build_method()
 ```
 
 A simple way to automate that kind of targeted build might be to create a
@@ -215,11 +218,12 @@ and connect it to a [cron job](http://en.wikipedia.org/wiki/Cron).
 from django.core.management.base import BaseCommand, CommandError
 from yourapp.views import DummyDetailView
 
+
 class Command(BaseCommand):
-    help = 'Rebuilds all pages created by the DummyDetailView'
+    help = "Rebuilds all pages created by the DummyDetailView"
 
     def handle(self, *args, **options):
-        DummyDe­tailView().build_method()
+        DummyDetailView().build_method()
 ```
 
 Or, if you wanted to rebuild the view without deleting everything else in the existing
@@ -236,5 +240,5 @@ If your bucket has enabled [Amazon's S3 transfer acceleration service](https://a
 you can configure bakery it use by overriding the default `AWS_S3_HOST` variable in `settings.py`.
 
 ```python
-AWS_S3_HOST = 's3-accelerate.amazonaws.com'
+AWS_S3_HOST = "s3-accelerate.amazonaws.com"
 ```
