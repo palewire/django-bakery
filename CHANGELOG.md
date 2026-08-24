@@ -26,7 +26,12 @@ All notable changes to django-bakery are documented here. The format follows
   build-directory settings.
 - Reject unrooted filesystem root operations and unsupported legacy filesystem
   plugin URLs.
+
 ### Removed
+
+- Remove the unmaintained PyFilesystem2 (`fs`) dependency, which imported the
+  `pkg_resources` module removed in setuptools 81. Uninstall `fs` and any
+  PyFilesystem backend, such as `fs-s3fs`, when upgrading.
 
 ### Security
 
