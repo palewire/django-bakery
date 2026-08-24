@@ -26,11 +26,12 @@ ALLOW_BAKERY_AUTO_PUBLISHING = False
 ```
 
 ```python
-BUILD_DIR = '/home/you/code/your-site/build/'
+BUILD_DIR = "/home/you/code/your-site/build/"
 
 # I like something a little snappier like...
 import os
-BUILD_DIR = os.path.join(__file__, 'build')
+
+BUILD_DIR = os.path.join(__file__, "build")
 ```
 
 ## BAKERY_FILESYSTEM
@@ -42,13 +43,13 @@ BUILD_DIR = os.path.join(__file__, 'build')
 
     .. code-block:: python
 
-        BAKERY_FILESYSTEM = 'osfs:///'
+        BAKERY_FILESYSTEM = "osfs:///"
 
     Here's how you could change to an `in-memory backend <https://docs.pyfilesystem.org/en/latest/reference/memoryfs.html>`_ instead. The complete list of alternatives are documented `here <https://docs.pyfilesystem.org/en/latest/builtin.html>`_.
 
     .. code-block:: python
 
-        BAKERY_FILESYSTEM = 'mem://'
+        BAKERY_FILESYSTEM = "mem://"
 
 ```
 
@@ -62,10 +63,10 @@ BUILD_DIR = os.path.join(__file__, 'build')
 
 ```python
 BAKERY_VIEWS = (
-    'myapp.views.ExampleL­istView',
-    'myapp.views.ExampleDe­tailView',
-    'myapp.views.MyRSSView',
-    'myapp.views.MySitemapView',
+    "myapp.views.ExampleListView",
+    "myapp.views.ExampleDetailView",
+    "myapp.views.MyRSSView",
+    "myapp.views.MySitemapView",
 )
 ```
 
@@ -78,7 +79,7 @@ BAKERY_VIEWS = (
 ```
 
 ```python
-AWS_BUCK­ET_­NAME = 'your-buck­et'
+AWS_BUCKET_NAME = "your-bucket"
 ```
 
 ## AWS_ACCESS_KEY_ID
@@ -90,7 +91,7 @@ AWS_BUCK­ET_­NAME = 'your-buck­et'
 ```
 
 ```python
-AWS_ACCESS_KEY_ID = 'your-key'
+AWS_ACCESS_KEY_ID = "your-key"
 ```
 
 ## AWS_SECRET_ACCESS_KEY
@@ -102,7 +103,7 @@ AWS_ACCESS_KEY_ID = 'your-key'
 ```
 
 ```python
-AWS_SECRET_ACCESS_KEY = 'your-secret-key'
+AWS_SECRET_ACCESS_KEY = "your-secret-key"  # pragma: allowlist secret
 ```
 
 ## AWS_REGION
@@ -114,7 +115,7 @@ AWS_SECRET_ACCESS_KEY = 'your-secret-key'
 ```
 
 ```python
-AWS_REGION = 'us-west-2'
+AWS_REGION = "us-west-2"
 ```
 
 ## AWS_S3_ENDPOINT
@@ -128,9 +129,9 @@ AWS_REGION = 'us-west-2'
 
 ```python
 # Substitute in Amazon's accelerated upload service
-AWS_S3_ENDPOINT = 'https://s3-accelerate.amazonaws.com'
+AWS_S3_ENDPOINT = "https://s3-accelerate.amazonaws.com"
 # Specify the region of the bucket to work around bugs with S3 in certain version of boto
-AWS_S3_ENDPOINT = 'https://s3-%s.amazonaws.com' % AWS_REGION
+AWS_S3_ENDPOINT = "https://s3-%s.amazonaws.com" % AWS_REGION
 ```
 
 ## BAKERY_GZIP
@@ -194,7 +195,7 @@ GZIP_CONTENT_TYPES = (
     "text/vtt",
     "text/x-component",
     "text/x-cross-domain-policy",
-    "text/xml"
+    "text/xml",
 )
 ```
 
@@ -208,7 +209,7 @@ GZIP_CONTENT_TYPES = (
 
 ```python
 # defaults to 'public-read',
-DEFAULT_ACL = 'public-read'
+DEFAULT_ACL = "public-read"
 ```
 
 ## BAKERY_CACHE_CONTROL
@@ -220,8 +221,5 @@ DEFAULT_ACL = 'public-read'
 ```
 
 ```python
-BAKERY_CACHE_CONTROL = {
-    'text/html': 900,
-    'application/javascript': 86400
-}
+BAKERY_CACHE_CONTROL = {"text/html": 900, "application/javascript": 86400}
 ```

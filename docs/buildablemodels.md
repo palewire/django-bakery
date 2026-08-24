@@ -2,16 +2,16 @@
 
 ## Models that build themselves
 
-If your site pub­lishes numerous pages built from a large data­base, the build-and-pub­lish routine can take
-a long time to run. Some­times that’s ac­cept­able, but if you’re peri­od­ic­ally
-mak­ing small up­dates to the site it can be frus­trat­ing to wait for the en­tire
-data­base to re­build every time there’s a minor edit.
+If your site publishes numerous pages built from a large database, the build-and-publish routine can take
+a long time to run. Sometimes that’s acceptable, but if you’re periodically
+making small updates to the site it can be frustrating to wait for the entire
+database to rebuild every time there’s a minor edit.
 
-We tackle this prob­lem by hook­ing tar­geted build routines to our Django mod­els.
-When an ob­ject is ed­ited, the mod­el is able to re­build only those pages that
-ob­ject is con­nec­ted to. We ac­com­plish this with a `BuildableModel` class
-you can in­her­it. It works the same as a standard Django model, except that
-you are asked define a list of the de­tail views con­nec­ted to each ob­ject.
+We tackle this problem by hooking targeted build routines to our Django models.
+When an object is edited, the model is able to rebuild only those pages that
+object is connected to. We accomplish this with a `BuildableModel` class
+you can inherit. It works the same as a standard Django model, except that
+you are asked define a list of the detail views connected to each object.
 
 ### BuildableModel
 
@@ -55,15 +55,15 @@ you are asked define a list of the de­tail views con­nec­ted to each ob­ject
 
     .. code-block:: django
 
-        from django.db im­port mod­els
-        from bakery.mod­els im­port Build­ableMod­el
+        from django.db import models
+        from bakery.models import BuildableModel
 
 
-        class My­Mod­el(Build­ableMod­el):
-            de­tail_views = ('myapp.views.ExampleDetailView',)
-            title = mod­els.Char­Field(max_length=100)
+        class MyModel(BuildableModel):
+            detail_views = ('myapp.views.ExampleDetailView',)
+            title = models.CharField(max_length=100)
             slug = models.SlugField(max_length=100)
-            de­scrip­tion = mod­els.Text­Field()
+            description = models.TextField()
             is_published = models.BooleanField(default=False)
 
             def get_absolute_url(self):
@@ -74,31 +74,31 @@ you are asked define a list of the de­tail views con­nec­ted to each ob­ject
                 """
                 return '/%s/' % self.slug
 
-            def _build_re­lated(self):
+            def _build_related(self):
                 from myapp import views
-                views.MySitem­apView().build_queryset()
-                views.MyRSS­Feed().build_queryset()
+                views.MySitemapView().build_queryset()
+                views.MyRSSFeed().build_queryset()
 
 ```
 
 ## Models that publish themselves
 
 With a buildable model in place, you can take things a step further with the
-`AutoPublishingBuildableModel` so that a up­date pos­ted to the data­base by an entrant
-us­ing the [Django ad­min](https://docs.djangoproject.com/en/dev/ref/contrib/admin/)
-can set in­to mo­tion a small build that is then synced with your live site on Amazon S3.
+`AutoPublishingBuildableModel` so that a update posted to the database by an entrant
+using the [Django admin](https://docs.djangoproject.com/en/dev/ref/contrib/admin/)
+can set into motion a small build that is then synced with your live site on Amazon S3.
 
-At the Los Angeles Times Data Desk, we use that sys­tem to host ap­plic­a­tions
-with in-house Django ad­min­is­tra­tion pan­els that, for the entrant, walk and
-talk like a live website, but behind the scenes auto­mat­ic­ally fig­ure out how
-to serve them­selves on the Web as flat files. That’s how a site like
-[graphics.latimes.com](http://graphics.latimes.com) is man­aged.
+At the Los Angeles Times Data Desk, we use that system to host applications
+with in-house Django administration panels that, for the entrant, walk and
+talk like a live website, but behind the scenes automatically figure out how
+to serve themselves on the Web as flat files. That’s how a site like
+[graphics.latimes.com](http://graphics.latimes.com) is managed.
 
-This is accomplished by handing off the build from the user’s save re­quest in the ad­min to a
-job serv­er that does the work in the back­ground. This pre­vents a user who makes a push-but­ton save
-in the ad­min from hav­ing to wait for the full process to com­plete be­fore receiving a re­sponse.
+This is accomplished by handing off the build from the user’s save request in the admin to a
+job server that does the work in the background. This prevents a user who makes a push-button save
+in the admin from having to wait for the full process to complete before receiving a response.
 
-This is done by passing off build in­struc­tions to [a Cel­ery job serv­er](http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html).
+This is done by passing off build instructions to [a Celery job server](http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html).
 **You need to install Celery and have it fully configured before this model will work.**
 
 ### AutoPublishingBuildableModel
@@ -152,15 +152,15 @@ This is done by passing off build in­struc­tions to [a Cel­ery job serv­er](
 
     .. code-block:: django
 
-        from django.db im­port mod­els
-        from bakery.mod­els im­port AutoPublishingBuildableModel
+        from django.db import models
+        from bakery.models import AutoPublishingBuildableModel
 
 
-        class My­Mod­el(AutoPublishingBuildableModel):
-            de­tail_views = ('myapp.views.ExampleDetailView',)
-            title = mod­els.Char­Field(max_length=100)
+        class MyModel(AutoPublishingBuildableModel):
+            detail_views = ('myapp.views.ExampleDetailView',)
+            title = models.CharField(max_length=100)
             slug = models.SlugField(max_length=100)
-            de­scrip­tion = mod­els.Text­Field()
+            description = models.TextField()
             is_published = models.BooleanField(default=False)
 
             def get_absolute_url(self):

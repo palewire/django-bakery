@@ -1,0 +1,96 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        stages: [pre-commit]
+      - id: fix-byte-order-marker
+      - id: check-case-conflict
+      - id: mixed-line-ending
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=99000]
+        stages: [pre-commit]
+      - id: check-json
+      - id: forbid-submodules
+      - id: end-of-file-fixer
+        stages: [pre-commit]
+      - id: debug-statements
+      - id: check-ast
+      - id: detect-private-key
+      - id: check-shebang-scripts-are-executable
+        stages: [pre-commit]
+      - id: check-executables-have-shebangs
+        stages: [pre-commit]
+      - id: check-symlinks
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.3
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.20.0
+    hooks:
+      - id: blacken-docs
+        additional_dependencies: [black]
+        args: [--skip-errors]
+        files: ^(?:README\.md|docs/.*\.(?:md|rst))$
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        exclude: >
+          (?x)^(
+            tests/cassettes/.*|
+            bakery/tests/.*|
+            uv.lock|
+            package-lock.json|
+            \.github/workflows/.*\.yaml
+          )$
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        args: [--ignore-words=.codespell-ignore-words.txt]
+        exclude: >
+          (?x)^(
+            tests/cassettes/.*|
+            uv.lock|
+            .*package-lock\.json
+          )$
+
+  - repo: local
+    hooks:
+      - id: zizmor
+        name: zizmor
+        entry: uv run zizmor .github/workflows
+        language: system
+        files: ^\.github/workflows/.*\.ya?ml$
+        pass_filenames: false
+
+      - id: ty
+        name: ty
+        entry: uv run ty check
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
+        stages: [pre-push]
+        always_run: true

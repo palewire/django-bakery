@@ -1,37 +1,59 @@
-"""Build docs."""
-import os
+"""Configuration file for the Sphinx documentation builder."""
+
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
+from importlib.metadata import metadata
+from importlib.metadata import version as distribution_version
 from pathlib import Path
 
-THIS_DIR = Path(__file__).parent.absolute()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-sys.path.insert(0, os.path.abspath(".."))
-sys.path.insert(0, str(THIS_DIR.parent))
+distribution = metadata("django-bakery")
+project = distribution["Name"]
+author = distribution.get("Author") or distribution.get("Author-email", "")
+version = distribution_version("django-bakery")
+release = version
+year = datetime.now(UTC).year
+copyright = f"{year}, {author}"
+
+language = "en"
+templates_path = ["_templates"]
+html_static_path = ["_static"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+pygments_style = "sphinx"
 
 extensions = [
     "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
 ]
 
-source_suffix = ".md"
+source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 master_doc = "index"
+autodoc_member_order = "bysource"
+autodoc_typehints = "description"
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__",
+    "undoc-members": True,
+    "show-inheritance": True,
+}
+autosummary_generate = True
 
-project = "django-bakery"
-year = datetime.now().year
-copyright = f"{year} palewi.re"
+nitpicky = True
+intersphinx_mapping = {
+    "django": ("https://docs.djangoproject.com/en/stable/", None),
+    "python": ("https://docs.python.org/3", None),
+}
 
-exclude_patterns = ["_build"]
+linkcheck_timeout = 10
+linkcheck_retries = 2
 
 html_theme = "palewire"
-html_sidebars = {
-    "**": [
-        "about.html",
-        "navigation.html",
-    ]
-}
 html_theme_options = {
     "canonical_url": "https://palewi.re/docs/django-bakery/",
 }
-
-html_static_path = ["_static"]
-pygments_style = "sphinx"

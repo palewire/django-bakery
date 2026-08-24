@@ -1,18 +1,72 @@
-docs/_build/
+# AI tools
+.claude
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.ty/
+
+# Distribution and build output
+.Python
+build/
 _dist/
-.eggs
-.env
-__pycache__
-*.egg-*
-.tox/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 MANIFEST
+
+# Test and coverage output
+.tox/
 .coverage
-build/*
-dist/*
-*.pyc
-*.swp
-.DS_Store
-example/db.sqlite3
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Django and local application data
+*.log
+local_settings.py
+db.sqlite3
 example/.build
 example/.static
 example/project/settings_local.py
+
+# Environment files and virtual environments
+.env
+.env.worktree
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Sphinx documentation
+docs/_build/
+
+# Editor and operating-system files
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Other tool output
+.cache/
+.mypy_cache/
+.ipynb_checkpoints/
+celerybeat-schedule
