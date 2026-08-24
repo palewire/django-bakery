@@ -1,0 +1,196 @@
+[build-system]
+requires = ["setuptools>=84.0.0", "setuptools-scm>=10.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-bakery"
+dynamic = ["version"]
+description = "A set of helpers for baking your Django site out as flat files"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Ben Welsh", email = "b@palewi.re" }]
+dependencies = [
+    "Django>=5.2,<6.2",
+    "boto3>=1.4.4",
+    "fs>=2.0.17",
+    "setuptools<81",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.optional-dependencies]
+celery = ["celery>=5.5"]
+
+[project.urls]
+Documentation = "https://palewi.re/docs/django-bakery/"
+Source = "https://github.com/palewire/django-bakery"
+Issues = "https://github.com/palewire/django-bakery/issues"
+
+[dependency-groups]
+dev = [
+    "check-manifest",
+    "check-wheel-contents",
+    "deptry",
+    "pre-commit",
+    "ruff",
+    "setuptools-scm",
+    "twine",
+    "ty",
+    "zizmor",
+]
+test = [
+    "celery>=5.5",
+    "moto[ec2,s3]",
+    "pytest",
+    "pytest-cov",
+    "pytest-django",
+    "pytest-timeout",
+]
+docs = [
+    "myst-parser",
+    "sphinx",
+    "sphinx-autobuild",
+    "sphinx-palewire-theme",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"bakery.tests" = [
+    "media/*",
+    "static/*",
+    "static/*/*",
+    "templates/*",
+]
+
+[tool.setuptools_scm]
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "B",
+    "C4",
+    "DTZ",
+    "G",
+    "LOG",
+    "W",
+    "I",
+    "UP",
+    "N",
+    "ANN",
+    "YTT",
+    "S",
+    "BLE",
+    "FA",
+    "ICN",
+    "PIE",
+    "Q",
+    "RSE",
+    "RET",
+    "SLOT",
+    "SIM",
+    "TID",
+    "PTH",
+    "PT",
+    "TC",
+    "FLY",
+    "PERF",
+    "RUF",
+]
+ignore = [
+    "E501",
+    "UP046",
+    "S101",
+    "SIM103",
+    "SIM108",
+    "SIM117",
+    "PERF401",
+    "RUF001",
+    "RUF005",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"bakery/tests/**" = [
+    "ANN",
+    "S105",
+    "S108",
+]
+"example/**" = ["ANN", "S105"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "test_settings"
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--durations=10",
+    "--durations-min=1.0",
+]
+python_files = ["__init__.py", "test_*.py"]
+pythonpath = ["."]
+testpaths = ["bakery/tests"]
+timeout = 60
+xfail_strict = true
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+source = ["bakery"]
+omit = [
+    "bakery/tests/**",
+    "*/__pycache__/*",
+]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+include = ["bakery"]
+exclude = [
+    "bakery/tests/**",
+    "build/**",
+    ".venv/**",
+    ".github/**",
+    ".vscode/**",
+    "**/__pycache__",
+]
+
+[tool.ty.rules]
+invalid-argument-type = "error"
+invalid-return-type = "error"
+invalid-key = "error"
+invalid-assignment = "error"
+invalid-method-override = "error"
+unresolved-attribute = "error"
+possibly-missing-attribute = "error"
+missing-type-argument = "error"
+no-matching-overload = "error"
+unsound-return-statement = "error"
+possibly-unresolved-reference = "warn"
+unused-ignore-comment = "error"
+
+[tool.deptry]
+extend_exclude = ["bakery/tests", "docs", "example"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["celery"]
