@@ -197,4 +197,4 @@ unused-ignore-comment = "error"
 extend_exclude = ["bakery/tests", "docs", "example"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["celery"]
+DEP002 = ["celery", "s3fs"]
