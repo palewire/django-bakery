@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=80,<81", "setuptools-scm>=10.2.1"]
+requires = ["setuptools>=80", "setuptools-scm>=10.2.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,8 +14,7 @@ authors = [{ name = "Ben Welsh", email = "b@palewi.re" }]
 dependencies = [
     "Django>=5.2,<6.2",
     "boto3>=1.4.4",
-    "fs>=2.0.17",
-    "setuptools<81",
+    "fsspec>=2026.7.0",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -194,4 +193,4 @@ unused-ignore-comment = "error"
 extend_exclude = ["bakery/tests", "docs", "example"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["celery", "setuptools"]
+DEP002 = ["celery"]

@@ -7,9 +7,10 @@ import gzip
 import io
 import logging
 import mimetypes
+import posixpath
+import re
 from collections.abc import Callable
 from os import PathLike
-from pathlib import Path
 from typing import BinaryIO, Protocol, cast
 
 from django.apps import apps
@@ -19,9 +20,9 @@ from django.test.client import RequestFactory
 from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import smart_str
 from django.views.generic import RedirectView, TemplateView
-from fs import path
 
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
+from bakery.filesystem import RootedFilesystem, join_path, normalize_path
 from bakery.management.commands import get_s3_client
 
 logger = logging.getLogger(__name__)
@@ -92,14 +93,33 @@ class BuildableMixin:
 
     def prep_directory(self, target_dir: BuildPath) -> None:
         """
-        Prepares a new directory to store the file at the provided path, if needed.
+        Prepares the parent directory for a BUILD_DIR-relative output path.
         """
-        dirname = path.dirname(str(target_dir))
-        if dirname:
-            dirname = path.join(str(cast("BuildPath", settings.BUILD_DIR)), dirname)
-            if not self.fs.exists(dirname):
-                logger.debug("Creating directory at %s%s", self.fs_name, dirname)
-                self.fs.makedirs(dirname)
+        self._prep_output_directory(self.get_output_path(target_dir))
+
+    def _prep_output_directory(self, output_path: str) -> None:
+        """Prepare the parent directory for an already resolved output path."""
+        dirname = posixpath.dirname(output_path)
+        if dirname and not self.fs.exists(dirname):
+            logger.debug("Creating directory at %s%s", self.fs_name, dirname)
+            self.fs.makedirs(dirname)
+
+    def get_output_path(self, build_path: BuildPath) -> str:
+        """Return a normalized path contained by the configured build directory."""
+        build_dir = normalize_path(cast("BuildPath", settings.BUILD_DIR))
+        normalized_path = normalize_path(build_path)
+        if re.fullmatch(r"[A-Za-z]:/.*", normalized_path):
+            raise ValueError("Build path must remain within BUILD_DIR.")
+        relative_path = normalized_path.lstrip("/")
+        if relative_path == ".." or relative_path.startswith("../"):
+            raise ValueError("Build path must remain within BUILD_DIR.")
+        if build_dir in {"", "."}:
+            if isinstance(self.fs, RootedFilesystem) and not self.fs.root:
+                raise ValueError(
+                    "BUILD_DIR must not target an unrooted filesystem root."
+                )
+            return relative_path
+        return join_path(build_dir, relative_path)
 
     def build_file(self, target_path: BuildPath, html: bytes) -> None:
         if self.is_gzippable(target_path):
@@ -143,7 +163,7 @@ class BuildableMixin:
         # Write GZIP data to an in-memory buffer
         data_buffer = io.BytesIO()
         with gzip.GzipFile(
-            filename=path.basename(str(target_path)),
+            filename=posixpath.basename(str(target_path)),
             mode="wb",
             fileobj=data_buffer,
             mtime=0,
@@ -180,12 +200,12 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
         logger.debug("Building %s", self.template_name)
         build_path = self.get_build_path()
         self.request = self.create_request(build_path)
-        path = str(Path(cast("BuildPath", settings.BUILD_DIR)) / build_path)
+        output_path = self.get_output_path(build_path)
         self.prep_directory(build_path)
-        self.build_file(path, self.get_content())
+        self.build_file(output_path, self.get_content())
 
     def get_build_path(self) -> str:
-        return str(self.build_path).lstrip("/")
+        return normalize_path(self.build_path).lstrip("/")
 
 
 class Buildable404View(BuildableTemplateView):
@@ -237,11 +257,11 @@ class BuildableRedirectView(RedirectView, BuildableMixin):
         logger.debug(
             "Building redirect from %s to %s", self.build_path, self.get_redirect_url()
         )
-        build_path = str(self.build_path)
+        build_path = normalize_path(self.build_path).lstrip("/")
         self.request = self.create_request(build_path)
-        path = str(Path(cast("BuildPath", settings.BUILD_DIR)) / build_path)
+        output_path = self.get_output_path(build_path)
         self.prep_directory(build_path)
-        self.build_file(path, self.get_content())
+        self.build_file(output_path, self.get_content())
 
     def get_redirect_url(self, *args: object, **kwargs: object) -> str | None:
         """

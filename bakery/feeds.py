@@ -1,9 +1,7 @@
 import logging
 from os import PathLike
-from pathlib import Path
 from typing import TypeAlias, cast
 
-from django.conf import settings
 from django.contrib.syndication.views import Feed
 
 from bakery.views import BuildableMixin
@@ -80,7 +78,7 @@ class BuildableFeed(Feed, BuildableMixin):
             )
 
             typed_build_path = cast("BuildPath", build_path)
+            path = self.get_output_path(typed_build_path)
             self.prep_directory(typed_build_path)
-            path = str(Path(settings.BUILD_DIR) / typed_build_path)
             content = self._get_bakery_dynamic_attr("get_content", obj)
             self.build_file(path, cast("bytes", content))

@@ -15,9 +15,15 @@ All notable changes to django-bakery are documented here. The format follows
 
 - Modernize repository quality checks, editor settings, and documentation
   tooling.
+- Replace PyFilesystem2 with fsspec for documented local and memory output
+  backends.
 
 ### Fixed
 
+- Keep filesystem output paths rooted when using Windows drive roots and empty
+  build-directory settings.
+- Reject unrooted filesystem root operations and unsupported legacy filesystem
+  plugin URLs.
 ### Removed
 
 ### Security

@@ -4,23 +4,20 @@ for building flat files.
 """
 
 import logging
+import posixpath
 from collections.abc import Callable
 from datetime import date
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
-if TYPE_CHECKING:
-    from os import PathLike
-
-from django.conf import settings
 from django.views.generic.dates import (
     ArchiveIndexView,
     DayArchiveView,
     MonthArchiveView,
     YearArchiveView,
 )
-from fs import path
 
+from bakery.filesystem import join_path
 from bakery.views import BuildableMixin
 
 logger = logging.getLogger(__name__)
@@ -58,10 +55,8 @@ class BuildableArchiveIndexView(ArchiveIndexView, BuildableMixin):
     def build_queryset(self) -> None:
         logger.debug("Building %s", self.build_path)
         self.request = self.create_request(self.build_path)
+        target_path = self.get_output_path(self.build_path)
         self.prep_directory(self.build_path)
-        target_path = path.join(
-            str(cast("str | PathLike[str]", settings.BUILD_DIR)), self.build_path
-        )
         self.build_file(target_path, self.get_content())
 
 
@@ -107,16 +102,11 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        target_path = path.join(
-            str(
-                Path(cast("str | PathLike[str]", settings.BUILD_DIR))
-                / self.get_url().lstrip("/")
-            )
+        target_path = self.get_output_path(
+            join_path(self.get_url().lstrip("/"), "index.html")
         )
-        if not self.fs.exists(target_path):
-            logger.debug("Creating %s", target_path)
-            self.fs.makedirs(target_path)
-        return cast("str", path.join(target_path, "index.html"))
+        self._prep_output_directory(target_path)
+        return target_path
 
     def build_year(self, dt: date) -> None:
         """
@@ -143,7 +133,7 @@ class BuildableYearArchiveView(YearArchiveView, BuildableMixin):
         """
         self.year = str(dt.year)
         logger.debug("Unbuilding %s", self.year)
-        target_path = str(Path(self.get_build_path()).parent)
+        target_path = posixpath.dirname(self.get_build_path())
         if self.fs.exists(target_path):
             logger.debug("Removing %s", target_path)
             self.fs.removetree(target_path)
@@ -200,16 +190,11 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        target_path = path.join(
-            str(
-                Path(cast("str | PathLike[str]", settings.BUILD_DIR))
-                / self.get_url().lstrip("/")
-            )
+        target_path = self.get_output_path(
+            join_path(self.get_url().lstrip("/"), "index.html")
         )
-        if not self.fs.exists(target_path):
-            logger.debug("Creating %s", target_path)
-            self.fs.makedirs(target_path)
-        return cast("str", path.join(target_path, "index.html"))
+        self._prep_output_directory(target_path)
+        return target_path
 
     def build_month(self, dt: date) -> None:
         """
@@ -238,7 +223,7 @@ class BuildableMonthArchiveView(MonthArchiveView, BuildableMixin):
         self.year = str(dt.year)
         self.month = str(dt.month)
         logger.debug("Building %s-%s", self.year, self.month)
-        target_path = str(Path(self.get_build_path()).parent)
+        target_path = posixpath.dirname(self.get_build_path())
         if self.fs.exists(target_path):
             logger.debug("Removing %s", target_path)
             self.fs.removetree(target_path)
@@ -311,16 +296,11 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         would like your page at a different location. By default it
         will be built at self.get_url() + "/index.html"
         """
-        target_path = path.join(
-            str(
-                Path(cast("str | PathLike[str]", settings.BUILD_DIR))
-                / self.get_url().lstrip("/")
-            )
+        target_path = self.get_output_path(
+            join_path(self.get_url().lstrip("/"), "index.html")
         )
-        if not self.fs.exists(target_path):
-            logger.debug("Creating %s", target_path)
-            self.fs.makedirs(target_path)
-        return str(Path(target_path) / "index.html")
+        self._prep_output_directory(target_path)
+        return target_path
 
     def build_day(self, dt: date) -> None:
         """
@@ -351,7 +331,7 @@ class BuildableDayArchiveView(DayArchiveView, BuildableMixin):
         self.month = str(dt.month)
         self.day = str(dt.day)
         logger.debug("Building %s-%s-%s", self.year, self.month, self.day)
-        target_path = str(Path(self.get_build_path()).parent)
+        target_path = posixpath.dirname(self.get_build_path())
         if self.fs.exists(target_path):
             logger.debug("Removing %s", target_path)
             self.fs.removetree(target_path)

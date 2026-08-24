@@ -1,17 +1,20 @@
 """Behavioral contract for the filesystem adapter used by bakery builds."""
 
 import gzip
+import io
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Protocol
 from unittest.mock import patch
 
-import fs
 import pytest
 from django.apps import apps
 from django.core.management import call_command
+from django.core.management.base import CommandError
 
+from bakery.filesystem import RootedFilesystem, _Filesystem
+from bakery.management.commands.build import Command
 from bakery.views import BuildableTemplateView
 from bakery.views.base import BuildableMixin
 
@@ -21,8 +24,20 @@ class FilesystemContractView(BuildableTemplateView):
     template_name = "templateview.html"
 
 
+class WritableFilesystem(Protocol):
+    """The operations buildable views use from an output backend."""
+
+    def exists(self, path: str) -> bool: ...
+
+    def makedirs(self, path: str) -> None: ...
+
+    def open(self, path: str, mode: str) -> BinaryIO: ...
+
+    def removetree(self, path: str) -> None: ...
+
+
 @contextmanager
-def configured_filesystem(filesystem: fs.base.FS, name: str) -> Iterator[None]:
+def configured_filesystem(filesystem: WritableFilesystem, name: str) -> Iterator[None]:
     """Connect a filesystem to the command and buildable views for one build."""
     app = apps.get_app_config("bakery")
     with (
@@ -34,17 +49,16 @@ def configured_filesystem(filesystem: fs.base.FS, name: str) -> Iterator[None]:
         yield
 
 
-def filesystem_snapshot(filesystem: fs.base.FS) -> dict[str, bytes]:
+def filesystem_snapshot(filesystem: RootedFilesystem) -> dict[str, bytes]:
     """Return backend-relative output paths and their exact bytes."""
     return {
-        file_path.lstrip("/"): filesystem.readbytes(file_path)
-        for file_path in filesystem.walk.files()
+        file_path: filesystem.read_bytes(file_path) for file_path in filesystem.files()
     }
 
 
 def build_snapshot(
     settings,
-    filesystem: fs.base.FS,
+    filesystem: RootedFilesystem,
     filesystem_name: str,
     *,
     gzip_enabled: bool = False,
@@ -100,12 +114,8 @@ def test_rooted_local_backend_keeps_output_within_selected_root(
     local_root = tmp_path / "local-root"
     local_root.mkdir()
     local_name = f"osfs://{local_root}"
-    filesystem = fs.open_fs(local_name)
-
-    try:
-        output = build_snapshot(settings, filesystem, local_name, gzip_enabled=True)
-    finally:
-        filesystem.close()
+    filesystem = RootedFilesystem.from_url(local_name)
+    output = build_snapshot(settings, filesystem, local_name, gzip_enabled=True)
 
     assert_expected_snapshot(output)
     assert {
@@ -117,68 +127,46 @@ def test_rooted_local_backend_keeps_output_within_selected_root(
 
 
 def test_rooted_memory_backend_keeps_output_within_selected_root(settings) -> None:
-    parent = fs.open_fs("mem://")
-    parent.makedirs("selected-root")
-    filesystem = parent.opendir("selected-root")
-
-    try:
-        output = build_snapshot(settings, filesystem, "mem://", gzip_enabled=True)
-    finally:
-        filesystem.close()
+    filesystem = RootedFilesystem.from_url("mem://selected-root")
+    output = build_snapshot(
+        settings, filesystem, "mem://selected-root", gzip_enabled=True
+    )
 
     assert_expected_snapshot(output)
-    assert all(parent.exists(f"selected-root/{file_path}") for file_path in output)
-    assert not parent.exists("site/pages/index.html")
-    parent.close()
+    assert all(
+        filesystem.filesystem.exists(f"/selected-root/{file_path}")
+        for file_path in output
+    )
+    assert not filesystem.filesystem.exists("/site/pages/index.html")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Media copying currently includes the BAKERY_FILESYSTEM URL in the "
-        "destination path, so rooted local and memory backend paths differ."
-    ),
-)
 def test_local_and_memory_backends_use_equivalent_media_paths(
     settings, tmp_path: Path
 ) -> None:
     local_root = tmp_path / "local-root"
     local_root.mkdir()
     local_name = f"osfs://{local_root}"
-    local_filesystem = fs.open_fs(local_name)
-    memory_parent = fs.open_fs("mem://")
-    memory_parent.makedirs("memory-root")
-    memory_filesystem = memory_parent.opendir("memory-root")
+    local_filesystem = RootedFilesystem.from_url(local_name)
+    memory_filesystem = RootedFilesystem.from_url("mem://memory-root")
+    local_output = build_snapshot(
+        settings, local_filesystem, local_name, gzip_enabled=True
+    )
+    memory_output = build_snapshot(
+        settings, memory_filesystem, "mem://memory-root", gzip_enabled=True
+    )
 
-    try:
-        local_output = build_snapshot(
-            settings, local_filesystem, local_name, gzip_enabled=True
-        )
-        memory_output = build_snapshot(
-            settings, memory_filesystem, "mem://", gzip_enabled=True
-        )
-    finally:
-        local_filesystem.close()
-        memory_filesystem.close()
-        memory_parent.close()
-
-    assert media_output_path(local_output) == media_output_path(memory_output)
+    assert local_output == memory_output
 
 
 def test_pooled_and_non_pooled_gzip_builds_produce_identical_output(settings) -> None:
-    non_pooled = fs.open_fs("mem://")
-    pooled = fs.open_fs("mem://")
-
-    try:
-        non_pooled_output = build_snapshot(
-            settings, non_pooled, "mem://", gzip_enabled=True
-        )
-        pooled_output = build_snapshot(
-            settings, pooled, "mem://", gzip_enabled=True, pooling=True
-        )
-    finally:
-        non_pooled.close()
-        pooled.close()
+    non_pooled = RootedFilesystem.from_url("mem://non-pooled")
+    pooled = RootedFilesystem.from_url("mem://pooled")
+    non_pooled_output = build_snapshot(
+        settings, non_pooled, "mem://non-pooled", gzip_enabled=True
+    )
+    pooled_output = build_snapshot(
+        settings, pooled, "mem://pooled", gzip_enabled=True, pooling=True
+    )
 
     assert_expected_snapshot(non_pooled_output)
     assert_expected_snapshot(pooled_output)
@@ -187,21 +175,17 @@ def test_pooled_and_non_pooled_gzip_builds_produce_identical_output(settings) ->
 
 def test_unbuild_removes_a_local_build_directory(settings, tmp_path: Path) -> None:
     build_directory = tmp_path / "build"
-    filesystem = fs.open_fs("osfs:///")
+    filesystem = RootedFilesystem.from_url("osfs:///")
     settings.BUILD_DIR = str(build_directory)
     settings.BAKERY_FILESYSTEM = "osfs:///"
     settings.BAKERY_VIEWS = (
         "bakery.tests.test_filesystem_contract.FilesystemContractView",
     )
 
-    try:
-        with configured_filesystem(filesystem, "osfs:///"):
-            call_command("build")
+    with configured_filesystem(filesystem, "osfs:///"):
+        call_command("build")
         assert (build_directory / "pages" / "index.html").exists()
-
         call_command("unbuild")
-    finally:
-        filesystem.close()
 
     assert not build_directory.exists()
 
@@ -209,22 +193,19 @@ def test_unbuild_removes_a_local_build_directory(settings, tmp_path: Path) -> No
 def test_absolute_and_relative_posix_build_paths_share_the_build_prefix(
     settings,
 ) -> None:
-    filesystem = fs.open_fs("mem://")
+    filesystem = RootedFilesystem.from_url("mem://absolute-and-relative")
     settings.BUILD_DIR = "site"
 
-    try:
-        with configured_filesystem(filesystem, "mem://"):
-            BuildableTemplateView(
-                build_path="/absolute/index.html",
-                template_name="templateview.html",
-            ).build()
-            BuildableTemplateView(
-                build_path="relative/index.html",
-                template_name="templateview.html",
-            ).build()
-    finally:
+    with configured_filesystem(filesystem, "mem://absolute-and-relative"):
+        BuildableTemplateView(
+            build_path="/absolute/index.html",
+            template_name="templateview.html",
+        ).build()
+        BuildableTemplateView(
+            build_path="relative/index.html",
+            template_name="templateview.html",
+        ).build()
         output = filesystem_snapshot(filesystem)
-        filesystem.close()
 
     assert set(output) == {
         "site/absolute/index.html",
@@ -260,52 +241,227 @@ def test_backend_write_failures_are_propagated(settings) -> None:
             view.build()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Windows-style separators are currently passed to the backend as literal "
-        "characters instead of normalized POSIX output paths (issue #158)."
-    ),
-)
+class HistoricalPrepDirectoryView(BuildableTemplateView):
+    """A view that uses the long-standing relative prep_directory contract."""
+
+    build_path = "historical/nested/index.html"
+    template_name = "templateview.html"
+    prep_paths: list[str]
+
+    def prep_directory(self, target_dir: str) -> None:
+        self.prep_paths.append(target_dir)
+        super().prep_directory(target_dir)
+
+
+def test_prep_directory_accepts_build_relative_paths_with_a_rooted_backend(
+    settings,
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://historical-prep")
+    settings.BUILD_DIR = "site"
+    view = HistoricalPrepDirectoryView()
+    view.prep_paths = []
+
+    with configured_filesystem(filesystem, "mem://historical-prep"):
+        view.build()
+        output = filesystem_snapshot(filesystem)
+
+    assert view.prep_paths == ["historical/nested/index.html"]
+    assert set(output) == {"site/historical/nested/index.html"}
+    assert filesystem.filesystem.exists("/historical-prep/site/historical/nested")
+    assert not filesystem.filesystem.exists("/site/historical/nested")
+
+
 def test_windows_style_build_paths_are_normalized_without_platform_assumptions(
     settings,
 ) -> None:
-    filesystem = fs.open_fs("mem://")
+    filesystem = RootedFilesystem.from_url("mem://windows-style")
     settings.BUILD_DIR = "site"
 
-    try:
-        with configured_filesystem(filesystem, "mem://"):
-            BuildableTemplateView(
-                build_path=r"windows\nested\index.html",
-                template_name="templateview.html",
-            ).build()
+    with configured_filesystem(filesystem, "mem://windows-style"):
+        BuildableTemplateView(
+            build_path=r"windows\nested\index.html",
+            template_name="templateview.html",
+        ).build()
         output = filesystem_snapshot(filesystem)
-    finally:
-        filesystem.close()
 
     assert set(output) == {"site/windows/nested/index.html"}
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Relative back-references can currently escape the configured BUILD_DIR "
-        "prefix instead of raising ValueError before writing."
-    ),
-)
-def test_build_paths_cannot_escape_the_configured_build_prefix(settings) -> None:
-    filesystem = fs.open_fs("mem://")
-    settings.BUILD_DIR = "site"
+@pytest.mark.parametrize("build_dir", ["", "."])
+def test_empty_build_directory_stays_within_selected_backend_root(
+    settings, build_dir: str
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://empty-build-dir")
+    settings.BUILD_DIR = build_dir
 
-    try:
-        with configured_filesystem(filesystem, "mem://"):
-            with pytest.raises(ValueError, match="BUILD_DIR"):
-                BuildableTemplateView(
-                    build_path="../outside.html",
-                    template_name="templateview.html",
-                ).build()
+    with configured_filesystem(filesystem, "mem://empty-build-dir"):
+        BuildableTemplateView(
+            build_path="index.html",
+            template_name="templateview.html",
+        ).build()
         output = filesystem_snapshot(filesystem)
-    finally:
-        filesystem.close()
+
+    assert set(output) == {"index.html"}
+    assert filesystem.filesystem.exists("/empty-build-dir/index.html")
+    assert not filesystem.filesystem.exists("/index.html")
+
+
+@pytest.mark.parametrize("build_dir", ["", "."])
+@pytest.mark.parametrize("backend", ["local", "memory"])
+def test_build_and_unbuild_clear_a_rooted_empty_build_directory(
+    settings, tmp_path: Path, build_dir: str, backend: str
+) -> None:
+    if backend == "local":
+        root = tmp_path / f"{build_dir or 'empty'}-root"
+        root.mkdir()
+        filesystem_name = f"osfs://{root}"
+    else:
+        root = Path(f"/{build_dir or 'empty'}-root")
+        filesystem_name = f"mem://{root.name}"
+    filesystem = RootedFilesystem.from_url(filesystem_name)
+    settings.BUILD_DIR = build_dir
+    settings.BAKERY_FILESYSTEM = filesystem_name
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.FilesystemContractView",
+    )
+
+    with configured_filesystem(filesystem, filesystem_name):
+        call_command("build", skip_static=True, skip_media=True)
+        with filesystem.open("stale.txt", "wb") as stale_file:
+            stale_file.write(b"stale")
+        call_command("build", skip_static=True, skip_media=True)
+        output = filesystem_snapshot(filesystem)
+        call_command("unbuild")
+
+    assert "stale.txt" not in output
+    assert set(output) == {"pages/index.html"}
+    assert not filesystem.filesystem.exists(str(root))
+
+
+@pytest.mark.parametrize("build_dir", ["site", "", "."])
+def test_build_paths_cannot_escape_the_configured_build_prefix(
+    settings, build_dir: str
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://escape")
+    settings.BUILD_DIR = build_dir
+
+    with configured_filesystem(filesystem, "mem://escape"):
+        with pytest.raises(ValueError, match="BUILD_DIR"):
+            BuildableTemplateView(
+                build_path="../outside.html",
+                template_name="templateview.html",
+            ).build()
+        output = filesystem_snapshot(filesystem)
 
     assert set(output) == set()
+
+
+def test_windows_drive_build_paths_cannot_escape_the_configured_build_prefix(
+    settings,
+) -> None:
+    filesystem = RootedFilesystem.from_url("mem://drive-path")
+    settings.BUILD_DIR = "."
+
+    with configured_filesystem(filesystem, "mem://drive-path"):
+        with pytest.raises(ValueError, match="BUILD_DIR"):
+            BuildableTemplateView(
+                build_path="C:/outside/index.html",
+                template_name="templateview.html",
+            ).build()
+
+    assert filesystem_snapshot(filesystem) == {}
+
+
+@pytest.mark.parametrize("build_dir", ["", "."])
+def test_commands_reject_an_unrooted_local_build_directory(
+    settings, build_dir: str
+) -> None:
+    filesystem = RootedFilesystem.from_url("osfs:///")
+    settings.BUILD_DIR = build_dir
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.FilesystemContractView",
+    )
+
+    with configured_filesystem(filesystem, "osfs:///"):
+        with pytest.raises(CommandError, match="unrooted filesystem root"):
+            call_command("build", skip_static=True, skip_media=True)
+        with pytest.raises(CommandError, match="unrooted filesystem root"):
+            call_command("unbuild")
+
+
+class ChunkedSource(io.BytesIO):
+    """A source stream that rejects reads without a bounded size."""
+
+    def read(self, size: int = -1) -> bytes:
+        if size < 0:
+            raise AssertionError("copy_local_file must use bounded reads")
+        return super().read(size)
+
+
+def test_copy_local_file_streams_source_in_chunks(monkeypatch) -> None:
+    filesystem = RootedFilesystem.from_url("mem://streaming-copy")
+    source = ChunkedSource(b"large enough to require more than one chunk")
+    expected = source.getvalue()
+    command = Command()
+    command.fs = filesystem
+
+    monkeypatch.setattr(Path, "open", lambda *_args, **_kwargs: source)
+
+    command.copy_local_file("source.bin", "assets/source.bin")
+
+    assert filesystem.read_bytes("assets/source.bin") == expected
+
+
+class RecordingFilesystem:
+    """A minimal fsspec-like backend for URL-root parsing tests."""
+
+    def exists(self, _path: str) -> bool:
+        return False
+
+    def makedirs(self, _path: str, exist_ok: bool) -> None:
+        assert exist_ok
+
+    def open(self, _path: str, _mode: str) -> BinaryIO:
+        raise AssertionError("This test only resolves paths")
+
+    def rm(self, _path: str, recursive: bool) -> None:
+        assert recursive
+
+    def copy(self, _source: str, _target: str) -> None:
+        raise AssertionError("This test only resolves paths")
+
+    def find(self, _path: str) -> list[str]:
+        return []
+
+
+def test_windows_drive_root_from_url_is_unrooted(monkeypatch) -> None:
+    backend: _Filesystem = RecordingFilesystem()
+    monkeypatch.setattr("bakery.filesystem.url_to_fs", lambda _url: (backend, "C:/"))
+
+    filesystem = RootedFilesystem.from_url("osfs:///")
+
+    assert filesystem.root == ""
+    assert filesystem._resolve("C:/site/index.html") == "C:/site/index.html"
+
+
+@pytest.mark.parametrize("url", ["s3://bucket", "ftp://example.com/output"])
+def test_undocumented_filesystem_urls_are_rejected(url: str) -> None:
+    with pytest.raises(ValueError, match="BAKERY_FILESYSTEM"):
+        RootedFilesystem.from_url(url)
+
+
+@pytest.mark.parametrize(
+    ("url", "expected_root"),
+    [
+        ("osfs:///", ""),
+        ("osfs:///tmp/bakery-output", "/tmp/bakery-output"),
+        ("mem://", ""),
+        ("mem://bakery-output", "/bakery-output"),
+    ],
+)
+def test_documented_filesystem_urls_use_expected_roots(
+    url: str, expected_root: str
+) -> None:
+    filesystem = RootedFilesystem.from_url(url)
+
+    assert filesystem.root == expected_root
