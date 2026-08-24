@@ -39,13 +39,19 @@ BUILD_DIR = os.path.join(__file__, "build")
 ```{eval-rst}
 .. envvar:: BAKERY_FILESYSTEM
 
-    Files are built using `PyFilesystem <https://docs.pyfilesystem.org/en/latest/index.html>`_, a module that provides a common interface to a variety of filesystem backends. The default setting is the `OS filesystem <https://docs.pyfilesystem.org/en/latest/reference/osfs.html>`_ backend that saves files to the local directory structure. If you don't set the variable, it will operates as follows:
+    Files are built using `fsspec <https://filesystem-spec.readthedocs.io/>`_,
+    which provides the filesystem interface used by Bakery. The default setting
+    is the local filesystem backend. If you don't set the variable, it operates
+    as follows:
 
     .. code-block:: python
 
         BAKERY_FILESYSTEM = "osfs:///"
 
-    Here's how you could change to an `in-memory backend <https://docs.pyfilesystem.org/en/latest/reference/memoryfs.html>`_ instead. The complete list of alternatives are documented `here <https://docs.pyfilesystem.org/en/latest/builtin.html>`_.
+    The supported legacy configuration strings are ``osfs:///`` for the local
+    filesystem and ``mem://`` for an in-memory filesystem. Root paths appended
+    to either URL keep all Bakery output below that root. Other historical
+    PyFilesystem plugin URLs are not supported by this migration.
 
     .. code-block:: python
 

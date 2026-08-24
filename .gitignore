@@ -1,5 +1,6 @@
 # AI tools
 .claude
+.goals/
 
 # Python bytecode and caches
 __pycache__/

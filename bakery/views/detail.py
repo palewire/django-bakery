@@ -4,15 +4,14 @@ for building flat files.
 """
 
 import logging
-import os
+import posixpath
 from collections.abc import Callable
-from os import PathLike
 from typing import cast
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic import DetailView
-from fs import path
+
+from bakery.filesystem import join_path
 
 from .base import BuildableMixin
 
@@ -63,14 +62,11 @@ set a ``get_absolute_url`` method on the {obj.__class__.__name__} model or overr
         would like your detail page at a different location. By default it
         will be built at get_url() + "index.html"
         """
-        target_path = path.join(
-            str(cast("str | PathLike[str]", settings.BUILD_DIR)),
-            self.get_url(obj).lstrip("/"),
+        target_path = self.get_output_path(
+            join_path(self.get_url(obj).lstrip("/"), "index.html")
         )
-        if not self.fs.exists(target_path):
-            logger.debug("Creating %s", target_path)
-            self.fs.makedirs(target_path)
-        return cast("str", path.join(target_path, "index.html"))
+        self.prep_directory(target_path)
+        return target_path
 
     def set_kwargs(self, obj: object) -> None:
         slug_field = self.get_slug_field()
@@ -98,7 +94,7 @@ set a ``get_absolute_url`` method on the {obj.__class__.__name__} model or overr
         Deletes the directory at self.get_build_path.
         """
         logger.debug("Unbuilding %s", obj)
-        target_path = os.path.split(self.get_build_path(obj))[0]
+        target_path = posixpath.dirname(self.get_build_path(obj))
         if self.fs.exists(target_path):
             logger.debug("Removing %s", target_path)
             self.fs.removetree(target_path)

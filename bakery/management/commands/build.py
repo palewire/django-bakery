@@ -1,10 +1,10 @@
-import contextlib
 import gzip
 import io
 import logging
 import mimetypes
 import multiprocessing
 import os
+import posixpath
 from argparse import ArgumentParser
 from collections.abc import Callable, Mapping
 from multiprocessing.pool import ThreadPool
@@ -17,9 +17,9 @@ from django.core import management
 from django.core.management.base import BaseCommand, CommandError
 from django.urls import get_callable
 from django.utils.encoding import smart_str
-from fs import copy, path
 
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
+from bakery.filesystem import join_path, normalize_path
 
 logger = logging.getLogger(__name__)
 
@@ -124,8 +124,7 @@ Will use settings.BUILD_DIR by default.",
                 raise CommandError(self.build_unconfig_msg)
             self.build_dir = settings.BUILD_DIR
 
-        # Get the datatypes right so fs will be happy
-        self.build_dir = smart_str(self.build_dir)
+        self.build_dir = normalize_path(smart_str(self.build_dir))
         self.static_root = smart_str(settings.STATIC_ROOT)
         self.media_root = smart_str(settings.MEDIA_ROOT)
 
@@ -173,8 +172,7 @@ Will use settings.BUILD_DIR by default.",
         management.call_command("collectstatic", interactive=False, verbosity=0)
 
         # Set the target directory inside the filesystem.
-        target_dir = path.join(self.build_dir, settings.STATIC_URL.lstrip("/"))
-        target_dir = smart_str(target_dir)
+        target_dir = join_path(self.build_dir, settings.STATIC_URL.lstrip("/"))
 
         if Path(self.static_root).exists() and settings.STATIC_URL:
             if getattr(settings, "BAKERY_GZIP", False):
@@ -187,14 +185,14 @@ Will use settings.BUILD_DIR by default.",
                     self.fs_name,
                     target_dir,
                 )
-                copy.copy_dir("osfs:///", self.static_root, self.fs, target_dir)
+                self.copytree(self.static_root, target_dir)
 
         # If they exist in the static directory, copy the robots.txt
         # and favicon.ico files down to the root so they will work
         # on the live website.
-        robots_src = path.join(target_dir, "robots.txt")
+        robots_src = join_path(target_dir, "robots.txt")
         if self.fs.exists(robots_src):
-            robots_target = path.join(self.build_dir, "robots.txt")
+            robots_target = join_path(self.build_dir, "robots.txt")
             logger.debug(
                 "Copying %s%s to %s%s",
                 self.fs_name,
@@ -204,9 +202,9 @@ Will use settings.BUILD_DIR by default.",
             )
             self.fs.copy(robots_src, robots_target)
 
-        favicon_src = path.join(target_dir, "favicon.ico")
+        favicon_src = join_path(target_dir, "favicon.ico")
         if self.fs.exists(favicon_src):
-            favicon_target = path.join(self.build_dir, "favicon.ico")
+            favicon_target = join_path(self.build_dir, "favicon.ico")
             logger.debug(
                 "Copying %s%s to %s%s",
                 self.fs_name,
@@ -224,18 +222,14 @@ Will use settings.BUILD_DIR by default.",
         if self.verbosity > 1:
             self.stdout.write("Building media directory")
         if Path(self.media_root).exists() and settings.MEDIA_URL:
-            target_dir = path.join(
-                self.fs_name, self.build_dir, settings.MEDIA_URL.lstrip("/")
-            )
+            target_dir = join_path(self.build_dir, settings.MEDIA_URL.lstrip("/"))
             logger.debug(
                 "Copying osfs://%s to %s%s",
                 self.media_root,
                 self.fs_name,
                 target_dir,
             )
-            copy.copy_dir(
-                "osfs:///", smart_str(self.media_root), self.fs, smart_str(target_dir)
-            )
+            self.copytree(self.media_root, target_dir)
 
     def get_view_instance(self, view: Callable[[], BuildableView]) -> BuildableView:
         """
@@ -269,7 +263,7 @@ Will use settings.BUILD_DIR by default.",
                 # Figure out what is going where
                 source_path = str(Path(dirpath) / f)
                 rel_path = os.path.relpath(dirpath, source_dir)
-                target_path = str(Path(target_dir) / rel_path / f)
+                target_path = join_path(target_dir, rel_path, f)
                 # Add it to our list to build
                 build_list.append((source_path, target_path))
 
@@ -300,10 +294,9 @@ Will use settings.BUILD_DIR by default.",
         Gzips JavaScript, CSS and HTML and other files along the way.
         """
         # And then where we want to copy it to.
-        target_dir = path.dirname(target_path)
+        target_dir = posixpath.dirname(target_path)
         if not self.fs.exists(target_dir):
-            with contextlib.suppress(OSError):
-                self.fs.makedirs(target_dir)
+            self.fs.makedirs(target_dir)
 
         # determine the mimetype of the file
         guess = mimetypes.guess_type(source_path)
@@ -319,9 +312,7 @@ Will use settings.BUILD_DIR by default.",
                 self.fs_name,
                 target_path,
             )
-            copy.copy_file(
-                "osfs:///", smart_str(source_path), self.fs, smart_str(target_path)
-            )
+            self.copyfile(source_path, target_path)
 
         # # if the file is already gzipped
         elif encoding == "gzip":
@@ -331,9 +322,7 @@ Will use settings.BUILD_DIR by default.",
                 self.fs_name,
                 target_path,
             )
-            copy.copy_file(
-                "osfs:///", smart_str(source_path), self.fs, smart_str(target_path)
-            )
+            self.copyfile(source_path, target_path)
 
         # If it is one we want to gzip...
         else:
@@ -349,7 +338,7 @@ Will use settings.BUILD_DIR by default.",
                 # Write GZIP data to an in-memory buffer
                 data_buffer = io.BytesIO()
                 with gzip.GzipFile(
-                    filename=path.basename(target_path),
+                    filename=posixpath.basename(target_path),
                     mode="wb",
                     fileobj=data_buffer,
                     mtime=0,
@@ -359,3 +348,22 @@ Will use settings.BUILD_DIR by default.",
                 # Write that buffer out to the filesystem
                 with self.fs.open(smart_str(target_path), "wb") as outfile:
                     outfile.write(data_buffer.getvalue())
+
+    def copytree(self, source_dir: str, target_dir: str) -> None:
+        """Copy a local directory into the configured output backend."""
+        for dirpath, _dirnames, filenames in os.walk(source_dir):
+            for filename in filenames:
+                source_path = str(Path(dirpath) / filename)
+                relative_path = os.path.relpath(source_path, source_dir)
+                self.copyfile(source_path, join_path(target_dir, relative_path))
+
+    def copyfile(self, source_path: str, target_path: str) -> None:
+        """Copy one local file into the configured output backend."""
+        target_dir = posixpath.dirname(target_path)
+        if target_dir and not self.fs.exists(target_dir):
+            self.fs.makedirs(target_dir)
+        with (
+            Path(source_path).open("rb") as source,
+            self.fs.open(target_path, "wb") as target,
+        ):
+            target.write(source.read())
