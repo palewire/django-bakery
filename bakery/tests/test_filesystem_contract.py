@@ -63,14 +63,83 @@ def build_snapshot(
     return filesystem_snapshot(filesystem)
 
 
+def media_output_path(snapshot: dict[str, bytes]) -> str:
+    """Find the single copied media file without blessing its current prefix."""
+    media_paths = [
+        file_path for file_path in snapshot if file_path.endswith("site/media/bar.js")
+    ]
+    assert len(media_paths) == 1
+    return media_paths[0]
+
+
+def assert_deterministic_gzip(data: bytes, expected: bytes) -> None:
+    """Assert gzip content is reproducible and decompresses to the expected bytes."""
+    assert data[4:8] == b"\0\0\0\0"
+    assert gzip.decompress(data) == expected
+
+
+def assert_expected_snapshot(snapshot: dict[str, bytes]) -> None:
+    """Assert the backend-independent files and bytes from a complete build."""
+    assert snapshot
+    assert_deterministic_gzip(
+        snapshot["site/pages/index.html"], "Hellō tests!\n".encode()
+    )
+    assert_deterministic_gzip(snapshot["site/robots.txt"], b"Hello robots!\n")
+    assert_deterministic_gzip(snapshot["site/static/robots.txt"], b"Hello robots!\n")
+    assert_deterministic_gzip(
+        snapshot["site/static/test.css"], b"html { display:block; }\n"
+    )
+    assert snapshot[media_output_path(snapshot)] == b"var test = true;\n"
+    assert snapshot["site/static/foo.bar"] == b"Hello tests\n"
+    assert snapshot["site/favicon.ico"] == snapshot["site/static/favicon.ico"]
+
+
+def test_rooted_local_backend_keeps_output_within_selected_root(
+    settings, tmp_path: Path
+) -> None:
+    local_root = tmp_path / "local-root"
+    local_root.mkdir()
+    local_name = f"osfs://{local_root}"
+    filesystem = fs.open_fs(local_name)
+
+    try:
+        output = build_snapshot(settings, filesystem, local_name, gzip_enabled=True)
+    finally:
+        filesystem.close()
+
+    assert_expected_snapshot(output)
+    assert {
+        path.relative_to(local_root).as_posix()
+        for path in local_root.rglob("*")
+        if path.is_file()
+    } == set(output)
+    assert not (tmp_path / "site").exists()
+
+
+def test_rooted_memory_backend_keeps_output_within_selected_root(settings) -> None:
+    parent = fs.open_fs("mem://")
+    parent.makedirs("selected-root")
+    filesystem = parent.opendir("selected-root")
+
+    try:
+        output = build_snapshot(settings, filesystem, "mem://", gzip_enabled=True)
+    finally:
+        filesystem.close()
+
+    assert_expected_snapshot(output)
+    assert all(parent.exists(f"selected-root/{file_path}") for file_path in output)
+    assert not parent.exists("site/pages/index.html")
+    parent.close()
+
+
 @pytest.mark.xfail(
     strict=True,
     reason=(
         "Media copying currently includes the BAKERY_FILESYSTEM URL in the "
-        "destination path, so rooted local and memory backend output differs."
+        "destination path, so rooted local and memory backend paths differ."
     ),
 )
-def test_local_and_memory_backends_produce_equivalent_rooted_output(
+def test_local_and_memory_backends_use_equivalent_media_paths(
     settings, tmp_path: Path
 ) -> None:
     local_root = tmp_path / "local-root"
@@ -93,35 +162,7 @@ def test_local_and_memory_backends_produce_equivalent_rooted_output(
         memory_filesystem.close()
         memory_parent.close()
 
-    assert local_output == memory_output
-    assert set(local_output) >= {
-        "site/favicon.ico",
-        "site/media/bar.js",
-        "site/pages/index.html",
-        "site/robots.txt",
-        "site/static/favicon.ico",
-        "site/static/robots.txt",
-    }
-    assert gzip.decompress(local_output["site/pages/index.html"])
-    assert gzip.decompress(local_output["site/media/bar.js"])
-    assert local_output["site/static/foo.bar"].strip() == b"Hello tests"
-    assert not (local_root / "pages").exists()
-
-
-def test_rooted_memory_backend_keeps_output_within_selected_root(settings) -> None:
-    parent = fs.open_fs("mem://")
-    parent.makedirs("selected-root")
-    filesystem = parent.opendir("selected-root")
-
-    try:
-        output = build_snapshot(settings, filesystem, "mem://")
-    finally:
-        filesystem.close()
-
-    assert output
-    assert parent.exists("selected-root/site/pages/index.html")
-    assert not parent.exists("site/pages/index.html")
-    parent.close()
+    assert media_output_path(local_output) == media_output_path(memory_output)
 
 
 def test_pooled_and_non_pooled_gzip_builds_produce_identical_output(settings) -> None:
@@ -139,6 +180,8 @@ def test_pooled_and_non_pooled_gzip_builds_produce_identical_output(settings) ->
         non_pooled.close()
         pooled.close()
 
+    assert_expected_snapshot(non_pooled_output)
+    assert_expected_snapshot(pooled_output)
     assert pooled_output == non_pooled_output
 
 
@@ -247,7 +290,7 @@ def test_windows_style_build_paths_are_normalized_without_platform_assumptions(
     strict=True,
     reason=(
         "Relative back-references can currently escape the configured BUILD_DIR "
-        "prefix, so this safety contract cannot yet be enforced."
+        "prefix instead of raising ValueError before writing."
     ),
 )
 def test_build_paths_cannot_escape_the_configured_build_prefix(settings) -> None:
@@ -256,10 +299,11 @@ def test_build_paths_cannot_escape_the_configured_build_prefix(settings) -> None
 
     try:
         with configured_filesystem(filesystem, "mem://"):
-            BuildableTemplateView(
-                build_path="../outside.html",
-                template_name="templateview.html",
-            ).build()
+            with pytest.raises(ValueError, match="BUILD_DIR"):
+                BuildableTemplateView(
+                    build_path="../outside.html",
+                    template_name="templateview.html",
+                ).build()
         output = filesystem_snapshot(filesystem)
     finally:
         filesystem.close()
