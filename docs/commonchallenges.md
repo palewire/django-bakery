@@ -123,7 +123,7 @@ class JSONResponseMixin(object):
         return HttpResponse(
             self.convert_context_to_json(context),
             content_type="application/json",
-            **response_kwargs
+            **response_kwargs,
         )
 
     def convert_context_to_json(self, context):

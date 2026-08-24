@@ -7,6 +7,9 @@ PACKAGE ?= bakery
 COVERAGE_FAIL_UNDER ?= 80
 DJANGO ?=
 TEST_ARGS ?=
+PACKAGE_CHECK_DIR ?= .package-check
+CHECK_MANIFEST_IGNORE ?= .codespell-ignore-words.txt,.devcontainer/**,.editorconfig,.pre-commit-config.yaml,.python-version,AGENTS.md,CHANGELOG.md,CONTRIBUTING.md,Makefile,RELEASING.md,SECURITY.md,docs/**,example/**,scripts/**,test_settings.py,uv.lock,zizmor.yml
+CHECK_WHEEL_IGNORE ?= W002
 RUN = $(if $(UV_PYTHON),UV_PYTHON=$(UV_PYTHON)) $(UV) run --no-env-file
 TEST_RUN = $(RUN) $(if $(DJANGO),--with "$(DJANGO)")
 
@@ -64,7 +67,7 @@ workflow-check: ## Audit GitHub Actions workflows with Zizmor
 	$(RUN) zizmor .github/workflows
 
 manifest-check: ## Check source distribution contents
-	$(RUN) check-manifest
+	$(RUN) check-manifest --ignore "$(CHECK_MANIFEST_IGNORE)"
 
 test: ## Run tests
 	$(TEST_RUN) pytest $(TEST_ARGS)
@@ -78,12 +81,15 @@ build: ## Build source and wheel distributions
 	$(RUN) twine check dist/*
 
 package-check: ## Build, inspect, install, and import the wheel
-	@temp_dir=$$(mktemp -d); trap 'rm -rf "$$temp_dir"' EXIT; \
-	$(UV) build --wheel --out-dir "$$temp_dir/dist"; \
-	$(RUN) check-wheel-contents "$$temp_dir"/dist/*.whl; \
-	$(UV) venv --no-project "$$temp_dir/venv"; \
-	$(UV) pip install --python "$$temp_dir/venv/bin/python" "$$temp_dir"/dist/*.whl; \
-	cd "$$temp_dir" && "$$temp_dir/venv/bin/python" -c 'import $(PACKAGE)'
+	@package_check_dir="$(abspath $(PACKAGE_CHECK_DIR))"; \
+	rm -rf "$$package_check_dir"; \
+	trap 'rm -rf "$$package_check_dir"' EXIT; \
+	mkdir -p "$$package_check_dir/dist"; \
+	$(UV) build --wheel --out-dir "$$package_check_dir/dist"; \
+	$(RUN) check-wheel-contents --ignore "$(CHECK_WHEEL_IGNORE)" "$$package_check_dir"/dist/*.whl; \
+	$(UV) venv --no-project "$$package_check_dir/venv"; \
+	$(UV) pip install --python "$$package_check_dir/venv/bin/python" "$$package_check_dir"/dist/*.whl; \
+	cd "$$package_check_dir" && "$$package_check_dir/venv/bin/python" -c 'from django.conf import settings; settings.configure(INSTALLED_APPS=["$(PACKAGE)"]); import django; django.setup(); import $(PACKAGE).views'
 
 package-verify: package-check coverage ## Verify package and coverage
 
@@ -103,6 +109,6 @@ hooks: ## Run all pre-commit hooks
 	$(RUN) pre-commit run --all-files
 
 clean: ## Remove generated files and caches
-	rm -rf build dist docs/_build .coverage htmlcov .pytest_cache .ruff_cache .ty
+	rm -rf build dist $(PACKAGE_CHECK_DIR) docs/_build .coverage htmlcov .pytest_cache .ruff_cache .ty
 	find . -maxdepth 1 -type d -name "*.egg-info" -prune -exec rm -rf {} +
 	find . -path ./.venv -prune -o -type d -name __pycache__ -prune -exec rm -rf {} +

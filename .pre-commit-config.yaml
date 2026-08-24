@@ -80,14 +80,14 @@ repos:
     hooks:
       - id: zizmor
         name: zizmor
-        entry: uv run zizmor .github/workflows
+        entry: uv run --no-env-file zizmor .github/workflows
         language: system
         files: ^\.github/workflows/.*\.ya?ml$
         pass_filenames: false
 
       - id: ty
         name: ty
-        entry: uv run ty check
+        entry: uv run --no-env-file ty check
         language: system
         types: [python]
         pass_filenames: false
