@@ -12,6 +12,9 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Fixed
 
+- Update the documentation theme to fix sidebar rendering in Sphinx 9, and
+  build deployed documentation with accurate setuptools-scm version metadata.
+
 ### Removed
 
 ### Security

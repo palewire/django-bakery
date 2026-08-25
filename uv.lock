@@ -1046,7 +1046,7 @@ docs = [
     { name = "myst-parser" },
     { name = "sphinx" },
     { name = "sphinx-autobuild" },
-    { name = "sphinx-palewire-theme" },
+    { name = "sphinx-palewire-theme", specifier = ">=0.1.4" },
 ]
 test = [
     { name = "celery", specifier = ">=5.5" },
@@ -2991,13 +2991,13 @@ wheels = [
 
 [[package]]
 name = "sphinx-palewire-theme"
-version = "0.1.3"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/62/3c/85c0e4beaaab9c4135be304878ca484ba230558b00f30a2778af925f4909/sphinx_palewire_theme-0.1.3.tar.gz", hash = "sha256:d02cfdc4b6f857de398477a85af4a7844c5eadfba252a632458ec1298e387ab8", size = 12638, upload-time = "2026-02-17T01:08:49.247Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/ef/d75a34782abafba6fdbbef5d456292e702396160d18b2e47c25e57e93913/sphinx_palewire_theme-0.1.4.tar.gz", hash = "sha256:608ff8645130f0a44cb59853c558a434468ae3253ea7c0803855e0e449da7644", size = 14731, upload-time = "2026-08-25T12:54:45.338Z" }
 
 [[package]]
 name = "sphinxcontrib-applehelp"
