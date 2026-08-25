@@ -77,8 +77,8 @@ changed files are updated and absent files are deleted.
 ```{eval-rst}
 .. cmdoption:: --aws-bucket-prefix <prefix>
 
-    Specify a prefix for S3 object keys to sync with. The command only
-    considers keys beginning with this prefix when identifying files to delete.
+    Filter the S3 object list to keys beginning with this prefix. Only those keys are compared and eligible for deletion.
+    The prefix is not automatically prepended to uploaded keys; ensure your build output paths include the prefix if you want uploads under it.
 ```
 
 ```{eval-rst}
