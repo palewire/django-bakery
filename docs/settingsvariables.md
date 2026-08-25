@@ -77,6 +77,17 @@ BUILD_DIR = os.path.join(__file__, "build")
         # s3://my-bucket/releases/current/site/
         BAKERY_FILESYSTEM = "s3://my-bucket/releases/current"
 
+    The configured bucket must already exist and Bakery must be able to access
+    it. Bakery never creates or deletes S3 buckets. When a build or unbuild
+    targets a bucket root, Bakery removes the selected output objects one by one
+    while preserving the bucket and its configuration, including policies and
+    website settings. A configured prefix is cleaned independently and never
+    removes sibling prefixes.
+
+    Direct S3 output sets each object's content type from its filename. When
+    ``BAKERY_GZIP`` creates compressed output, Bakery also sets
+    ``Content-Encoding: gzip`` while retaining the original content type.
+
     `s3fs <https://s3fs.readthedocs.io/>`_ uses the standard AWS credential
     and configuration chain. Configure credentials, region, profiles, and
     custom endpoints outside Django with the mechanisms supported by the AWS

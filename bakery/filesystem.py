@@ -1,27 +1,49 @@
 """Rooted filesystem support for bakery output."""
 
+import mimetypes
 import posixpath
 import re
 from collections.abc import Iterator
+from dataclasses import dataclass
 from os import PathLike
 from typing import BinaryIO, Protocol, cast
 from urllib.parse import urlsplit
 
+from boto3.exceptions import botocore
 from fsspec.core import url_to_fs
 
 
 class _Filesystem(Protocol):
     def exists(self, path: str) -> bool: ...
 
+    def info(self, path: str) -> object: ...
+
     def makedirs(self, path: str, exist_ok: bool) -> None: ...
 
-    def open(self, path: str, mode: str) -> BinaryIO: ...
+    def open(self, path: str, mode: str, **kwargs: object) -> BinaryIO: ...
 
-    def rm(self, path: str, recursive: bool) -> None: ...
+    def rm(self, path: str | list[str], recursive: bool) -> list[str] | None: ...
 
     def copy(self, source: str, target: str) -> None: ...
 
     def find(self, path: str) -> list[str]: ...
+
+
+@dataclass(frozen=True)
+class ObjectMetadata:
+    """HTTP metadata that can be applied to a written output object."""
+
+    content_type: str
+    content_encoding: str | None = None
+
+
+def object_metadata(path: str | PathLike[str]) -> ObjectMetadata:
+    """Infer HTTP metadata for an output path."""
+    content_type, content_encoding = mimetypes.guess_type(str(path))
+    return ObjectMetadata(
+        content_type=content_type or "application/octet-stream",
+        content_encoding=content_encoding,
+    )
 
 
 def normalize_path(path: str | PathLike[str]) -> str:
@@ -45,9 +67,16 @@ def is_root_path(path: str | PathLike[str]) -> bool:
 class RootedFilesystem:
     """Expose paths relative to a configured fsspec filesystem URL."""
 
-    def __init__(self, filesystem: _Filesystem, root: str = "") -> None:
+    def __init__(
+        self,
+        filesystem: _Filesystem,
+        root: str = "",
+        *,
+        s3_bucket: str | None = None,
+    ) -> None:
         self.filesystem = filesystem
         self.root = self._normalize_root(root)
+        self.s3_bucket = s3_bucket
 
     @classmethod
     def from_url(cls, url: str) -> "RootedFilesystem":
@@ -74,7 +103,18 @@ class RootedFilesystem:
                 *(part for part in prefix_parts if part not in {"", "."}),
             )
             filesystem, _ = url_to_fs(f"s3://{parsed.netloc}")
-            return cls(cast("_Filesystem", filesystem), root)
+            s3_filesystem = cast("_Filesystem", filesystem)
+            try:
+                s3_filesystem.info(parsed.netloc)
+            except FileNotFoundError as exc:
+                raise ValueError(
+                    f"Configured S3 bucket {parsed.netloc!r} must already exist."
+                ) from exc
+            except (OSError, botocore.exceptions.BotoCoreError) as exc:
+                raise ValueError(
+                    f"Configured S3 bucket {parsed.netloc!r} is not accessible."
+                ) from exc
+            return cls(s3_filesystem, root, s3_bucket=parsed.netloc)
         else:
             raise ValueError(
                 "BAKERY_FILESYSTEM must use a supported osfs:///, mem://, or "
@@ -87,13 +127,40 @@ class RootedFilesystem:
         return self.filesystem.exists(self._resolve(path))
 
     def makedirs(self, path: str | PathLike[str]) -> None:
+        if self.s3_bucket:
+            return
         self.filesystem.makedirs(self._resolve(path), exist_ok=True)
 
-    def open(self, path: str | PathLike[str], mode: str) -> BinaryIO:
+    def open(
+        self,
+        path: str | PathLike[str],
+        mode: str,
+        *,
+        metadata: ObjectMetadata | None = None,
+    ) -> BinaryIO:
+        if self.s3_bucket and metadata:
+            kwargs: dict[str, str] = {"ContentType": metadata.content_type}
+            if metadata.content_encoding:
+                kwargs["ContentEncoding"] = metadata.content_encoding
+            return self.filesystem.open(self._resolve(path), mode, **kwargs)
         return self.filesystem.open(self._resolve(path), mode)
 
     def removetree(self, path: str | PathLike[str]) -> None:
-        self.filesystem.rm(self._resolve(path), recursive=True)
+        resolved = self._resolve(path)
+        if not self.s3_bucket:
+            self.filesystem.rm(resolved, recursive=True)
+            return
+
+        object_paths = [
+            candidate
+            for candidate in self.filesystem.find(resolved)
+            if self._is_s3_object_within(candidate, resolved)
+        ]
+        for start in range(0, len(object_paths), 1000):
+            batch = object_paths[start : start + 1000]
+            deleted = self.filesystem.rm(batch, recursive=False)
+            if set(deleted or []) != set(batch):
+                raise OSError(f"Unable to delete all objects below {resolved!r}.")
 
     def copy(self, source: str | PathLike[str], target: str | PathLike[str]) -> None:
         self.filesystem.copy(self._resolve(source), self._resolve(target))
@@ -126,6 +193,12 @@ class RootedFilesystem:
         if not self.root:
             return path.lstrip("/")
         return path.removeprefix(f"{self.root}/").lstrip("/")
+
+    def _is_s3_object_within(self, path: str, root: str) -> bool:
+        """Return whether an enumerated S3 key is inside the selected root."""
+        if path == self.s3_bucket:
+            return False
+        return path == root or path.startswith(f"{root.rstrip('/')}/")
 
     @staticmethod
     def _normalize_root(root: str) -> str:
