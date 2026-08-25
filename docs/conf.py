@@ -63,3 +63,4 @@ html_theme = "palewire"
 html_theme_options = {
     "canonical_url": "https://palewi.re/docs/django-bakery/",
 }
+html_sidebars = {"**": ["navigation.html", "searchbox.html"]}
