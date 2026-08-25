@@ -59,6 +59,11 @@ $ python manage.py build yourapp.views.DummyListView
 Starts a variation of Django's [runserver](https://docs.djangoproject.com/en/dev/ref/django-admin/#runserver-port-or-address-port) designed to serve the static files you've built
 in the build directory.
 
+When `BAKERY_GZIP = True` was used to create the build, `buildserver` detects
+the compressed files and sends `Content-Encoding: gzip`; no additional
+buildserver setting is needed. Like Django's `runserver`, this command is for
+development only.
+
 ```bash
 $ python manage.py buildserver
 ```

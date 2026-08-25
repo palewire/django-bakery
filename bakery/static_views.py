@@ -91,18 +91,26 @@ def serve(
         raise Http404(f'"{fullpath}" does not exist')
     # Respect the If-Modified-Since header.
     statobj = fullpath.stat()
-    mimetype = mimetypes.guess_type(str(fullpath))[0] or "application/octet-stream"
+    mimetype, content_encoding = mimetypes.guess_type(str(fullpath))
+    mimetype = mimetype or "application/octet-stream"
+    if content_encoding is None:
+        with fullpath.open("rb") as file:
+            if file.read(2) == b"\x1f\x8b":
+                content_encoding = "gzip"
     if not was_modified_since(
         request.META.get("HTTP_IF_MODIFIED_SINCE"),
         statobj[stat.ST_MTIME],
         statobj[stat.ST_SIZE],
     ):
-        return HttpResponseNotModified(content_type=mimetype)
-    with fullpath.open("rb") as file:
-        contents = file.read()
-    response = HttpResponse(contents, content_type=mimetype)
-    response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
-    response["Content-Length"] = len(contents)
+        response = HttpResponseNotModified(content_type=mimetype)
+    else:
+        with fullpath.open("rb") as file:
+            contents = file.read()
+        response = HttpResponse(contents, content_type=mimetype)
+        response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
+        response["Content-Length"] = len(contents)
+    if content_encoding:
+        response["Content-Encoding"] = content_encoding
     return response
 
 
