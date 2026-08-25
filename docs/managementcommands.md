@@ -75,6 +75,13 @@ changed files are updated and absent files are deleted.
 ```
 
 ```{eval-rst}
+.. cmdoption:: --aws-bucket-prefix <prefix>
+
+    Specify a prefix for S3 object keys to sync with. The command only
+    considers keys beginning with this prefix when identifying files to delete.
+```
+
+```{eval-rst}
 .. cmdoption:: --build-dir <path>
 
     Specify the path of the build directory. Will use settings.BUILD_DIR by default.
