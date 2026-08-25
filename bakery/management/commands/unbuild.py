@@ -17,6 +17,8 @@ class Command(BaseCommand):
             and not filesystem.root
         ):
             raise CommandError("BUILD_DIR must not target an unrooted filesystem root.")
+        if isinstance(filesystem, RootedFilesystem):
+            filesystem.validate()
         if filesystem.exists(build_dir):
             self.stdout.write("Clearing the build directory\n")
             filesystem.removetree(build_dir)

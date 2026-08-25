@@ -21,10 +21,12 @@ from django.utils.encoding import smart_str
 
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from bakery.filesystem import (
+    ObjectMetadata,
     RootedFilesystem,
     is_root_path,
     join_path,
     normalize_path,
+    object_metadata,
 )
 
 logger = logging.getLogger(__name__)
@@ -144,6 +146,8 @@ Will use settings.BUILD_DIR by default.",
             and not self.fs.root
         ):
             raise CommandError("BUILD_DIR must not target an unrooted filesystem root.")
+        if isinstance(self.fs, RootedFilesystem):
+            self.fs.validate()
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
@@ -310,13 +314,10 @@ Will use settings.BUILD_DIR by default.",
         if not self.fs.exists(target_dir):
             self.fs.makedirs(target_dir)
 
-        # determine the mimetype of the file
-        guess = mimetypes.guess_type(source_path)
-        content_type = guess[0]
-        encoding = guess[1]
+        metadata = object_metadata(source_path)
 
         # If it isn't a file want to gzip...
-        if content_type not in self.gzip_file_match:
+        if metadata.content_type not in self.gzip_file_match:
             # just copy it to the target.
             logger.debug(
                 "Copying osfs://%s to %s%s because its filetype isn't on the whitelist",
@@ -326,10 +327,10 @@ Will use settings.BUILD_DIR by default.",
             )
             self.copy_local_file(source_path, target_path)
 
-        # # if the file is already gzipped
-        elif encoding == "gzip":
+        # Do not apply a second encoding to an already compressed file.
+        elif mimetypes.guess_type(source_path)[1] is not None:
             logger.debug(
-                "Copying osfs://%s to %s%s because it's already gzipped",
+                "Copying osfs://%s to %s%s because it is already compressed",
                 source_path,
                 self.fs_name,
                 target_path,
@@ -358,7 +359,11 @@ Will use settings.BUILD_DIR by default.",
                     f.write(source_file.read())
 
                 # Write that buffer out to the filesystem
-                with self.fs.open(smart_str(target_path), "wb") as outfile:
+                with self.fs.open(
+                    smart_str(target_path),
+                    "wb",
+                    metadata=ObjectMetadata(metadata.content_type, "gzip"),
+                ) as outfile:
                     outfile.write(data_buffer.getvalue())
 
     def copytree(self, source_dir: str, target_dir: str) -> None:
@@ -376,6 +381,8 @@ Will use settings.BUILD_DIR by default.",
             self.fs.makedirs(target_dir)
         with (
             Path(source_path).open("rb") as source,
-            self.fs.open(target_path, "wb") as target,
+            self.fs.open(
+                target_path, "wb", metadata=object_metadata(source_path)
+            ) as target,
         ):
             shutil.copyfileobj(source, target)

@@ -23,10 +23,12 @@ from django.views.generic import RedirectView, TemplateView
 
 from bakery import DEFAULT_GZIP_CONTENT_TYPES
 from bakery.filesystem import (
+    ObjectMetadata,
     RootedFilesystem,
     is_root_path,
     join_path,
     normalize_path,
+    object_metadata,
 )
 from bakery.management.commands import get_s3_client
 
@@ -41,7 +43,9 @@ class _WritableFilesystem(Protocol):
 
     def makedirs(self, path: str) -> None: ...
 
-    def open(self, path: str, mode: str) -> BinaryIO: ...
+    def open(
+        self, path: str, mode: str, *, metadata: ObjectMetadata | None = None
+    ) -> BinaryIO: ...
 
     def removetree(self, path: str) -> None: ...
 
@@ -147,7 +151,9 @@ class BuildableMixin:
         Writes out the provided HTML to the provided path.
         """
         logger.debug("Building to %s%s", self.fs_name, target_path)
-        with self.fs.open(smart_str(target_path), "wb") as outfile:
+        with self.fs.open(
+            smart_str(target_path), "wb", metadata=object_metadata(target_path)
+        ) as outfile:
             outfile.write(html)
 
     def is_gzippable(self, target_path: BuildPath) -> bool:
@@ -186,7 +192,12 @@ class BuildableMixin:
             f.write(html)
 
         # Write that buffer out to the filesystem
-        with self.fs.open(smart_str(target_path), "wb") as outfile:
+        metadata = object_metadata(target_path)
+        with self.fs.open(
+            smart_str(target_path),
+            "wb",
+            metadata=ObjectMetadata(metadata.content_type, "gzip"),
+        ) as outfile:
             outfile.write(data_buffer.getvalue())
 
 
