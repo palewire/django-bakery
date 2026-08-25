@@ -1,3 +1,4 @@
+import gzip
 from pathlib import Path
 from unittest.mock import Mock, call, patch
 
@@ -73,6 +74,49 @@ def test_static_urls_catch_all_pattern_uses_build_directory() -> None:
         "show_indexes": True,
         "default": "index.html",
     }
+
+
+def test_static_view_serves_gzipped_baked_content(tmp_path: Path) -> None:
+    content = b"<h1>Built page</h1>"
+    (tmp_path / "index.html").write_bytes(gzip.compress(content, mtime=0))
+
+    response = static_urls.serve(
+        RequestFactory().get("/"),
+        "",
+        document_root=tmp_path,
+        show_indexes=True,
+        default="index.html",
+    )
+
+    assert response["Content-Encoding"] == "gzip"
+    assert gzip.decompress(response.content) == content
+
+    not_modified_response = static_urls.serve(
+        RequestFactory().get("/", HTTP_IF_MODIFIED_SINCE=response["Last-Modified"]),
+        "",
+        document_root=tmp_path,
+        show_indexes=True,
+        default="index.html",
+    )
+
+    assert not_modified_response.status_code == 304
+    assert not_modified_response["Content-Encoding"] == "gzip"
+
+
+def test_static_view_serves_uncompressed_baked_content(tmp_path: Path) -> None:
+    content = b"<h1>Built page</h1>"
+    (tmp_path / "index.html").write_bytes(content)
+
+    response = static_urls.serve(
+        RequestFactory().get("/"),
+        "",
+        document_root=tmp_path,
+        show_indexes=True,
+        default="index.html",
+    )
+
+    assert "Content-Encoding" not in response
+    assert response.content == content
 
 
 def test_static_view_rejects_symlink_outside_document_root(tmp_path: Path) -> None:
