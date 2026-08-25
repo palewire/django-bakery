@@ -13,6 +13,7 @@ import pytest
 from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from fsspec.implementations.memory import MemoryFileSystem
 from moto.server import ThreadedMotoServer
 from s3fs import S3FileSystem
 
@@ -24,6 +25,11 @@ from bakery.views.base import BuildableMixin
 
 class FilesystemContractView(BuildableTemplateView):
     build_path = "pages/index.html"
+    template_name = "templateview.html"
+
+
+class WindowsFilesystemContractView(BuildableTemplateView):
+    build_path = r"pages\nested\index.html"
     template_name = "templateview.html"
 
 
@@ -638,6 +644,28 @@ def test_windows_drive_root_from_url_is_unrooted(monkeypatch) -> None:
 
     assert filesystem.root == ""
     assert filesystem._resolve("C:/site/index.html") == "C:/site/index.html"
+
+
+def test_windows_drive_build_directory_and_paths_are_platform_independent(
+    settings, monkeypatch
+) -> None:
+    backend: _Filesystem = MemoryFileSystem()
+    monkeypatch.setattr("bakery.filesystem.url_to_fs", lambda _url: (backend, "C:/"))
+    filesystem = RootedFilesystem.from_url("osfs:///")
+    settings.BUILD_DIR = r"C:\bakery-output"
+    settings.BAKERY_FILESYSTEM = "osfs:///"
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.WindowsFilesystemContractView",
+    )
+
+    with configured_filesystem(filesystem, "osfs:///"):
+        call_command("build", skip_static=True, skip_media=True)
+        output = filesystem_snapshot(filesystem)
+
+    assert filesystem.root == ""
+    assert (
+        output["C:/bakery-output/pages/nested/index.html"] == b"Hell\xc5\x8d tests!\n"
+    )
 
 
 @pytest.mark.parametrize("url", ["ftp://example.com/output"])
