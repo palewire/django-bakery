@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 import boto3
 import pytest
-from boto3.exceptions import botocore
+import botocore
 from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import CommandError
