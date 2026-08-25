@@ -3,6 +3,8 @@
 django-bakery uses Semantic Versioning and
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The package version
 is derived from Git tags by `setuptools-scm`; do not edit a version file.
+Release tags use the `v<version>` form, such as `v0.14.0`, while the package
+version remains `0.14.0`.
 
 ## Release checklist
 
@@ -13,8 +15,9 @@ is derived from Git tags by `setuptools-scm`; do not edit a version file.
 - [ ] Build and inspect the distributions with `make build`.
 - [ ] Obtain explicit human approval for the version and release.
 - [ ] Merge the approved release pull request.
-- [ ] With explicit human approval, create the exact version tag on the merge
-      commit to trigger the package publication workflow.
+- [ ] With explicit human approval, create the `v<version>` tag (for example,
+      `v0.14.0`) on the merge commit to trigger the package publication
+      workflow.
 - [ ] Confirm the expected release appears on PyPI.
 - [ ] Create the GitHub Release from the existing tag, with concise notes from
       the matching changelog section.
@@ -30,17 +33,18 @@ After the release pull request merges, verify that the tag points to its merge
 commit before publishing:
 
 ```sh
-VERSION=0.13.0
+VERSION=0.14.0
+TAG="v$VERSION"
 EXPECTED_COMMIT=<release-commit>
 git fetch origin --tags
-test "$(git rev-parse "${VERSION}^{commit}")" = "$EXPECTED_COMMIT"
+test "$(git rev-parse "${TAG}^{commit}")" = "$EXPECTED_COMMIT"
 ```
 
 With approval and after the package publication succeeds, create a release
 from that existing tag:
 
 ```sh
-gh release create "$VERSION" \
+gh release create "$TAG" \
   --verify-tag \
   --title "$VERSION" \
   --notes-file release-notes.md
@@ -49,10 +53,10 @@ gh release create "$VERSION" \
 Verify that it is public and uses the expected tag:
 
 ```sh
-test "$(gh release view "$VERSION" --json tagName --jq .tagName)" = "$VERSION"
-test "$(gh release view "$VERSION" --json isDraft,isPrerelease \
+test "$(gh release view "$TAG" --json tagName --jq .tagName)" = "$TAG"
+test "$(gh release view "$TAG" --json isDraft,isPrerelease \
   --jq '(.isDraft == false and .isPrerelease == false)')" = "true"
-test "$(git rev-parse "${VERSION}^{commit}")" = "$EXPECTED_COMMIT"
+test "$(git rev-parse "${TAG}^{commit}")" = "$EXPECTED_COMMIT"
 ```
 
 Use the repository's GitHub Actions configuration for the authoritative

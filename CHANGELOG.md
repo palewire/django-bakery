@@ -8,6 +8,18 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Security
+
+## [0.14.0] - 2026-08-25
+
+### Added
+
 - Add optional rooted Amazon S3 build output with
   `BAKERY_FILESYSTEM="s3://bucket[/prefix]"`.
 - Add buildable 400, 403, and 500 error-page views alongside the existing 404 view.
@@ -42,5 +54,7 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Security
 
-[Unreleased]: https://github.com/palewire/django-bakery/compare/v0.12.7...HEAD
+[Unreleased]: https://github.com/palewire/django-bakery/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/palewire/django-bakery/compare/0.13.5...v0.14.0
+[0.13.5]: https://github.com/palewire/django-bakery/releases/tag/0.13.5
 [v0.12.7]: https://github.com/palewire/django-bakery/releases/tag/v0.12.7
