@@ -472,24 +472,33 @@ Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-
 
 ```
 
-## Buildable404View
+## Buildable error views
 
 ```{eval-rst}
+.. class:: Buildable400View(BuildableTemplateView)
+.. class:: Buildable403View(BuildableTemplateView)
 .. class:: Buildable404View(BuildableTemplateView)
+.. class:: Buildable500View(BuildableTemplateView)
 
-    Renders and builds a simple 404 error page template as a flat file. Extended from the ``BuildableTemplateView`` above.
-    The base class has a number of options not documented here you should consult.
+    Render and build static pages for Django's standard 400, 403, 404, and 500
+    error templates. Add the views you need to ``BAKERY_VIEWS``. Each class uses
+    the matching ``<status>.html`` template and writes ``<status>.html`` at the
+    build root by default. Override ``template_name`` or ``build_path`` to use a
+    different location.
 
-    **All it does**
+    **Example myapp/views.py**
 
     .. code-block:: python
 
-        from bakery.views import BuildableTemplateView
+        from bakery.views import Buildable404View, Buildable500View
 
 
-        class Buildable404View(BuildableTemplateView):
-            build_path = "404.html"
-            template_name = "404.html"
+        class Static404View(Buildable404View):
+            pass
+
+
+        class Static500View(Buildable500View):
+            pass
 
 ```
 

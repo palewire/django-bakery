@@ -338,13 +338,19 @@ class BakeryTest(TestCase):
         build_path = Path(settings.BUILD_DIR).joinpath("detail/badurl.html")
         assert build_path.exists()
 
-    def test_404_view(self):
-        v = views.Buildable404View()
-        assert v.build_method
-        v.build()
-        build_path = Path(settings.BUILD_DIR).joinpath("404.html")
-        assert build_path.exists()
-        build_path.unlink()
+    def test_error_views(self):
+        for view_class, build_name in (
+            (views.Buildable400View, "400.html"),
+            (views.Buildable403View, "403.html"),
+            (views.Buildable404View, "404.html"),
+            (views.Buildable500View, "500.html"),
+        ):
+            view = view_class(template_name="404.html")
+            assert view.build_method
+            view.build()
+            build_path = Path(settings.BUILD_DIR).joinpath(build_name)
+            assert build_path.exists()
+            build_path.unlink()
 
     def test_json_view(self):
         v = MockJSONView()
@@ -407,7 +413,7 @@ class BakeryTest(TestCase):
             self.test_template_view_with_reversed_nested_directory_and_explicit_filename()
             self.test_list_view()
             self.test_detail_view()
-            self.test_404_view()
+            self.test_error_views()
             self.test_build_cmd()
 
     def test_buildserver_cmd(self):
