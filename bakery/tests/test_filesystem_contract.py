@@ -16,7 +16,7 @@ from django.core.management.base import CommandError
 from moto.server import ThreadedMotoServer
 from s3fs import S3FileSystem
 
-from bakery.filesystem import RootedFilesystem, _Filesystem
+from bakery.filesystem import RootedFilesystem, _Filesystem, join_path
 from bakery.management.commands.build import Command
 from bakery.views import BuildableTemplateView
 from bakery.views.base import BuildableMixin
@@ -160,6 +160,29 @@ def test_rooted_memory_backend_keeps_output_within_selected_root(settings) -> No
         for file_path in output
     )
     assert not filesystem.filesystem.exists("/site/pages/index.html")
+
+
+def test_memory_backend_builds_unicode_static_filename(
+    settings, tmp_path: Path
+) -> None:
+    static_source = tmp_path / "static-source"
+    static_source.mkdir()
+    filename = "café.txt"
+    static_source.joinpath(filename).write_bytes(b"Unicode static file\n")
+    filesystem_name = "mem://unicode-static"
+    filesystem = RootedFilesystem.from_url(filesystem_name)
+    settings.BUILD_DIR = "site"
+    settings.BAKERY_FILESYSTEM = filesystem_name
+    settings.BAKERY_VIEWS = ()
+    settings.STATIC_ROOT = tmp_path / "static-root"
+    settings.STATICFILES_DIRS = [static_source]
+
+    with configured_filesystem(filesystem, filesystem_name):
+        call_command("build", skip_media=True)
+
+    assert filesystem.read_bytes(join_path("site", "static", filename)) == (
+        b"Unicode static file\n"
+    )
 
 
 @pytest.mark.parametrize(
