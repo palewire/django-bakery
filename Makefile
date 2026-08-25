@@ -13,7 +13,7 @@ CHECK_WHEEL_IGNORE ?= W002
 RUN = $(if $(UV_PYTHON),UV_PYTHON=$(UV_PYTHON)) $(UV) run --no-env-file
 TEST_RUN = $(RUN) $(if $(DJANGO),--with "$(DJANGO)")
 
-.PHONY: all help bootstrap install install-all install-dev install-test install-docs check verify diff-check lint format-check format fix type-check dependency-check workflow-check manifest-check test coverage build package-check package-verify docs docs-check linkcheck serve-docs hooks clean
+.PHONY: all help bootstrap install install-all install-dev install-test install-docs check verify diff-check lint format-check format fix type-check dependency-check workflow-check manifest-check test coverage build package-check package-verify docs docs-check docs-navigation-check linkcheck serve-docs hooks clean
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9_-]+:.*## / {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -98,6 +98,10 @@ docs: ## Build HTML documentation
 
 docs-check: ## Build documentation and fail on warnings
 	$(RUN) sphinx-build -M html docs docs/_build -W --keep-going
+	$(MAKE) docs-navigation-check
+
+docs-navigation-check: ## Check generated documentation navigation
+	$(RUN) python scripts/check_docs_navigation.py docs/_build/html
 
 linkcheck: ## Check documentation links
 	$(RUN) sphinx-build -M linkcheck docs docs/_build -W --keep-going

@@ -14,6 +14,8 @@ All notable changes to django-bakery are documented here. The format follows
 
 - Update the documentation theme to fix sidebar rendering in Sphinx 9, and
   build deployed documentation with accurate setuptools-scm version metadata.
+- Show links to documentation pages in the desktop sidebar, reserve Previous
+  and Next pagination for smaller screens, and prevent responsive overflow.
 
 ### Removed
 
