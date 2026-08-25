@@ -1,6 +1,7 @@
 import gzip
 import io
 import logging
+import mimetypes
 import multiprocessing
 import os
 import posixpath
@@ -145,6 +146,8 @@ Will use settings.BUILD_DIR by default.",
             and not self.fs.root
         ):
             raise CommandError("BUILD_DIR must not target an unrooted filesystem root.")
+        if isinstance(self.fs, RootedFilesystem):
+            self.fs.validate()
 
         # If the build dir doesn't exist make it
         if not self.fs.exists(self.build_dir):
@@ -324,10 +327,10 @@ Will use settings.BUILD_DIR by default.",
             )
             self.copy_local_file(source_path, target_path)
 
-        # # if the file is already gzipped
-        elif metadata.content_encoding == "gzip":
+        # Do not apply a second encoding to an already compressed file.
+        elif mimetypes.guess_type(source_path)[1] is not None:
             logger.debug(
-                "Copying osfs://%s to %s%s because it's already gzipped",
+                "Copying osfs://%s to %s%s because it is already compressed",
                 source_path,
                 self.fs_name,
                 target_path,

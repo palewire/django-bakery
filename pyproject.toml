@@ -14,6 +14,7 @@ authors = [{ name = "Ben Welsh", email = "b@palewi.re" }]
 dependencies = [
     "Django>=5.2,<6.2",
     "boto3>=1.4.4",
+    "botocore>=1.4.4",
     "fsspec>=2026.7.0",
 ]
 classifiers = [

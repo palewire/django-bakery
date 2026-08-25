@@ -974,6 +974,7 @@ name = "django-bakery"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
+    { name = "botocore" },
     { name = "django", version = "5.2.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "fsspec" },
@@ -1020,6 +1021,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "boto3", specifier = ">=1.4.4" },
+    { name = "botocore", specifier = ">=1.4.4" },
     { name = "celery", marker = "extra == 'celery'", specifier = ">=5.5" },
     { name = "django", specifier = ">=5.2,<6.2" },
     { name = "fsspec", specifier = ">=2026.7.0" },

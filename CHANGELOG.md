@@ -27,8 +27,8 @@ All notable changes to django-bakery are documented here. The format follows
 - Reject unrooted filesystem root operations and unsupported legacy filesystem
   plugin URLs.
 - Preserve S3 buckets and their configuration during build and unbuild cleanup,
-  require configured S3 buckets to already exist, and write S3 object content
-  type and gzip encoding metadata.
+  validate configured S3 buckets when a build or unbuild starts, and write S3
+  object content type and generated-gzip encoding metadata.
 
 ### Removed
 

@@ -3,13 +3,13 @@
 import mimetypes
 import posixpath
 import re
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from os import PathLike
 from typing import BinaryIO, Protocol, cast
 from urllib.parse import urlsplit
 
-from boto3.exceptions import botocore
+from botocore.exceptions import BotoCoreError
 from fsspec.core import url_to_fs
 
 
@@ -29,6 +29,14 @@ class _Filesystem(Protocol):
     def find(self, path: str) -> list[str]: ...
 
 
+class _S3Filesystem(_Filesystem, Protocol):
+    """The configured s3fs operations used for bucket-safe cleanup."""
+
+    def call_s3(
+        self, method: str, *args: object, **kwargs: object
+    ) -> Mapping[str, object]: ...
+
+
 @dataclass(frozen=True)
 class ObjectMetadata:
     """HTTP metadata that can be applied to a written output object."""
@@ -39,11 +47,8 @@ class ObjectMetadata:
 
 def object_metadata(path: str | PathLike[str]) -> ObjectMetadata:
     """Infer HTTP metadata for an output path."""
-    content_type, content_encoding = mimetypes.guess_type(str(path))
-    return ObjectMetadata(
-        content_type=content_type or "application/octet-stream",
-        content_encoding=content_encoding,
-    )
+    content_type, _ = mimetypes.guess_type(str(path))
+    return ObjectMetadata(content_type=content_type or "application/octet-stream")
 
 
 def normalize_path(path: str | PathLike[str]) -> str:
@@ -103,18 +108,7 @@ class RootedFilesystem:
                 *(part for part in prefix_parts if part not in {"", "."}),
             )
             filesystem, _ = url_to_fs(f"s3://{parsed.netloc}")
-            s3_filesystem = cast("_Filesystem", filesystem)
-            try:
-                s3_filesystem.info(parsed.netloc)
-            except FileNotFoundError as exc:
-                raise ValueError(
-                    f"Configured S3 bucket {parsed.netloc!r} must already exist."
-                ) from exc
-            except (OSError, botocore.exceptions.BotoCoreError) as exc:
-                raise ValueError(
-                    f"Configured S3 bucket {parsed.netloc!r} is not accessible."
-                ) from exc
-            return cls(s3_filesystem, root, s3_bucket=parsed.netloc)
+            return cls(cast("_Filesystem", filesystem), root, s3_bucket=parsed.netloc)
         else:
             raise ValueError(
                 "BAKERY_FILESYSTEM must use a supported osfs:///, mem://, or "
@@ -130,6 +124,21 @@ class RootedFilesystem:
         if self.s3_bucket:
             return
         self.filesystem.makedirs(self._resolve(path), exist_ok=True)
+
+    def validate(self) -> None:
+        """Check a configured S3 bucket immediately before command I/O."""
+        if not self.s3_bucket:
+            return
+        try:
+            self.filesystem.info(self.s3_bucket)
+        except FileNotFoundError as exc:
+            raise ValueError(
+                f"Configured S3 bucket {self.s3_bucket!r} must already exist."
+            ) from exc
+        except (OSError, BotoCoreError) as exc:
+            raise ValueError(
+                f"Configured S3 bucket {self.s3_bucket!r} is not accessible."
+            ) from exc
 
     def open(
         self,
@@ -151,16 +160,25 @@ class RootedFilesystem:
             self.filesystem.rm(resolved, recursive=True)
             return
 
-        object_paths = [
-            candidate
+        root_key = self._s3_key(resolved)
+        object_keys = [
+            key
             for candidate in self.filesystem.find(resolved)
-            if self._is_s3_object_within(candidate, resolved)
+            if (key := self._s3_key(candidate)) is not None
+            and self._is_s3_key_within(key, root_key)
         ]
-        for start in range(0, len(object_paths), 1000):
-            batch = object_paths[start : start + 1000]
-            deleted = self.filesystem.rm(batch, recursive=False)
-            if set(deleted or []) != set(batch):
-                raise OSError(f"Unable to delete all objects below {resolved!r}.")
+        s3_filesystem = cast("_S3Filesystem", self.filesystem)
+        for start in range(0, len(object_keys), 1000):
+            keys = object_keys[start : start + 1000]
+            response = s3_filesystem.call_s3(
+                "delete_objects",
+                Bucket=self.s3_bucket,
+                Delete={
+                    "Objects": [{"Key": key} for key in keys],
+                    "Quiet": False,
+                },
+            )
+            self._raise_s3_delete_errors(response, resolved)
 
     def copy(self, source: str | PathLike[str], target: str | PathLike[str]) -> None:
         self.filesystem.copy(self._resolve(source), self._resolve(target))
@@ -194,11 +212,34 @@ class RootedFilesystem:
             return path.lstrip("/")
         return path.removeprefix(f"{self.root}/").lstrip("/")
 
-    def _is_s3_object_within(self, path: str, root: str) -> bool:
-        """Return whether an enumerated S3 key is inside the selected root."""
-        if path == self.s3_bucket:
-            return False
-        return path == root or path.startswith(f"{root.rstrip('/')}/")
+    def _s3_key(self, path: str) -> str | None:
+        """Return a literal S3 key, never a bucket-like fsspec path."""
+        if not self.s3_bucket or path == self.s3_bucket:
+            return None
+        bucket_prefix = f"{self.s3_bucket}/"
+        if not path.startswith(bucket_prefix):
+            return None
+        key = path.removeprefix(bucket_prefix)
+        return key or None
+
+    @staticmethod
+    def _is_s3_key_within(key: str, root_key: str | None) -> bool:
+        """Return whether an object key belongs to the selected cleanup root."""
+        return root_key is None or key == root_key or key.startswith(f"{root_key}/")
+
+    @staticmethod
+    def _raise_s3_delete_errors(response: Mapping[str, object], path: str) -> None:
+        """Raise any per-object errors reported by a DeleteObjects response."""
+        errors = response.get("Errors", [])
+        if not isinstance(errors, list) or not errors:
+            return
+        failed_keys = [
+            str(error.get("Key", "<unknown>"))
+            for error in errors
+            if isinstance(error, Mapping)
+        ]
+        detail = ", ".join(failed_keys) or "<unknown>"
+        raise OSError(f"Unable to delete S3 objects below {path!r}: {detail}.")
 
     @staticmethod
     def _normalize_root(root: str) -> str:

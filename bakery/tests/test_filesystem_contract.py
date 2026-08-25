@@ -12,7 +12,6 @@ from unittest.mock import patch
 
 import boto3
 import pytest
-import botocore
 from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -377,11 +376,25 @@ def test_s3_bucket_root_cleanup_preserves_bucket_configuration(
     assert s3_client.get_bucket_policy(Bucket=bucket)["Policy"] == policy
 
 
-def test_missing_s3_bucket_is_rejected_without_creating_it(s3_client) -> None:
+@pytest.mark.parametrize("command_name", ["build", "unbuild"])
+def test_missing_s3_bucket_is_rejected_without_creating_it(
+    settings, s3_client, command_name: str
+) -> None:
     bucket = "bakery-missing"
+    filesystem_name = f"s3://{bucket}"
+    filesystem = RootedFilesystem.from_url(filesystem_name)
+    settings.BUILD_DIR = "site"
+    settings.BAKERY_FILESYSTEM = filesystem_name
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.FilesystemContractView",
+    )
+    kwargs = (
+        {"skip_static": True, "skip_media": True} if command_name == "build" else {}
+    )
 
-    with pytest.raises(ValueError, match="must already exist"):
-        RootedFilesystem.from_url(f"s3://{bucket}")
+    with configured_filesystem(filesystem, filesystem_name):
+        with pytest.raises(ValueError, match="must already exist"):
+            call_command(command_name, **kwargs)
 
     assert bucket not in {
         item["Name"] for item in s3_client.list_buckets().get("Buckets", [])
@@ -420,6 +433,31 @@ def test_s3_objects_receive_content_metadata(
     assert css.get("ContentEncoding") == expected_encoding
     assert javascript.get("ContentEncoding") is None
     assert other.get("ContentEncoding") is None
+
+
+def test_s3_passthrough_compression_suffixes_do_not_set_content_encoding(
+    s3_client, tmp_path: Path
+) -> None:
+    bucket = "bakery-passthrough-metadata"
+    s3_client.create_bucket(Bucket=bucket)
+    filesystem = RootedFilesystem.from_url(f"s3://{bucket}")
+    command = Command()
+    command.fs = filesystem
+    command.fs_name = f"s3://{bucket}"
+
+    tarball = tmp_path / "archive.tar.gz"
+    tarball.write_bytes(b"tarball")
+    brotli = tmp_path / "script.js.br"
+    brotli.write_bytes(b"brotli")
+    command.copyfile_and_gzip(str(tarball), "static/archive.tar.gz")
+    command.copyfile_and_gzip(str(brotli), "media/script.js.br")
+
+    archive = s3_client.head_object(Bucket=bucket, Key="static/archive.tar.gz")
+    script = s3_client.head_object(Bucket=bucket, Key="media/script.js.br")
+    assert archive["ContentType"] == "application/x-tar"
+    assert archive.get("ContentEncoding") is None
+    assert script["ContentType"] == "text/javascript"
+    assert script.get("ContentEncoding") is None
 
 
 def test_absolute_and_relative_posix_build_paths_share_the_build_prefix(
@@ -728,13 +766,21 @@ class RecordingFilesystem:
 class RecordingS3Filesystem:
     """Record cleanup calls without providing S3 bucket lifecycle methods."""
 
-    def __init__(self) -> None:
-        self.removals: list[tuple[str | list[str], bool]] = []
+    def __init__(
+        self,
+        paths: list[str] | None = None,
+        response: dict[str, object] | None = None,
+    ) -> None:
+        self.paths = paths or ["bucket", "bucket/stale.txt", "other-bucket/keep.txt"]
+        self.response = response or {"Errors": []}
+        self.deletions: list[dict[str, object]] = []
+        self.info_paths: list[str] = []
 
     def exists(self, _path: str) -> bool:
         return True
 
-    def info(self, _path: str) -> object:
+    def info(self, path: str) -> object:
+        self.info_paths.append(path)
         return {}
 
     def makedirs(self, _path: str, exist_ok: bool) -> None:
@@ -743,70 +789,105 @@ class RecordingS3Filesystem:
     def open(self, _path: str, _mode: str, **_kwargs: object) -> BinaryIO:
         raise AssertionError("This test only removes paths")
 
-    def rm(self, path: str | list[str], recursive: bool) -> list[str]:
-        self.removals.append((path, recursive))
-        return list(path) if isinstance(path, list) else [path]
-
     def copy(self, _source: str, _target: str) -> None:
         raise AssertionError("This test only removes paths")
 
     def find(self, _path: str) -> list[str]:
-        return ["bucket", "bucket/stale.txt", "other-bucket/keep.txt"]
+        return self.paths
+
+    def call_s3(self, method: str, **kwargs: object) -> dict[str, object]:
+        assert method == "delete_objects"
+        self.deletions.append(kwargs)
+        return self.response
 
 
-def test_s3_cleanup_never_removes_a_bucket_or_uses_recursive_deletion() -> None:
+def test_s3_cleanup_uses_literal_keys_without_bucket_lifecycle_calls() -> None:
     backend = RecordingS3Filesystem()
     filesystem = RootedFilesystem(backend, "bucket", s3_bucket="bucket")
 
     filesystem.removetree(".")
 
-    assert backend.removals == [(["bucket/stale.txt"], False)]
+    assert backend.deletions == [
+        {
+            "Bucket": "bucket",
+            "Delete": {"Objects": [{"Key": "stale.txt"}], "Quiet": False},
+        }
+    ]
 
 
-class PartialDeleteS3Filesystem(RecordingS3Filesystem):
-    """Model S3's successful request with a failed object deletion."""
-
-    def rm(self, path: str | list[str], recursive: bool) -> list[str]:
-        super().rm(path, recursive)
-        return []
-
-
-def test_s3_cleanup_fails_when_any_object_delete_fails() -> None:
-    filesystem = RootedFilesystem(
-        PartialDeleteS3Filesystem(), "bucket", s3_bucket="bucket"
+def test_s3_cleanup_deletes_literal_special_and_slash_only_keys() -> None:
+    backend = RecordingS3Filesystem(
+        [
+            "bucket",
+            "bucket/",
+            "bucket//",
+            "bucket///",
+            "bucket/normal",
+            "bucket/literal*key",
+            "bucket/literal?key",
+            "bucket/literal[key]",
+        ]
     )
+    filesystem = RootedFilesystem(backend, "bucket", s3_bucket="bucket")
 
-    with pytest.raises(OSError, match="Unable to delete all objects"):
+    filesystem.removetree(".")
+
+    assert backend.deletions == [
+        {
+            "Bucket": "bucket",
+            "Delete": {
+                "Objects": [
+                    {"Key": "/"},
+                    {"Key": "//"},
+                    {"Key": "normal"},
+                    {"Key": "literal*key"},
+                    {"Key": "literal?key"},
+                    {"Key": "literal[key]"},
+                ],
+                "Quiet": False,
+            },
+        }
+    ]
+
+
+def test_s3_cleanup_accepts_empty_deleted_response_from_quiet_mode() -> None:
+    backend = RecordingS3Filesystem(response={"Deleted": [], "Errors": []})
+    filesystem = RootedFilesystem(backend, "bucket", s3_bucket="bucket")
+
+    filesystem.removetree(".")
+
+
+def test_s3_cleanup_fails_when_delete_objects_reports_errors() -> None:
+    backend = RecordingS3Filesystem(
+        response={"Errors": [{"Key": "stale.txt", "Code": "AccessDenied"}]}
+    )
+    filesystem = RootedFilesystem(backend, "bucket", s3_bucket="bucket")
+
+    with pytest.raises(OSError, match=r"stale\.txt"):
         filesystem.removetree(".")
 
 
-class InaccessibleS3Filesystem:
-    """Raise a specific S3 access error during bucket validation."""
+def test_s3_cleanup_batches_more_than_one_thousand_literal_keys() -> None:
+    backend = RecordingS3Filesystem([f"bucket/object-{index}" for index in range(1001)])
+    filesystem = RootedFilesystem(backend, "bucket", s3_bucket="bucket")
 
-    def __init__(self, error: Exception) -> None:
-        self.error = error
+    filesystem.removetree(".")
 
-    def info(self, _path: str) -> object:
-        raise self.error
+    assert [len(deletion["Delete"]["Objects"]) for deletion in backend.deletions] == [
+        1000,
+        1,
+    ]
 
 
-@pytest.mark.parametrize(
-    "error",
-    [
-        botocore.exceptions.NoCredentialsError(),
-        botocore.exceptions.EndpointConnectionError(endpoint_url="http://localhost"),
-    ],
-)
-def test_inaccessible_s3_bucket_has_a_clear_configuration_error(
-    monkeypatch, error: Exception
-) -> None:
-    backend = InaccessibleS3Filesystem(error)
+def test_s3_adapter_construction_does_not_validate_bucket(monkeypatch) -> None:
+    backend = RecordingS3Filesystem()
     monkeypatch.setattr("bakery.filesystem.url_to_fs", lambda _url: (backend, ""))
 
-    with pytest.raises(ValueError, match="is not accessible") as exc_info:
-        RootedFilesystem.from_url("s3://bakery-inaccessible")
+    filesystem = RootedFilesystem.from_url("s3://bakery-inaccessible")
 
-    assert exc_info.value.__cause__ is error
+    assert filesystem.s3_bucket == "bakery-inaccessible"
+    assert backend.info_paths == []
+    assert backend.deletions == []
 
 
 def test_windows_drive_root_from_url_is_unrooted(monkeypatch) -> None:
