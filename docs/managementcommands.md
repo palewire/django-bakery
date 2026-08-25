@@ -80,6 +80,13 @@ changed files are updated and absent files are deleted.
 ```
 
 ```{eval-rst}
+.. cmdoption:: --aws-bucket-prefix <prefix>
+
+    Filter the S3 object list to keys beginning with this prefix. Only those keys are compared and eligible for deletion.
+    The prefix is not automatically prepended to uploaded keys; ensure your build output paths include the prefix if you want uploads under it.
+```
+
+```{eval-rst}
 .. cmdoption:: --build-dir <path>
 
     Specify the path of the build directory. Will use settings.BUILD_DIR by default.
