@@ -15,10 +15,11 @@ import pytest
 from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from fsspec.implementations.memory import MemoryFileSystem
 from moto.server import ThreadedMotoServer
 from s3fs import S3FileSystem
 
-from bakery.filesystem import ObjectMetadata, RootedFilesystem, _Filesystem
+from bakery.filesystem import ObjectMetadata, RootedFilesystem, _Filesystem, join_path
 from bakery.management.commands.build import Command
 from bakery.views import BuildableTemplateView
 from bakery.views.base import BuildableMixin
@@ -26,6 +27,11 @@ from bakery.views.base import BuildableMixin
 
 class FilesystemContractView(BuildableTemplateView):
     build_path = "pages/index.html"
+    template_name = "templateview.html"
+
+
+class WindowsFilesystemContractView(BuildableTemplateView):
+    build_path = r"pages\nested\index.html"
     template_name = "templateview.html"
 
 
@@ -164,6 +170,29 @@ def test_rooted_memory_backend_keeps_output_within_selected_root(settings) -> No
         for file_path in output
     )
     assert not filesystem.filesystem.exists("/site/pages/index.html")
+
+
+def test_memory_backend_builds_unicode_static_filename(
+    settings, tmp_path: Path
+) -> None:
+    static_source = tmp_path / "static-source"
+    static_source.mkdir()
+    filename = "café.txt"
+    static_source.joinpath(filename).write_bytes(b"Unicode static file\n")
+    filesystem_name = "mem://unicode-static"
+    filesystem = RootedFilesystem.from_url(filesystem_name)
+    settings.BUILD_DIR = "site"
+    settings.BAKERY_FILESYSTEM = filesystem_name
+    settings.BAKERY_VIEWS = ()
+    settings.STATIC_ROOT = tmp_path / "static-root"
+    settings.STATICFILES_DIRS = [static_source]
+
+    with configured_filesystem(filesystem, filesystem_name):
+        call_command("build", skip_media=True)
+
+    assert filesystem.read_bytes(join_path("site", "static", filename)) == (
+        b"Unicode static file\n"
+    )
 
 
 @pytest.mark.parametrize(
@@ -898,6 +927,28 @@ def test_windows_drive_root_from_url_is_unrooted(monkeypatch) -> None:
 
     assert filesystem.root == ""
     assert filesystem._resolve("C:/site/index.html") == "C:/site/index.html"
+
+
+def test_windows_drive_build_directory_and_paths_are_platform_independent(
+    settings, monkeypatch
+) -> None:
+    backend: _Filesystem = MemoryFileSystem()
+    monkeypatch.setattr("bakery.filesystem.url_to_fs", lambda _url: (backend, "C:/"))
+    filesystem = RootedFilesystem.from_url("osfs:///")
+    settings.BUILD_DIR = r"C:\bakery-output"
+    settings.BAKERY_FILESYSTEM = "osfs:///"
+    settings.BAKERY_VIEWS = (
+        "bakery.tests.test_filesystem_contract.WindowsFilesystemContractView",
+    )
+
+    with configured_filesystem(filesystem, "osfs:///"):
+        call_command("build", skip_static=True, skip_media=True)
+        output = filesystem_snapshot(filesystem)
+
+    assert filesystem.root == ""
+    assert (
+        output["C:/bakery-output/pages/nested/index.html"] == b"Hell\xc5\x8d tests!\n"
+    )
 
 
 @pytest.mark.parametrize("url", ["ftp://example.com/output"])

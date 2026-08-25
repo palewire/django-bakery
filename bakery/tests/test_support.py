@@ -1,3 +1,4 @@
+import gzip
 from pathlib import Path
 from unittest.mock import Mock, call, patch
 
@@ -10,7 +11,7 @@ from django.urls import resolve
 from bakery import feeds, static_urls
 from bakery.management.commands import batch_delete_s3_objects, buildserver
 from bakery.management.commands import publish as publish_command
-from bakery.views import BuildableDetailView, BuildableListView
+from bakery.views import BuildableDetailView, BuildableListView, BuildableMixin
 
 
 def test_buildserver_uses_static_urlconf() -> None:
@@ -75,6 +76,49 @@ def test_static_urls_catch_all_pattern_uses_build_directory() -> None:
     }
 
 
+def test_static_view_serves_gzipped_baked_content(tmp_path: Path) -> None:
+    content = b"<h1>Built page</h1>"
+    (tmp_path / "index.html").write_bytes(gzip.compress(content, mtime=0))
+
+    response = static_urls.serve(
+        RequestFactory().get("/"),
+        "",
+        document_root=tmp_path,
+        show_indexes=True,
+        default="index.html",
+    )
+
+    assert response["Content-Encoding"] == "gzip"
+    assert gzip.decompress(response.content) == content
+
+    not_modified_response = static_urls.serve(
+        RequestFactory().get("/", HTTP_IF_MODIFIED_SINCE=response["Last-Modified"]),
+        "",
+        document_root=tmp_path,
+        show_indexes=True,
+        default="index.html",
+    )
+
+    assert not_modified_response.status_code == 304
+    assert not_modified_response["Content-Encoding"] == "gzip"
+
+
+def test_static_view_serves_uncompressed_baked_content(tmp_path: Path) -> None:
+    content = b"<h1>Built page</h1>"
+    (tmp_path / "index.html").write_bytes(content)
+
+    response = static_urls.serve(
+        RequestFactory().get("/"),
+        "",
+        document_root=tmp_path,
+        show_indexes=True,
+        default="index.html",
+    )
+
+    assert "Content-Encoding" not in response
+    assert response.content == content
+
+
 def test_static_view_rejects_symlink_outside_document_root(tmp_path: Path) -> None:
     document_root = tmp_path / "public"
     document_root.mkdir()
@@ -121,6 +165,15 @@ def test_detail_view_supports_dynamic_absolute_url() -> None:
             raise AttributeError(name)
 
     assert BuildableDetailView().get_url(DynamicObject()) == "/dynamic/"
+
+
+def test_buildable_request_marks_static_builds() -> None:
+    request = BuildableMixin().create_request("/example/?preview=true")
+
+    assert request.method == "GET"
+    assert request.get_full_path() == "/example/?preview=true"
+    assert request.headers["X-Bakery"] == "true"
+    assert request.META["HTTP_X_BAKERY"] == "true"
 
 
 @override_settings(BUILD_DIR=Path("/tmp/build"))

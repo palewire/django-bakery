@@ -2,6 +2,27 @@
 
 Django's [class-based views](https://docs.djangoproject.com/en/dev/topics/class-based-views/)  are used to render HTML pages to flat files. Putting all the pieces together is a little tricky at first, particularly if you haven't studied [the Django source code](https://github.com/django/django/tree/master/django/views/generic) or lack experience [working with Python classes](http://www.diveintopython.net/object_oriented_framework/defining_classes.html) in general. But if you figure it out, we think it's worth the trouble.
 
+## Static build requests
+
+During a static build, django-bakery creates an ordinary GET request with the
+`X-Bakery: true` header. Use it to render build-specific content in a view:
+
+```python
+if request.headers.get("X-Bakery") == "true":
+    # Render content intended only for the static site.
+```
+
+Templates can check the same marker through `request.META`:
+
+```django
+{% if request.META.HTTP_X_BAKERY == "true" %}
+  {# Render content intended only for the static site. #}
+{% endif %}
+```
+
+The header identifies django-bakery's generated requests only. Do not use it
+as an authorization or security check.
+
 ## BuildableTemplateView
 
 ```{eval-rst}

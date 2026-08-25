@@ -59,6 +59,11 @@ $ python manage.py build yourapp.views.DummyListView
 Starts a variation of Django's [runserver](https://docs.djangoproject.com/en/dev/ref/django-admin/#runserver-port-or-address-port) designed to serve the static files you've built
 in the build directory.
 
+When `BAKERY_GZIP = True` was used to create the build, `buildserver` detects
+the compressed files and sends `Content-Encoding: gzip`; no additional
+buildserver setting is needed. Like Django's `runserver`, this command is for
+development only.
+
 ```bash
 $ python manage.py buildserver
 ```
@@ -72,6 +77,13 @@ changed files are updated and absent files are deleted.
 .. cmdoption:: --aws-bucket-name <name>
 
     Specify the AWS bucket to sync with. Will use settings.AWS_BUCKET_NAME by default.
+```
+
+```{eval-rst}
+.. cmdoption:: --aws-bucket-prefix <prefix>
+
+    Filter the S3 object list to keys beginning with this prefix. Only those keys are compared and eligible for deletion.
+    The prefix is not automatically prepended to uploaded keys; ensure your build output paths include the prefix if you want uploads under it.
 ```
 
 ```{eval-rst}

@@ -12,6 +12,7 @@ All notable changes to django-bakery are documented here. The format follows
   `BAKERY_FILESYSTEM="s3://bucket[/prefix]"`.
 - Add a uv-based development container and worktree-aware bootstrap command.
 - Add contributor, agent, release, and security guidance.
+- Mark static build requests with the `X-Bakery: true` header.
 
 ### Changed
 
@@ -22,6 +23,8 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Fixed
 
+- Serve gzip-compressed baked files from `buildserver` with the required
+  `Content-Encoding: gzip` header.
 - Keep filesystem output paths rooted when using Windows drive roots and empty
   build-directory settings.
 - Reject unrooted filesystem root operations and unsupported legacy filesystem
