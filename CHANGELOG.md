@@ -10,6 +10,7 @@ All notable changes to django-bakery are documented here. The format follows
 
 - Add optional rooted Amazon S3 build output with
   `BAKERY_FILESYSTEM="s3://bucket[/prefix]"`.
+- Add buildable 400, 403, and 500 error-page views alongside the existing 404 view.
 - Add a uv-based development container and worktree-aware bootstrap command.
 - Add contributor, agent, release, and security guidance.
 - Mark static build requests with the `X-Bakery: true` header.

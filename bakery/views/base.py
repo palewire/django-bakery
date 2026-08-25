@@ -234,13 +234,36 @@ class BuildableTemplateView(TemplateView, BuildableMixin):
         return normalize_path(self.build_path).lstrip("/")
 
 
-class Buildable404View(BuildableTemplateView):
-    """
-    The default Django 404 page, but built out.
-    """
+class _BuildableErrorView(BuildableTemplateView):
+    """Base class for static pages matching Django's default error templates."""
+
+
+class Buildable400View(_BuildableErrorView):
+    """The default Django 400 page, but built out."""
+
+    build_path = "400.html"
+    template_name = "400.html"
+
+
+class Buildable403View(_BuildableErrorView):
+    """The default Django 403 page, but built out."""
+
+    build_path = "403.html"
+    template_name = "403.html"
+
+
+class Buildable404View(_BuildableErrorView):
+    """The default Django 404 page, but built out."""
 
     build_path = "404.html"
     template_name = "404.html"
+
+
+class Buildable500View(_BuildableErrorView):
+    """The default Django 500 page, but built out."""
+
+    build_path = "500.html"
+    template_name = "500.html"
 
 
 class BuildableRedirectView(RedirectView, BuildableMixin):
