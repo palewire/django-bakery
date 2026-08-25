@@ -3,6 +3,7 @@
 import gzip
 import io
 import json
+import mimetypes
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -411,7 +412,9 @@ def test_s3_objects_receive_content_metadata(
     assert html["ContentType"] == "text/html"
     assert css["ContentType"] == "text/css"
     assert javascript["ContentType"] == "text/javascript"
-    assert other["ContentType"] == "application/octet-stream"
+    assert other["ContentType"] == (
+        mimetypes.guess_type("foo.bar")[0] or "application/octet-stream"
+    )
     expected_encoding = "gzip" if gzip_enabled else None
     assert html.get("ContentEncoding") == expected_encoding
     assert css.get("ContentEncoding") == expected_encoding
