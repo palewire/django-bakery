@@ -80,11 +80,17 @@ class BuildableMixin:
         """
         Returns a GET request object for use when building views.
 
+        The request includes the ``X-Bakery: true`` header so templates and
+        views can identify static builds.
+
         If inheriting views require additional request attributes
         (e.g. user, site), override this method and define those
         attributes on the returned object.
         """
-        return cast("HttpRequest", RequestFactory().get(str(path)))
+        return cast(
+            "HttpRequest",
+            RequestFactory().get(str(path), headers={"X-Bakery": "true"}),
+        )
 
     def get_content(self) -> bytes:
         """

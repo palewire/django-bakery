@@ -10,7 +10,7 @@ from django.urls import resolve
 from bakery import feeds, static_urls
 from bakery.management.commands import batch_delete_s3_objects, buildserver
 from bakery.management.commands import publish as publish_command
-from bakery.views import BuildableDetailView, BuildableListView
+from bakery.views import BuildableDetailView, BuildableListView, BuildableMixin
 
 
 def test_buildserver_uses_static_urlconf() -> None:
@@ -121,6 +121,15 @@ def test_detail_view_supports_dynamic_absolute_url() -> None:
             raise AttributeError(name)
 
     assert BuildableDetailView().get_url(DynamicObject()) == "/dynamic/"
+
+
+def test_buildable_request_marks_static_builds() -> None:
+    request = BuildableMixin().create_request("/example/?preview=true")
+
+    assert request.method == "GET"
+    assert request.get_full_path() == "/example/?preview=true"
+    assert request.headers["X-Bakery"] == "true"
+    assert request.META["HTTP_X_BAKERY"] == "true"
 
 
 @override_settings(BUILD_DIR=Path("/tmp/build"))
