@@ -68,7 +68,7 @@ docs = [
     "myst-parser",
     "sphinx",
     "sphinx-autobuild",
-    "sphinx-palewire-theme",
+    "sphinx-palewire-theme>=0.1.4",
 ]
 
 [tool.setuptools]

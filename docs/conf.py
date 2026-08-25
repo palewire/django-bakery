@@ -14,6 +14,12 @@ project = distribution["Name"]
 author = distribution.get("Author") or distribution.get("Author-email", "")
 version = distribution_version("django-bakery")
 release = version
+if version.startswith("0.1.dev"):
+    msg = (
+        "django-bakery documentation received a setuptools-scm fallback version. "
+        "Build from a checkout with Git tags and history."
+    )
+    raise RuntimeError(msg)
 year = datetime.now(UTC).year
 copyright = f"{year}, {author}"
 
