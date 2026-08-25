@@ -90,6 +90,20 @@ BUILD_DIR = os.path.join(__file__, "build")
     covers only the rooted filesystem operations used by ``build`` and
     ``unbuild``.
 
+    Releases before 0.13 used `PyFilesystem2 <https://docs.pyfilesystem.org/>`_.
+    Upgrading from those releases requires the following steps:
+
+    * Uninstall ``fs``, along with any PyFilesystem backend such as ``fs-s3fs``.
+      They are no longer used and their ``pkg_resources`` imports fail with
+      setuptools 81 and later.
+    * Keep ``osfs:///`` and ``mem://`` settings as they are. Both continue to
+      work, including root paths appended to either URL.
+    * Replace an ``s3://`` setting that relied on ``fs-s3fs`` by installing
+      ``django-bakery[s3]``. The URL syntax is unchanged, but credentials now
+      come from the AWS chain described above rather than from the URL.
+    * Replace any other PyFilesystem plugin URL. Unsupported URLs raise a
+      ``ValueError`` when Django loads the ``bakery`` app.
+
 ```
 
 ## BAKERY_VIEWS
