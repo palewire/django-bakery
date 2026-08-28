@@ -21,6 +21,23 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Security
 
+## [0.14.1] - 2026-08-25
+
+### Added
+
+### Changed
+
+### Fixed
+
+- Update the documentation theme to fix sidebar rendering in Sphinx 9, and
+  build deployed documentation with accurate setuptools-scm version metadata.
+- Show links to documentation pages in the desktop sidebar, reserve Previous
+  and Next pagination for smaller screens, and prevent responsive overflow.
+
+### Removed
+
+### Security
+
 ## [0.14.0] - 2026-08-25
 
 ### Added
@@ -59,7 +76,8 @@ All notable changes to django-bakery are documented here. The format follows
 
 ### Security
 
-[Unreleased]: https://github.com/palewire/django-bakery/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/palewire/django-bakery/compare/v0.14.1...HEAD
+[0.14.1]: https://github.com/palewire/django-bakery/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/palewire/django-bakery/compare/0.13.5...v0.14.0
 [0.13.5]: https://github.com/palewire/django-bakery/releases/tag/0.13.5
 [v0.12.7]: https://github.com/palewire/django-bakery/releases/tag/v0.12.7
